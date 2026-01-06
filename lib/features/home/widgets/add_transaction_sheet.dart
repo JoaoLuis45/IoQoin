@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_icons.dart';
 import '../../shared/services/firestore_service.dart';
 import '../models/category_model.dart';
+import '../models/fixed_transaction_model.dart';
 import '../models/transaction_model.dart';
 
 /// Sheet para adicionar receita ou despesa
@@ -111,6 +112,11 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Transações Fixas (Templates)
+                    _buildFixedTransactionsSelector(firestoreService),
+
+                    const SizedBox(height: 24),
+
                     // Campo de valor
                     _buildValueInput(),
 
@@ -148,6 +154,102 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
         ),
       ),
     );
+  }
+
+  Widget _buildFixedTransactionsSelector(FirestoreService firestoreService) {
+    return StreamBuilder<List<FixedTransactionModel>>(
+      stream: firestoreService.getFixedTransactions(
+        widget.userId,
+        widget.transactionType,
+      ),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData || snapshot.data!.isEmpty)
+          return const SizedBox();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Transações Fixas (Preenchimento Rápido)',
+              style: Theme.of(
+                context,
+              ).textTheme.titleSmall?.copyWith(color: AppColors.textSecondary),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 48,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  final item = snapshot.data![index];
+                  return GestureDetector(
+                    onTap: () {
+                      // Preencher o formulário
+                      _valueController.text = item.valor.toStringAsFixed(2);
+                      if (item.descricao != null) {
+                        _descriptionController.text = item.descricao!;
+                      }
+
+                      // Ajustar Tipo de Transação para Tipo de Categoria
+                      final categoryType = item.tipo == TransactionType.income
+                          ? CategoryType.income
+                          : CategoryType.expense;
+
+                      setState(() {
+                        _selectedCategory = CategoryModel(
+                          id: item.categoryId,
+                          userId: item.userId,
+                          nome: item.categoryName,
+                          icone: item.categoryIcon,
+                          tipo: categoryType,
+                        );
+                      });
+
+                      // Feedback visual
+                      HapticFeedback.lightImpact();
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(right: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.deepFinBlueLight,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: accentColor.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Row(
+                        children: [
+                          Icon(
+                            CategoryIcons.getIcon(
+                              item.categoryIcon,
+                              isExpense: isExpense,
+                            ),
+                            size: 16,
+                            color: accentColor,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            item.categoryName,
+                            style: const TextStyle(
+                              color: AppColors.pureWhite,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    ).animate().fadeIn();
   }
 
   Widget _buildValueInput() {

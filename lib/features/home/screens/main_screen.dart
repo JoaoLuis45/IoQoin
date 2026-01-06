@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import '../../goals/screens/goals_screen.dart';
+import '../../subscriptions/screens/subscriptions_screen.dart';
+import '../../categories/screens/categories_screen.dart';
+import '../../dashboard/screens/dashboard_screen.dart';
 import '../../shared/widgets/drawer_menu.dart';
 import '../screens/home_screen.dart';
 
-/// Tela principal com Bottom Navigation Bar animada
+/// Tela principal com Bottom Navigation Bar animada (5 abas)
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
 
@@ -12,7 +16,7 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 1; // Home é o central
+  int _currentIndex = 2; // Home (índice 2: [Dash, Metas, Home, Cat, Inscr])
   late PageController _pageController;
 
   @override
@@ -33,7 +37,14 @@ class _MainScreenState extends State<MainScreen> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('IoQoin'),
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset('assets/images/logo.png', height: 28),
+              const SizedBox(width: 8),
+              const Text('IoQoin'),
+            ],
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.notifications_outlined),
@@ -47,9 +58,11 @@ class _MainScreenState extends State<MainScreen> {
         body: IndexedStack(
           index: _currentIndex,
           children: const [
-            _GoalsPlaceholder(),
-            HomeScreen(),
-            _SubscriptionsPlaceholder(),
+            DashboardScreen(), // 0
+            GoalsScreen(), // 1
+            HomeScreen(), // 2 (Home)
+            CategoriesScreen(), // 3
+            SubscriptionsScreen(), // 4
           ],
         ),
         bottomNavigationBar: _buildAnimatedBottomNav(),
@@ -71,22 +84,34 @@ class _MainScreenState extends State<MainScreen> {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              _buildNavItem(
+                icon: Icons.bar_chart_rounded,
+                activeIcon: Icons.bar_chart,
+                index: 0,
+                label: 'Dash',
+              ),
               _buildNavItem(
                 icon: Icons.flag_outlined,
                 activeIcon: Icons.flag,
-                label: 'Objetivos',
-                index: 0,
+                index: 1,
+                label: 'Metas',
               ),
-              _buildCenterNavItem(),
+              _buildCenterNavItem(), // Home (2)
+              _buildNavItem(
+                icon: Icons.category_outlined,
+                activeIcon: Icons.category,
+                index: 3,
+                label: 'Categ.',
+              ),
               _buildNavItem(
                 icon: Icons.subscriptions_outlined,
                 activeIcon: Icons.subscriptions,
-                label: 'Inscrições',
-                index: 2,
+                index: 4,
+                label: 'Inscr.',
               ),
             ],
           ),
@@ -98,8 +123,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildNavItem({
     required IconData icon,
     required IconData activeIcon,
-    required String label,
     required int index,
+    required String label,
   }) {
     final isSelected = _currentIndex == index;
 
@@ -108,50 +133,31 @@ class _MainScreenState extends State<MainScreen> {
       behavior: HitTestBehavior.opaque,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.voltCyan.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                isSelected ? activeIcon : icon,
-                key: ValueKey(isSelected),
-                color: isSelected
-                    ? AppColors.voltCyan
-                    : AppColors.textSecondary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(height: 4),
-            AnimatedDefaultTextStyle(
-              duration: const Duration(milliseconds: 200),
-              style: TextStyle(
-                fontSize: 12,
-                color: isSelected
-                    ? AppColors.voltCyan
-                    : AppColors.textSecondary,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
-              child: Text(label),
-            ),
-          ],
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 200),
+          child: Icon(
+            isSelected ? activeIcon : icon,
+            key: ValueKey(isSelected),
+            color: isSelected ? AppColors.voltCyan : AppColors.textSecondary,
+            size: 28,
+          ),
         ),
       ),
     );
   }
 
   Widget _buildCenterNavItem() {
-    final isSelected = _currentIndex == 1;
+    final isSelected = _currentIndex == 2; // Home index is 2
 
     return GestureDetector(
-      onTap: () => setState(() => _currentIndex = 1),
+      onTap: () => setState(() => _currentIndex = 2),
       child: Container(
         width: isSelected ? 70 : 64,
         height: isSelected ? 70 : 64,
@@ -179,68 +185,6 @@ class _MainScreenState extends State<MainScreen> {
           color: isSelected ? AppColors.deepFinBlue : AppColors.textSecondary,
           size: 28,
         ),
-      ),
-    );
-  }
-}
-
-// ===== Placeholders temporários =====
-
-class _GoalsPlaceholder extends StatelessWidget {
-  const _GoalsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.flag_outlined,
-            size: 80,
-            color: AppColors.voltCyan.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text('Objetivos', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 8),
-          Text(
-            'Em breve: defina metas\npara economizar ou investir',
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SubscriptionsPlaceholder extends StatelessWidget {
-  const _SubscriptionsPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.subscriptions_outlined,
-            size: 80,
-            color: AppColors.voltCyan.withValues(alpha: 0.5),
-          ),
-          const SizedBox(height: 16),
-          Text('Inscrições', style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 8),
-          Text(
-            'Em breve: acompanhe suas\nassinaturas ativas',
-            textAlign: TextAlign.center,
-            style: Theme.of(
-              context,
-            ).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
-          ),
-        ],
       ),
     );
   }

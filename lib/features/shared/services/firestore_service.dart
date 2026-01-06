@@ -1,10 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import '../../goals/models/goal_model.dart';
 import '../../home/models/category_model.dart';
+import '../../home/models/fixed_transaction_model.dart';
 import '../../home/models/transaction_model.dart';
 
+import '../../subscriptions/models/subscription_model.dart';
+
 /// Serviço para operações no Firestore
-/// Gerencia categorias e transações (receitas/despesas)
+/// Gerencia categorias, transações, objetivos e inscrições
 class FirestoreService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -28,6 +32,16 @@ class FirestoreService extends ChangeNotifier {
           list.sort((a, b) => a.nome.compareTo(b.nome));
           return list;
         });
+  }
+
+  /// Stream de categorias genérico baseada no tipo
+  Stream<List<CategoryModel>> getCategoriesStream(
+    String userId,
+    CategoryType type,
+  ) {
+    return type == CategoryType.expense
+        ? getExpenseCategories(userId)
+        : getIncomeCategories(userId);
   }
 
   /// Stream de categorias de receitas do usuário
@@ -169,6 +183,25 @@ class FirestoreService extends ChangeNotifier {
 
           list.sort((a, b) => b.data.compareTo(a.data));
           return list;
+        });
+  }
+
+  /// Stream de todas as transações de um ano específico (para Dashboard)
+  Stream<List<TransactionModel>> getTransactionsByYear(
+    String userId,
+    int year,
+  ) {
+    if (userId.isEmpty) return Stream.value([]);
+
+    return _firestore
+        .collection('transacoes')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => TransactionModel.fromFirestore(doc))
+              .where((t) => t.data.year == year)
+              .toList();
         });
   }
 
@@ -319,5 +352,187 @@ class FirestoreService extends ChangeNotifier {
           }
           return total;
         });
+  }
+
+  // ===== OBJETIVOS =====
+
+  /// Stream de objetivos do usuário
+  Stream<List<GoalModel>> getGoals(String userId) {
+    if (userId.isEmpty) return Stream.value([]);
+
+    return _firestore
+        .collection('objetivos')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+          debugPrint(
+            'Firestore: getGoals retornou ${snapshot.docs.length} documentos para userId=$userId',
+          );
+          final list = snapshot.docs
+              .map((doc) => GoalModel.fromFirestore(doc))
+              .toList();
+          // Ordenar: não concluídos primeiro, depois por data de criação
+          list.sort((a, b) {
+            if (a.concluido != b.concluido) {
+              return a.concluido ? 1 : -1;
+            }
+            return b.dataCriacao.compareTo(a.dataCriacao);
+          });
+          return list;
+        });
+  }
+
+  /// Adiciona um novo objetivo
+  Future<String?> addGoal(GoalModel goal) async {
+    try {
+      final docRef = await _firestore
+          .collection('objetivos')
+          .add(goal.toFirestore());
+      debugPrint('Objetivo adicionado com ID: ${docRef.id}');
+      return docRef.id;
+    } catch (e) {
+      debugPrint('Erro ao adicionar objetivo: $e');
+      return null;
+    }
+  }
+
+  /// Atualiza um objetivo existente
+  Future<bool> updateGoal(GoalModel goal) async {
+    if (goal.id == null) return false;
+
+    try {
+      await _firestore
+          .collection('objetivos')
+          .doc(goal.id)
+          .update(goal.toFirestore());
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao atualizar objetivo: $e');
+      return false;
+    }
+  }
+
+  /// Remove um objetivo
+  Future<bool> deleteGoal(String goalId) async {
+    try {
+      await _firestore.collection('objetivos').doc(goalId).delete();
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao deletar objetivo: $e');
+      return false;
+    }
+  }
+
+  // ===== INSCRIÇÕES =====
+
+  /// Stream de inscrições do usuário
+  Stream<List<SubscriptionModel>> getSubscriptions(String userId) {
+    if (userId.isEmpty) return Stream.value([]);
+
+    return _firestore
+        .collection('inscricoes')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) {
+          debugPrint(
+            'Firestore: getSubscriptions retornou ${snapshot.docs.length} documentos para userId=$userId',
+          );
+          final list = snapshot.docs
+              .map((doc) => SubscriptionModel.fromFirestore(doc))
+              .toList();
+          // Ordenar: ativos primeiro, depois por nome
+          list.sort((a, b) {
+            if (a.ativo != b.ativo) {
+              return a.ativo ? -1 : 1;
+            }
+            return a.nome.compareTo(b.nome);
+          });
+          return list;
+        });
+  }
+
+  /// Adiciona uma nova inscrição
+  Future<String?> addSubscription(SubscriptionModel subscription) async {
+    try {
+      final docRef = await _firestore
+          .collection('inscricoes')
+          .add(subscription.toFirestore());
+      debugPrint('Inscrição adicionada com ID: ${docRef.id}');
+      return docRef.id;
+    } catch (e) {
+      debugPrint('Erro ao adicionar inscrição: $e');
+      return null;
+    }
+  }
+
+  /// Atualiza uma inscrição existente
+  Future<bool> updateSubscription(SubscriptionModel subscription) async {
+    if (subscription.id == null) return false;
+
+    try {
+      await _firestore
+          .collection('inscricoes')
+          .doc(subscription.id)
+          .update(subscription.toFirestore());
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao atualizar inscrição: $e');
+      return false;
+    }
+  }
+
+  /// Remove uma inscrição
+  Future<bool> deleteSubscription(String subscriptionId) async {
+    try {
+      await _firestore.collection('inscricoes').doc(subscriptionId).delete();
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao deletar inscrição: $e');
+      return false;
+    }
+  }
+
+  // ===== TRANSAÇÕES FIXAS (TEMPLATES) =====
+
+  /// Stream de transações fixas (templates)
+  Stream<List<FixedTransactionModel>> getFixedTransactions(
+    String userId,
+    TransactionType type,
+  ) {
+    if (userId.isEmpty) return Stream.value([]);
+
+    return _firestore
+        .collection('fixed_transactions')
+        .where('userId', isEqualTo: userId)
+        .where('tipo', isEqualTo: type.name)
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs.map((doc) {
+            return FixedTransactionModel.fromMap(doc.data(), doc.id);
+          }).toList();
+        });
+  }
+
+  /// Adiciona uma nova transação fixa
+  Future<String?> addFixedTransaction(FixedTransactionModel model) async {
+    try {
+      final docRef = await _firestore
+          .collection('fixed_transactions')
+          .add(model.toMap());
+      return docRef.id;
+    } catch (e) {
+      debugPrint('Erro ao adicionar transação fixa: $e');
+      return null;
+    }
+  }
+
+  /// Remove uma transação fixa
+  Future<void> deleteFixedTransaction(String id) async {
+    try {
+      await _firestore.collection('fixed_transactions').doc(id).delete();
+    } catch (e) {
+      debugPrint('Erro ao deletar transação fixa: $e');
+    }
   }
 }

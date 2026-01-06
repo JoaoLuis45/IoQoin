@@ -60,6 +60,13 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Logo
+                Center(
+                  child: Image.asset('assets/images/logo.png', height: 80),
+                ).animate().fadeIn(duration: 400.ms).scale(),
+
+                const SizedBox(height: 32),
+
                 // Título
                 Text(
                   'Bem-vindo de volta!',

@@ -9,7 +9,7 @@ class UserModel {
   final String? nome;
   final String? telefone;
   final String? fotoUrl;
-  final int? idade;
+  final DateTime? dataNascimento;
   final String? genero;
   final DateTime? dataCriacao;
 
@@ -19,7 +19,7 @@ class UserModel {
     this.nome,
     this.telefone,
     this.fotoUrl,
-    this.idade,
+    this.dataNascimento,
     this.genero,
     this.dataCriacao,
   });
@@ -32,7 +32,7 @@ class UserModel {
       nome: data['nome'],
       telefone: data['telefone'],
       fotoUrl: data['fotoUrl'],
-      idade: data['idade'],
+      dataNascimento: (data['dataNascimento'] as Timestamp?)?.toDate(),
       genero: data['genero'],
       dataCriacao: (data['dataCriacao'] as Timestamp?)?.toDate(),
     );
@@ -44,10 +44,34 @@ class UserModel {
       'nome': nome,
       'telefone': telefone,
       'fotoUrl': fotoUrl,
-      'idade': idade,
+      'dataNascimento': dataNascimento != null
+          ? Timestamp.fromDate(dataNascimento!)
+          : null,
       'genero': genero,
       'dataCriacao': dataCriacao ?? FieldValue.serverTimestamp(),
     };
+  }
+
+  UserModel copyWith({
+    String? uid,
+    String? email,
+    String? nome,
+    String? telefone,
+    String? fotoUrl,
+    DateTime? dataNascimento,
+    String? genero,
+    DateTime? dataCriacao,
+  }) {
+    return UserModel(
+      uid: uid ?? this.uid,
+      email: email ?? this.email,
+      nome: nome ?? this.nome,
+      telefone: telefone ?? this.telefone,
+      fotoUrl: fotoUrl ?? this.fotoUrl,
+      dataNascimento: dataNascimento ?? this.dataNascimento,
+      genero: genero ?? this.genero,
+      dataCriacao: dataCriacao ?? this.dataCriacao,
+    );
   }
 }
 
@@ -141,6 +165,9 @@ class AuthService extends ChangeNotifier {
 
       // Cria documento do usuário no Firestore
       if (credential.user != null) {
+        // Atualiza o displayName no Authentication para consistência
+        await credential.user!.updateDisplayName(nome.trim());
+
         final userModel = UserModel(
           uid: credential.user!.uid,
           email: email.trim(),
@@ -213,9 +240,9 @@ class AuthService extends ChangeNotifier {
 
   /// Atualizar dados do perfil
   Future<bool> updateProfile({
-    String? nome,
+    String? displayName,
     String? telefone,
-    int? idade,
+    DateTime? dataNascimento,
     String? genero,
     String? fotoUrl,
   }) async {
@@ -225,25 +252,55 @@ class AuthService extends ChangeNotifier {
     _clearError();
 
     try {
+      if (displayName != null) {
+        await _user!.updateDisplayName(displayName.trim());
+      }
+      if (fotoUrl != null) {
+        await _user!.updatePhotoURL(fotoUrl);
+      }
+
       final updates = <String, dynamic>{};
-      if (nome != null) updates['nome'] = nome.trim();
+      if (displayName != null) updates['nome'] = displayName.trim();
       if (telefone != null) updates['telefone'] = telefone.trim();
-      if (idade != null) updates['idade'] = idade;
+      if (dataNascimento != null) {
+        updates['dataNascimento'] = Timestamp.fromDate(dataNascimento);
+      }
       if (genero != null) updates['genero'] = genero;
       if (fotoUrl != null) updates['fotoUrl'] = fotoUrl;
 
-      await _firestore.collection('usuarios').doc(_user!.uid).update(updates);
+      if (updates.isNotEmpty) {
+        await _firestore
+            .collection('usuarios')
+            .doc(_user!.uid)
+            .set(updates, SetOptions(merge: true));
+      }
 
-      // Recarrega dados do usuário
+      // Recarrega dados do usuário no Auth para garantir atualização de photoURL/displayName
+      await _user!.reload();
+      _user = _auth.currentUser;
+
+      // Recarrega dados do Firestore
       await _loadUserData();
       notifyListeners();
 
       return true;
     } catch (e) {
-      _setError('Erro ao atualizar perfil. Tente novamente.');
+      _setError('Erro ao atualizar perfil: $e');
+      debugPrint('Erro no updateProfile: $e');
       return false;
     } finally {
       _setLoading(false);
+    }
+  }
+
+  /// Enviar email de redefinição de senha
+  Future<bool> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email.trim());
+      return true;
+    } catch (e) {
+      debugPrint('Erro ao enviar email de reset: $e');
+      return false;
     }
   }
 

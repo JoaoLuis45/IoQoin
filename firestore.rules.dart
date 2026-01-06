@@ -37,18 +37,18 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated() && isOwner(resource.data.userId);
     }
     
-    // Regras para coleção de objetivos (futuro)
+    // Regras para coleção de objetivos
     match /objetivos/{goalId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
     
-    // Regras para coleção de inscrições (futuro)
+    // Regras para coleção de inscrições
     match /inscricoes/{subscriptionId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
   }
 }

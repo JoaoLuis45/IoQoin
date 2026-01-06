@@ -89,35 +89,9 @@ class WelcomeScreen extends StatelessWidget {
   Widget _buildLogo() {
     return Column(
       children: [
-        // Ícone placeholder (será substituído pelo ícone oficial)
-        Container(
-          width: 120,
-          height: 120,
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.voltCyan, AppColors.voltCyanDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.voltCyan.withValues(alpha: 0.4),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: const Center(
-            child: Text(
-              'iQ',
-              style: TextStyle(
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                color: AppColors.deepFinBlue,
-              ),
-            ),
-          ),
+        Image.asset(
+          'assets/images/logo.png',
+          height: 120, // Altura do container anterior
         ),
         const SizedBox(height: 20),
         const Text(

@@ -3,10 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../shared/services/firestore_service.dart';
-import '../models/category_model.dart';
 import '../models/transaction_model.dart';
 import '../widgets/add_transaction_sheet.dart';
-import '../widgets/category_manager_sheet.dart';
+import '../widgets/fixed_transaction_manager_sheet.dart';
 import '../widgets/transaction_card.dart';
 
 /// Aba de Despesas
@@ -42,12 +41,21 @@ class ExpenseTab extends StatelessWidget {
                     'Suas despesas',
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
-                  if (canAdd)
-                    TextButton.icon(
-                      onPressed: () => _showCategoryManager(context),
-                      icon: const Icon(Icons.settings, size: 18),
-                      label: const Text('Categorias'),
+
+                  TextButton.icon(
+                    onPressed: () => _showFixedManager(context),
+                    icon: const Icon(Icons.bookmark_border, size: 18),
+                    label: const Text('Fixas'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.alertRed, // Accent Color
+                      backgroundColor: AppColors.alertRed.withValues(
+                        alpha: 0.1,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
+                  ),
                 ],
               ),
             ),
@@ -169,14 +177,14 @@ class ExpenseTab extends StatelessWidget {
         );
   }
 
-  void _showCategoryManager(BuildContext context) {
+  void _showFixedManager(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CategoryManagerSheet(
+      builder: (context) => FixedTransactionManagerSheet(
         userId: userId,
-        categoryType: CategoryType.expense,
+        transactionType: TransactionType.expense,
       ),
     );
   }
