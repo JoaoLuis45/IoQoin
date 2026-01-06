@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "738889544590",
+    "project_id": "ioqoin",
+    "storage_bucket": "ioqoin.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738889544590:android:b855d034f9a4a38384eadf",
+        "android_client_info": {
+          "package_name": "com.ioqoin.ioqoin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASomt00KbkL9zjnxwy71xUTxGT3Ael6sc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
