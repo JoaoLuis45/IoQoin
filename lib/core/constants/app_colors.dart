@@ -52,4 +52,8 @@ class AppColors {
 
   /// Borda e divisores
   static const Color divider = Color(0xFFE5E7EB);
+  // ============ Aliases Semânticos (Compatibilidade) ============
+  static const Color primary = voltCyan;
+  static const Color background = deepFinBlue;
+  static const Color cardBackground = deepFinBlueLight;
 }

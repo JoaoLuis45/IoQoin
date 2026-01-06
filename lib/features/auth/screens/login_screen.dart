@@ -6,6 +6,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_text_field.dart';
+import '../widgets/forgot_password_sheet.dart';
 
 /// Tela de login do IoQoin
 class LoginScreen extends StatefulWidget {
@@ -123,11 +124,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Implementar recuperação de senha
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Em breve: recuperação de senha'),
-                        ),
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => const ForgotPasswordSheet(),
                       );
                     },
                     child: const Text('Esqueci minha senha'),

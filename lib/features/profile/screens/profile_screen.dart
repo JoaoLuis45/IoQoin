@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -83,7 +84,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               if (!_isEditing)
                 IconButton(
                   icon: const Icon(Icons.edit_outlined),
-                  onPressed: () => setState(() => _isEditing = true),
+                  onPressed: () {
+                    _loadUserData(); // Garante dados atualizados ao editar
+                    setState(() => _isEditing = true);
+                  },
                 )
               else
                 IconButton(
@@ -219,7 +223,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   _buildInfoCard(
                     icon: Icons.person_outlined,
                     label: 'Nome',
-                    value: user?.displayName ?? '',
+                    value:
+                        (user?.displayName != null &&
+                            user!.displayName!.isNotEmpty)
+                        ? user.displayName!
+                        : (authService.userModel?.nome ?? ''),
                     isEditable: true,
                     controller: _nomeController,
                   ),
@@ -601,9 +609,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final authService = context.read<AuthService>();
       await authService.deleteAccount();
       if (mounted) {
-        Navigator.of(
-          context,
-        ).pushNamedAndRemoveUntil('/welcome', (route) => false);
+        context.go('/welcome');
       }
     } catch (e) {
       if (mounted) {

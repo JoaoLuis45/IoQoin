@@ -8,6 +8,7 @@ import 'core/routes/app_routes.dart';
 import 'features/auth/services/auth_service.dart';
 import 'features/shared/services/firestore_service.dart';
 import 'features/shared/services/storage_service.dart';
+import 'features/notifications/services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,6 +30,7 @@ class IoQoinApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => FirestoreService()),
         Provider(create: (_) => StorageService()),
+        ChangeNotifierProvider(create: (_) => NotificationService()),
       ],
       child: const IoQoinRouter(),
     );

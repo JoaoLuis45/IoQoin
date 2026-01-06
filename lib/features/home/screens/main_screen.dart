@@ -6,6 +6,10 @@ import '../../categories/screens/categories_screen.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
 import '../../shared/widgets/drawer_menu.dart';
 import '../screens/home_screen.dart';
+import '../../notifications/widgets/notification_drawer.dart';
+import '../../notifications/services/notification_service.dart';
+import '../../auth/services/auth_service.dart';
+import 'package:provider/provider.dart';
 
 /// Tela principal com Bottom Navigation Bar animada (5 abas)
 class MainScreen extends StatefulWidget {
@@ -23,6 +27,14 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: _currentIndex);
+
+    // Verificar notificações diárias ao iniciar
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userId = context.read<AuthService>().user?.uid;
+      if (userId != null) {
+        context.read<NotificationService>().checkDailyNotifications(userId);
+      }
+    });
   }
 
   @override
@@ -46,15 +58,56 @@ class _MainScreenState extends State<MainScreen> {
             ],
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications_outlined),
-              onPressed: () {
-                // TODO: Implementar notificações
+            // Badge com contagem de não lidas
+            StreamBuilder<int>(
+              stream: context.read<NotificationService>().getUnreadCount(
+                context.read<AuthService>().user?.uid ?? '',
+              ),
+              builder: (context, snapshot) {
+                final count = snapshot.data ?? 0;
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications_outlined),
+                      onPressed: () {
+                        Scaffold.of(context).openEndDrawer();
+                      },
+                    ),
+                    if (count > 0)
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          padding: const EdgeInsets.all(4),
+                          decoration: const BoxDecoration(
+                            color: AppColors.alertRed,
+                            shape: BoxShape.circle,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 16,
+                            minHeight: 16,
+                          ),
+                          child: Text(
+                            '$count',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                  ],
+                );
               },
             ),
+            const SizedBox(width: 8),
           ],
         ),
         drawer: const DrawerMenu(),
+        endDrawer: const NotificationDrawer(), // Menu de Notificações
         body: IndexedStack(
           index: _currentIndex,
           children: const [

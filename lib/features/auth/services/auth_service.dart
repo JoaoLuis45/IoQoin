@@ -181,6 +181,7 @@ class AuthService extends ChangeNotifier {
             .set(userModel.toFirestore());
 
         _userModel = userModel;
+        notifyListeners(); // Garante atualização da UI
       }
 
       return true;
