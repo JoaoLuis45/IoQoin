@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 import '../widgets/expense_tab.dart';
 import '../widgets/income_tab.dart';
+import '../../environments/screens/environment_selection_screen.dart';
 
 /// Tela Home com abas de Receitas e Despesas e seletor de mês
 class HomeScreen extends StatefulWidget {
@@ -64,6 +66,9 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Column(
       children: [
+        // Header (Ambiente)
+        _buildHeader(context, context.watch<EnvironmentService>()),
+
         // Seletor de mês + Resumo
         _buildMonthSelector(userId, firestoreService),
 
@@ -125,10 +130,136 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  Widget _buildHeader(BuildContext context, EnvironmentService envService) {
+    if (envService.isLoading) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Center(
+          child: SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: AppColors.voltCyan,
+            ),
+          ),
+        ),
+      );
+    }
+
+    final currentEnv = envService.currentEnvironment;
+    final color = currentEnv != null
+        ? Color(int.parse(currentEnv.colorHex))
+        : AppColors.textSecondary;
+    final name = currentEnv?.name ?? 'Selecione um ambiente';
+    final icon = currentEnv != null
+        ? IconData(currentEnv.iconCodePoint, fontFamily: 'MaterialIcons')
+        : Icons.add_circle_outline;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.deepFinBlueLight,
+            AppColors.deepFinBlueLight.withValues(alpha: 0.6),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            offset: const Offset(0, 4),
+            blurRadius: 12,
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const EnvironmentSelectionScreen(),
+              ),
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                // Environment Icon Badge
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.15),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: color.withValues(alpha: 0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(width: 16),
+
+                // Environment Text Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Ambiente Atual',
+                        style: TextStyle(
+                          color: AppColors.textSecondary.withValues(alpha: 0.8),
+                          fontSize: 12,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          color: AppColors.pureWhite,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Action Indicator
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.deepFinBlue,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.tune,
+                    color: AppColors.voltCyan,
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.2);
+  }
+
   Widget _buildMonthSelector(String userId, FirestoreService firestoreService) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -155,6 +286,8 @@ class _HomeScreenState extends State<HomeScreen>
             children: [
               // Botão anterior
               IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
                 onPressed: _canGoBack ? _goToPreviousMonth : null,
                 icon: Icon(
                   Icons.chevron_left,
@@ -169,8 +302,8 @@ class _HomeScreenState extends State<HomeScreen>
                 onTap: _showMonthPicker,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+                    horizontal: 12,
+                    vertical: 6,
                   ),
                   decoration: BoxDecoration(
                     color: _isCurrentMonth
@@ -183,26 +316,26 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       Icon(
                         Icons.calendar_month,
-                        size: 18,
+                        size: 16,
                         color: _isCurrentMonth
                             ? AppColors.voltCyan
                             : AppColors.warningYellow,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 6),
                       Text(
                         _getMonthName(_selectedMonth, _selectedYear),
                         style: TextStyle(
                           color: _isCurrentMonth
                               ? AppColors.voltCyan
                               : AppColors.warningYellow,
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(width: 4),
                       Icon(
                         Icons.arrow_drop_down,
-                        size: 18,
+                        size: 16,
                         color: _isCurrentMonth
                             ? AppColors.voltCyan
                             : AppColors.warningYellow,
@@ -214,6 +347,8 @@ class _HomeScreenState extends State<HomeScreen>
 
               // Botão próximo
               IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
                 onPressed: _canGoForward ? _goToNextMonth : null,
                 icon: Icon(
                   Icons.chevron_right,
@@ -225,41 +360,69 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          // Resumo Financeiro (Saldo, Receitas, Despesas)
+          StreamBuilder<Map<String, double>>(
+            stream: firestoreService.watchMonthlyFinancials(
+              userId,
+              context.watch<EnvironmentService>().currentEnvironment?.id ?? '',
+              month: _selectedMonth,
+              year: _selectedYear,
+            ),
+            builder: (context, snapshot) {
+              final data =
+                  snapshot.data ??
+                  {'income': 0.0, 'expense': 0.0, 'balance': 0.0};
+              final income = data['income'] ?? 0.0;
+              final expense = data['expense'] ?? 0.0;
+              final balance = data['balance'] ?? 0.0;
 
-          // Resumo
-          Row(
-            children: [
-              Expanded(
-                child: _buildSummaryItem(
-                  label: 'Despesas',
-                  streamValue: firestoreService.watchMonthlyExpenseTotal(
-                    userId,
-                    month: _selectedMonth,
-                    year: _selectedYear,
+              return Column(
+                children: [
+                  // Saldo (Compacto)
+                  _buildSummaryValue(
+                    label: 'Saldo',
+                    value: balance,
+                    color: AppColors.voltCyan,
+                    icon: Icons.account_balance_wallet,
                   ),
-                  color: AppColors.alertRed,
-                  icon: Icons.arrow_downward,
-                ),
-              ),
-              Container(
-                width: 1,
-                height: 50,
-                color: AppColors.divider.withValues(alpha: 0.3),
-              ),
-              Expanded(
-                child: _buildSummaryItem(
-                  label: 'Receitas',
-                  streamValue: firestoreService.watchMonthlyIncomeTotal(
-                    userId,
-                    month: _selectedMonth,
-                    year: _selectedYear,
+
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    width: double.infinity,
+                    height: 1,
+                    color: AppColors.divider.withValues(alpha: 0.2),
                   ),
-                  color: AppColors.successGreen,
-                  icon: Icons.arrow_upward,
-                ),
-              ),
-            ],
+
+                  // Receitas vs Despesas
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildSummaryValue(
+                          label: 'Despesas',
+                          value: expense,
+                          color: AppColors.alertRed,
+                          icon: Icons.arrow_downward,
+                        ),
+                      ),
+                      Container(
+                        width: 1,
+                        height: 30,
+                        color: AppColors.divider.withValues(alpha: 0.2),
+                      ),
+                      Expanded(
+                        child: _buildSummaryValue(
+                          label: 'Receitas',
+                          value: income,
+                          color: AppColors.successGreen,
+                          icon: Icons.arrow_upward,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -493,44 +656,38 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Widget _buildSummaryItem({
+  Widget _buildSummaryValue({
     required String label,
-    required Stream<double> streamValue,
+    required double value,
     required Color color,
     required IconData icon,
   }) {
-    return StreamBuilder<double>(
-      stream: streamValue,
-      builder: (context, snapshot) {
-        final value = snapshot.data ?? 0;
-        return Column(
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: color, size: 16),
-                const SizedBox(width: 4),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: color.withValues(alpha: 0.8),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
+            Icon(icon, color: color, size: 14),
+            const SizedBox(width: 4),
             Text(
-              'R\$ ${value.toStringAsFixed(2)}',
+              label,
               style: TextStyle(
-                color: color,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+                color: color.withValues(alpha: 0.8),
+                fontSize: 11,
               ),
             ),
           ],
-        );
-      },
+        ),
+        const SizedBox(height: 2),
+        Text(
+          'R\$ ${value.toStringAsFixed(2)}',
+          style: TextStyle(
+            color: color,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
     );
   }
 }

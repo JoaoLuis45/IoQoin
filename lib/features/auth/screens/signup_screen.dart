@@ -7,7 +7,7 @@ import '../../../core/routes/app_routes.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_text_field.dart';
 
-/// Tela de cadastro do IoQoin
+/// Tela de cadastro do iQoin
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 

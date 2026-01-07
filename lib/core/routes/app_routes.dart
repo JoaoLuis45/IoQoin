@@ -9,7 +9,7 @@ import '../../features/profile/screens/profile_screen.dart';
 import '../../features/shared/screens/help_screen.dart';
 import '../../features/shared/screens/about_screen.dart';
 
-/// Configuração de rotas do app IoQoin
+/// Configuração de rotas do app iQoin
 class AppRoutes {
   AppRoutes._();
 

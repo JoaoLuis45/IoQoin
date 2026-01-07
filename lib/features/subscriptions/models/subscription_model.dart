@@ -44,6 +44,7 @@ enum SubscriptionFrequency {
 class SubscriptionModel {
   final String? id;
   final String userId;
+  final String? environmentId;
   final String nome;
   final String icone;
   final double valor;
@@ -55,6 +56,7 @@ class SubscriptionModel {
   SubscriptionModel({
     this.id,
     required this.userId,
+    this.environmentId,
     required this.nome,
     required this.icone,
     required this.valor,
@@ -99,6 +101,7 @@ class SubscriptionModel {
     return SubscriptionModel(
       id: doc.id,
       userId: data['userId'] ?? '',
+      environmentId: data['environmentId'],
       nome: data['nome'] ?? '',
       icone: data['icone'] ?? 'subscriptions',
       valor: (data['valor'] ?? 0).toDouble(),
@@ -116,6 +119,7 @@ class SubscriptionModel {
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
+      'environmentId': environmentId,
       'nome': nome,
       'icone': icone,
       'valor': valor,
@@ -130,6 +134,7 @@ class SubscriptionModel {
   SubscriptionModel copyWith({
     String? id,
     String? userId,
+    String? environmentId,
     String? nome,
     String? icone,
     double? valor,
@@ -141,6 +146,7 @@ class SubscriptionModel {
     return SubscriptionModel(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      environmentId: environmentId ?? this.environmentId,
       nome: nome ?? this.nome,
       icone: icone ?? this.icone,
       valor: valor ?? this.valor,

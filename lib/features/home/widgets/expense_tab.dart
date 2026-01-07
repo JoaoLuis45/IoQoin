@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 import '../models/transaction_model.dart';
 import '../widgets/add_transaction_sheet.dart';
 import '../widgets/fixed_transaction_manager_sheet.dart';
@@ -65,6 +66,8 @@ class ExpenseTab extends StatelessWidget {
               child: StreamBuilder<List<TransactionModel>>(
                 stream: firestoreService.getExpenses(
                   userId,
+                  context.watch<EnvironmentService>().currentEnvironment?.id ??
+                      '',
                   month: month,
                   year: year,
                 ),

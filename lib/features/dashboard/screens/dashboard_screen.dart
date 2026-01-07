@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../home/models/transaction_model.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -21,6 +22,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Variáveis para memoização do Stream
   Stream<List<TransactionModel>>? _transactionsStream;
   String? _lastUserId;
+  String? _lastEnvId;
   int? _lastYear;
 
   // Mapa de meses para labels
@@ -44,18 +46,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final authService = context.watch<AuthService>();
     final firestoreService = context.watch<FirestoreService>();
     final userId = authService.userModel?.uid;
+    final envId =
+        context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
 
     if (userId == null) return const Center(child: CircularProgressIndicator());
 
     // Memoização Manual do Stream para evitar recriação e reset de scroll ao dar setState
     if (_transactionsStream == null ||
         userId != _lastUserId ||
+        envId != _lastEnvId ||
         _selectedYear != _lastYear) {
       _transactionsStream = firestoreService.getTransactionsByYear(
         userId,
+        envId,
         _selectedYear,
       );
       _lastUserId = userId;
+      _lastEnvId = envId;
       _lastYear = _selectedYear;
     }
 
@@ -418,11 +425,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           badgeWidget: showTitle
               ? _Badge(
                   categoryName,
-                  size: isTouched ? 40 : 30, // Aumenta badge se tocado
+                  size: isTouched
+                      ? 34
+                      : 28, // Tamanho reduzido para evitar poluição
                   borderColor: colors[i % colors.length],
                 )
               : null,
-          badgePositionPercentageOffset: 1.4, // Afasta um pouco mais
+          badgePositionPercentageOffset:
+              1.6, // Mais afastado para não cobrir a fatia
         ),
       );
     }
@@ -482,8 +492,8 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: PieChart.defaultDuration,
-      width: size * 3, // Largura para caber texto
-      height: size,
+      // width: size * 3, // REMOVIDO: Largura fixa causava excesso de espaço
+      // height: size,    // REMOVIDO: Altura fixa
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.rectangle,
@@ -497,17 +507,23 @@ class _Badge extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      alignment: Alignment.center,
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: size * 0.4,
-          color: Colors.black,
-          fontWeight: FontWeight.bold,
-          overflow: TextOverflow.ellipsis,
+      padding: EdgeInsets.symmetric(
+        horizontal: size * 0.3,
+        vertical: size * 0.1,
+      ),
+      // alignment: Alignment.center, // REMOVIDO: Causa expansão indesejada
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 160), // Limite de segurança
+        child: Text(
+          text,
+          style: TextStyle(
+            fontSize: size * 0.45,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            overflow: TextOverflow.ellipsis,
+          ),
+          textAlign: TextAlign.center,
         ),
-        textAlign: TextAlign.center,
       ),
     );
   }

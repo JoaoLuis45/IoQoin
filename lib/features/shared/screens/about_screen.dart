@@ -54,7 +54,7 @@ class AboutScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            Text('IoQoin', style: Theme.of(context).textTheme.displaySmall),
+            Text('iQoin', style: Theme.of(context).textTheme.displaySmall),
 
             const SizedBox(height: 8),
 
@@ -122,7 +122,7 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 48),
 
             Text(
-              '© 2026 IoQoin. Todos os direitos reservados.',
+              '© 2026 iQoin. Todos os direitos reservados.',
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),

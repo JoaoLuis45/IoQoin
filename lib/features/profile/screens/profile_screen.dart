@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -109,42 +110,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                   // Avatar
                   Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [
-                                  AppColors.voltCyan,
-                                  AppColors.voltCyanDark,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(32),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.voltCyan.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                ),
-                              ],
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              AppColors.voltCyan,
+                              AppColors.voltCyanDark,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.voltCyan.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
                             ),
-                            child: Center(
-                              child: user?.photoURL != null
-                                  ? ClipRRect(
-                                      borderRadius: BorderRadius.circular(32),
-                                      child: Image.network(
-                                        user!.photoURL!,
-                                        key: ValueKey(
-                                          user.photoURL,
-                                        ), // Força reconstrução se URL mudar
-                                        width: 120,
-                                        height: 120,
-                                        fit: BoxFit.cover,
-                                        loadingBuilder: (context, child, loadingProgress) {
+                          ],
+                        ),
+                        child: Center(
+                          child: user?.photoURL != null
+                              ? ClipRRect(
+                                  borderRadius: BorderRadius.circular(32),
+                                  child: Image.network(
+                                    user!.photoURL!,
+                                    key: ValueKey(
+                                      user.photoURL,
+                                    ), // Força reconstrução se URL mudar
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                    loadingBuilder:
+                                        (context, child, loadingProgress) {
                                           if (loadingProgress == null)
                                             return child;
                                           return Center(
@@ -162,50 +162,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             ),
                                           );
                                         },
-                                        errorBuilder: (_, __, ___) =>
-                                            const Icon(
-                                              Icons.person,
-                                              size: 60,
-                                              color: AppColors.deepFinBlue,
-                                            ),
-                                      ),
-                                    )
-                                  : Text(
-                                      _getInitials(user?.displayName ?? 'U'),
-                                      style: const TextStyle(
-                                        color: AppColors.deepFinBlue,
-                                        fontSize: 48,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                    errorBuilder: (_, __, ___) => const Icon(
+                                      Icons.person,
+                                      size: 60,
+                                      color: AppColors.deepFinBlue,
                                     ),
-                            ),
-                          ),
+                                  ),
+                                )
+                              : Text(
+                                  _getInitials(user?.displayName ?? 'U'),
+                                  style: const TextStyle(
+                                    color: AppColors.deepFinBlue,
+                                    fontSize: 48,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
 
-                          Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: AppColors.deepFinBlueLight,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: AppColors.voltCyan,
-                                width: 2,
-                              ),
-                            ),
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.camera_alt,
-                                color: AppColors.voltCyan,
-                                size: 20,
-                              ),
-                              onPressed: _pickPhoto,
-                            ),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: AppColors.deepFinBlueLight,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.voltCyan,
+                            width: 2,
                           ),
-                        ],
-                      )
-                      .animate()
-                      .fadeIn(duration: 400.ms)
-                      .scale(begin: const Offset(0.8, 0.8)),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.camera_alt,
+                            color: AppColors.voltCyan,
+                            size: 20,
+                          ),
+                          onPressed: _pickPhoto,
+                        ),
+                      ),
+                    ],
+                  ),
 
                   const SizedBox(height: 32),
 
@@ -216,6 +212,84 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     value: user?.email ?? '',
                     isEditable: false,
                   ),
+
+                  const SizedBox(height: 16),
+
+                  // Tag do Usuário
+                  if (authService.userModel?.userTag != null &&
+                      authService.userModel!.userTag!.isNotEmpty)
+                    _buildInfoCard(
+                      icon: Icons.tag,
+                      label: 'Sua Tag (ID de Usuário)',
+                      value: authService.userModel!.userTag!,
+                      isEditable: true,
+                      customEditWidget: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              authService.userModel!.userTag!,
+                              style: const TextStyle(
+                                color: AppColors.pureWhite,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          StatefulBuilder(
+                            builder: (context, setState) {
+                              return IconButton(
+                                icon: const Icon(
+                                  Icons.copy,
+                                  color: AppColors.voltCyan,
+                                ),
+                                tooltip: 'Copiar Tag',
+                                onPressed: () {
+                                  Clipboard.setData(
+                                    ClipboardData(
+                                      text: authService.userModel!.userTag!,
+                                    ),
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Tag copiada!'),
+                                      backgroundColor: AppColors.successGreen,
+                                      duration: Duration(seconds: 1),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    _buildInfoCard(
+                      icon: Icons.tag,
+                      label: 'Sua Tag (ID de Usuário)',
+                      value: 'Gerando ID...',
+                      isEditable: false,
+                      customEditWidget: Row(
+                        children: [
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.voltCyan,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Gerando seu ID único...',
+                            style: TextStyle(
+                              color: AppColors.textSecondary,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
                   const SizedBox(height: 16),
 

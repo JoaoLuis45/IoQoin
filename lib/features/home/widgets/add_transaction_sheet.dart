@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_icons.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 import '../models/category_model.dart';
 import '../models/fixed_transaction_model.dart';
 import '../models/transaction_model.dart';
@@ -66,6 +67,8 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
   @override
   Widget build(BuildContext context) {
     final firestoreService = context.watch<FirestoreService>();
+    final envId =
+        context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -113,7 +116,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Transações Fixas (Templates)
-                    _buildFixedTransactionsSelector(firestoreService),
+                    _buildFixedTransactionsSelector(firestoreService, envId),
 
                     const SizedBox(height: 24),
 
@@ -128,7 +131,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                     const SizedBox(height: 24),
 
                     // Seletor de categoria
-                    _buildCategorySelector(firestoreService),
+                    _buildCategorySelector(firestoreService, envId),
 
                     const SizedBox(height: 24),
 
@@ -143,7 +146,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                     const SizedBox(height: 40),
 
                     // Botão de adicionar
-                    _buildSubmitButton(firestoreService),
+                    _buildSubmitButton(firestoreService, envId),
 
                     const SizedBox(height: 40),
                   ],
@@ -156,10 +159,14 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     );
   }
 
-  Widget _buildFixedTransactionsSelector(FirestoreService firestoreService) {
+  Widget _buildFixedTransactionsSelector(
+    FirestoreService firestoreService,
+    String envId,
+  ) {
     return StreamBuilder<List<FixedTransactionModel>>(
       stream: firestoreService.getFixedTransactions(
         widget.userId,
+        envId,
         widget.transactionType,
       ),
       builder: (context, snapshot) {
@@ -361,10 +368,13 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     ).animate(delay: 100.ms).fadeIn();
   }
 
-  Widget _buildCategorySelector(FirestoreService firestoreService) {
+  Widget _buildCategorySelector(
+    FirestoreService firestoreService,
+    String envId,
+  ) {
     final stream = isExpense
-        ? firestoreService.getExpenseCategories(widget.userId)
-        : firestoreService.getIncomeCategories(widget.userId);
+        ? firestoreService.getExpenseCategories(widget.userId, envId)
+        : firestoreService.getIncomeCategories(widget.userId, envId);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -565,7 +575,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     ).animate(delay: 400.ms).fadeIn();
   }
 
-  Widget _buildSubmitButton(FirestoreService firestoreService) {
+  Widget _buildSubmitButton(FirestoreService firestoreService, String envId) {
     return Center(
       child: AnimatedBuilder(
         animation: _pulseAnimation,
@@ -573,7 +583,9 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
           return Transform.scale(
             scale: _selectedCategory != null ? _pulseAnimation.value : 1.0,
             child: GestureDetector(
-              onTap: _isSubmitting ? null : () => _submit(firestoreService),
+              onTap: _isSubmitting
+                  ? null
+                  : () => _submit(firestoreService, envId),
               child: Container(
                 width: 80,
                 height: 80,
@@ -660,7 +672,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     }
   }
 
-  Future<void> _submit(FirestoreService firestoreService) async {
+  Future<void> _submit(FirestoreService firestoreService, String envId) async {
     // Validações
     final valueText = _valueController.text.trim().replaceAll(',', '.');
     final value = double.tryParse(valueText);
@@ -683,6 +695,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
 
     final transaction = TransactionModel(
       userId: widget.userId,
+      environmentId: envId,
       categoryId: _selectedCategory!.id!,
       categoryName: _selectedCategory!.nome,
       valor: value,

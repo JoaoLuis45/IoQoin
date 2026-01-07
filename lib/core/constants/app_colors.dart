@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Paleta de cores "Neofinance" do IoQoin
+/// Paleta de cores "Neofinance" do iQoin
 /// Equilibra a confiança necessária para um app financeiro
 /// com a energia de uma startup de tecnologia.
 class AppColors {

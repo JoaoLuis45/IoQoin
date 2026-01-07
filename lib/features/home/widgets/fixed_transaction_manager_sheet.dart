@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_icons.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 import '../models/category_model.dart';
 import '../models/fixed_transaction_model.dart';
 import '../models/transaction_model.dart';
@@ -52,7 +53,7 @@ class _FixedTransactionManagerSheetState
     });
   }
 
-  Future<void> _submit(FirestoreService firestoreService) async {
+  Future<void> _submit(FirestoreService firestoreService, String envId) async {
     final valueText = _valueController.text.trim().replaceAll(',', '.');
     final value = double.tryParse(valueText);
 
@@ -81,6 +82,7 @@ class _FixedTransactionManagerSheetState
     try {
       final model = FixedTransactionModel(
         userId: widget.userId,
+        environmentId: envId,
         categoryId: _selectedCategory!.id!,
         categoryName: _selectedCategory!.nome,
         categoryIcon: _selectedCategory!.icone,
@@ -125,6 +127,8 @@ class _FixedTransactionManagerSheetState
   @override
   Widget build(BuildContext context) {
     final firestoreService = context.watch<FirestoreService>();
+    final envId =
+        context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -218,8 +222,8 @@ class _FixedTransactionManagerSheetState
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: _isAdding
-                    ? _buildAddForm(firestoreService)
-                    : _buildList(firestoreService),
+                    ? _buildAddForm(firestoreService, envId)
+                    : _buildList(firestoreService, envId),
               ),
             ),
 
@@ -258,10 +262,11 @@ class _FixedTransactionManagerSheetState
     );
   }
 
-  Widget _buildList(FirestoreService firestoreService) {
+  Widget _buildList(FirestoreService firestoreService, String envId) {
     return StreamBuilder<List<FixedTransactionModel>>(
       stream: firestoreService.getFixedTransactions(
         widget.userId,
+        envId,
         widget.transactionType,
       ),
       builder: (context, snapshot) {
@@ -493,10 +498,10 @@ class _FixedTransactionManagerSheetState
     );
   }
 
-  Widget _buildAddForm(FirestoreService firestoreService) {
+  Widget _buildAddForm(FirestoreService firestoreService, String envId) {
     final categoriesStream = isExpense
-        ? firestoreService.getExpenseCategories(widget.userId)
-        : firestoreService.getIncomeCategories(widget.userId);
+        ? firestoreService.getExpenseCategories(widget.userId, envId)
+        : firestoreService.getIncomeCategories(widget.userId, envId);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
@@ -661,7 +666,9 @@ class _FixedTransactionManagerSheetState
             width: double.infinity,
             height: 56,
             child: ElevatedButton(
-              onPressed: _isSubmitting ? null : () => _submit(firestoreService),
+              onPressed: _isSubmitting
+                  ? null
+                  : () => _submit(firestoreService, envId),
               style: ElevatedButton.styleFrom(
                 backgroundColor: accentColor,
                 shape: RoundedRectangleBorder(

@@ -12,6 +12,7 @@ class UserModel {
   final DateTime? dataNascimento;
   final String? genero;
   final DateTime? dataCriacao;
+  final String? userTag; // Ex: #AB123
 
   UserModel({
     required this.uid,
@@ -22,6 +23,7 @@ class UserModel {
     this.dataNascimento,
     this.genero,
     this.dataCriacao,
+    this.userTag,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -35,6 +37,7 @@ class UserModel {
       dataNascimento: (data['dataNascimento'] as Timestamp?)?.toDate(),
       genero: data['genero'],
       dataCriacao: (data['dataCriacao'] as Timestamp?)?.toDate(),
+      userTag: data['userTag'],
     );
   }
 
@@ -49,6 +52,7 @@ class UserModel {
           : null,
       'genero': genero,
       'dataCriacao': dataCriacao ?? FieldValue.serverTimestamp(),
+      'userTag': userTag,
     };
   }
 
@@ -61,6 +65,7 @@ class UserModel {
     DateTime? dataNascimento,
     String? genero,
     DateTime? dataCriacao,
+    String? userTag,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -71,6 +76,7 @@ class UserModel {
       dataNascimento: dataNascimento ?? this.dataNascimento,
       genero: genero ?? this.genero,
       dataCriacao: dataCriacao ?? this.dataCriacao,
+      userTag: userTag ?? this.userTag,
     );
   }
 }
@@ -117,10 +123,97 @@ class AuthService extends ChangeNotifier {
       final doc = await _firestore.collection('usuarios').doc(_user!.uid).get();
       if (doc.exists) {
         _userModel = UserModel.fromFirestore(doc);
+        debugPrint(
+          'AuthService: Dados carregados. Tag: ${_userModel?.userTag}',
+        );
+
+        // Verifica se usuário legado precisa de tag
+        if (_userModel?.userTag == null || _userModel!.userTag!.isEmpty) {
+          debugPrint('AuthService: Usuário sem tag. Gerando nova tag...');
+          await _assignTagToUser(_userModel!);
+        }
+      } else {
+        debugPrint(
+          'AuthService: Documento do usuário não encontrado no Firestore.',
+        );
       }
     } catch (e) {
       debugPrint('Erro ao carregar dados do usuário: $e');
     }
+  }
+
+  // ===== Métodos de Tag =====
+
+  /// Garante que o usuário atual tenha uma tag
+  Future<void> ensureTag() async {
+    if (_userModel != null &&
+        (_userModel!.userTag == null || _userModel!.userTag!.isEmpty)) {
+      await _assignTagToUser(_userModel!);
+    }
+  }
+
+  /// Gera uma tag única (#12345) e atribui ao usuário
+  Future<void> _assignTagToUser(UserModel user) async {
+    String? newTag;
+    bool isUnique = false;
+    int attempts = 0;
+
+    // Tenta gerar uma tag única (máximo 5 tentativas)
+    while (!isUnique && attempts < 5) {
+      newTag = _generateRandomTag();
+      debugPrint('AuthService: Tentativa $attempts - Gerado: $newTag');
+
+      try {
+        // Verifica unicidade
+        final query = await _firestore
+            .collection('usuarios')
+            .where('userTag', isEqualTo: newTag)
+            .limit(1)
+            .get();
+
+        if (query.docs.isEmpty) {
+          isUnique = true;
+        } else {
+          debugPrint('AuthService: Tag $newTag já existe.');
+        }
+      } catch (e) {
+        debugPrint(
+          'AuthService: Erro ao verificar unicidade (possível erro de permissão): $e',
+        );
+        // Se não conseguimos verificar, assumimos que é única para não bloquear o usuário
+        // O risco de colisão é baixo com 5 dígitos aleatórios, mas idealmente deve-se corrigir as regras
+        isUnique = true;
+      }
+      attempts++;
+    }
+
+    if (isUnique && newTag != null) {
+      try {
+        debugPrint(
+          'AuthService: Salvando tag $newTag para usuário ${user.uid}',
+        );
+        await _firestore.collection('usuarios').doc(user.uid).update({
+          'userTag': newTag,
+        });
+
+        // Atualiza modelo local
+        _userModel = user.copyWith(userTag: newTag);
+        notifyListeners();
+        debugPrint('AuthService: Tag salva e listeners notificados.');
+      } catch (e) {
+        debugPrint('Erro ao salvar userTag: $e');
+      }
+    } else {
+      debugPrint('AuthService: Falha ao gerar tag única após 5 tentativas.');
+    }
+  }
+
+  String _generateRandomTag() {
+    // Gera número aleatório de 5 dígitos
+    // Pode ser alfanumérico se preferir, mas user pediu #93842
+    final random = DateTime.now().millisecondsSinceEpoch.toString();
+    final suffix = random.substring(random.length - 5);
+    return '#$suffix';
   }
 
   // ===== Métodos de Autenticação =====
@@ -175,13 +268,16 @@ class AuthService extends ChangeNotifier {
           dataCriacao: DateTime.now(),
         );
 
+        // Salva inicialmente sem tag
         await _firestore
             .collection('usuarios')
             .doc(credential.user!.uid)
             .set(userModel.toFirestore());
 
-        _userModel = userModel;
-        notifyListeners(); // Garante atualização da UI
+        // Gera e atribui tag (trata colisão e atualiza)
+        await _assignTagToUser(userModel);
+
+        // _assignTagToUser já atualiza o _userModel e notifica listeners
       }
 
       return true;

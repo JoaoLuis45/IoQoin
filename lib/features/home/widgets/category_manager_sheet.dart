@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_icons.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 import '../models/category_model.dart';
 
 /// Sheet para gerenciar categorias (CRUD)
@@ -37,6 +38,8 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
   @override
   Widget build(BuildContext context) {
     final firestoreService = context.watch<FirestoreService>();
+    final envId =
+        context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
     final icons = CategoryIcons.getAllIcons(isExpense: isExpense);
     final color = isExpense ? AppColors.alertRed : AppColors.successGreen;
 
@@ -162,7 +165,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                           ? null
                           : () {
                               FocusScope.of(context).unfocus();
-                              _addCategory(firestoreService);
+                              _addCategory(firestoreService, envId);
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: color),
                       child: _isAdding
@@ -199,8 +202,14 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
             Expanded(
               child: StreamBuilder<List<CategoryModel>>(
                 stream: isExpense
-                    ? firestoreService.getExpenseCategories(widget.userId)
-                    : firestoreService.getIncomeCategories(widget.userId),
+                    ? firestoreService.getExpenseCategories(
+                        widget.userId,
+                        envId,
+                      )
+                    : firestoreService.getIncomeCategories(
+                        widget.userId,
+                        envId,
+                      ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
@@ -318,7 +327,10 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
     );
   }
 
-  Future<void> _addCategory(FirestoreService firestoreService) async {
+  Future<void> _addCategory(
+    FirestoreService firestoreService,
+    String envId,
+  ) async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -331,6 +343,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
 
     final category = CategoryModel(
       userId: widget.userId,
+      environmentId: envId,
       nome: name,
       icone: _selectedIcon,
       tipo: widget.categoryType,

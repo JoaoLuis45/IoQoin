@@ -1,4 +1,4 @@
-# ioqoin
+# iQoin
 
 A new Flutter project.
 

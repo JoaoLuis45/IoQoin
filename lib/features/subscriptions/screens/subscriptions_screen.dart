@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 import '../models/subscription_model.dart';
 import '../widgets/add_subscription_sheet.dart';
 import '../widgets/subscription_card.dart';
@@ -17,6 +18,8 @@ class SubscriptionsScreen extends StatelessWidget {
     final authService = context.read<AuthService>();
     final firestoreService = context.watch<FirestoreService>();
     final userId = authService.user?.uid ?? '';
+    final envId =
+        context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
 
     return Column(
       children: [
@@ -28,7 +31,7 @@ class SubscriptionsScreen extends StatelessWidget {
         // Lista de inscrições
         Expanded(
           child: StreamBuilder<List<SubscriptionModel>>(
-            stream: firestoreService.getSubscriptions(userId),
+            stream: firestoreService.getSubscriptions(userId, envId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
@@ -136,7 +139,10 @@ class SubscriptionsScreen extends StatelessWidget {
           const SizedBox(height: 20),
           // Total mensal
           StreamBuilder<List<SubscriptionModel>>(
-            stream: firestoreService.getSubscriptions(userId),
+            stream: firestoreService.getSubscriptions(
+              userId,
+              context.watch<EnvironmentService>().currentEnvironment?.id ?? '',
+            ),
             builder: (context, snapshot) {
               final subscriptions = snapshot.data ?? [];
               final total = subscriptions

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
@@ -48,7 +49,7 @@ class DrawerMenu extends StatelessWidget {
                     Image.asset('assets/images/logo.png', height: 28),
                     const SizedBox(width: 12),
                     const Text(
-                      'IoQoin',
+                      'iQoin',
                       style: TextStyle(
                         color: AppColors.pureWhite,
                         fontSize: 20,
@@ -124,6 +125,89 @@ class DrawerMenu extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          if (user?.userTag != null &&
+                              user!.userTag!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            InkWell(
+                              onTap: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: user!.userTag!),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Tag copiada!'),
+                                    backgroundColor: AppColors.successGreen,
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(4),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.voltCyan.withValues(
+                                    alpha: 0.1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: AppColors.voltCyan.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      user!.userTag!,
+                                      style: TextStyle(
+                                        color: AppColors.voltCyan,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Icon(
+                                      Icons.copy_rounded,
+                                      size: 10,
+                                      color: AppColors.voltCyan,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ] else ...[
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                SizedBox(
+                                  width: 10,
+                                  height: 10,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 1.5,
+                                    color: AppColors.voltCyan.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Gerando ID...',
+                                  style: TextStyle(
+                                    color: AppColors.voltCyan.withValues(
+                                      alpha: 0.7,
+                                    ),
+                                    fontSize: 10,
+                                    fontStyle: FontStyle.italic,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -158,7 +242,7 @@ class DrawerMenu extends StatelessWidget {
                 const SizedBox(height: 8),
                 _StyledDrawerItem(
                   icon: Icons.info_outline_rounded,
-                  label: 'Sobre o IoQoin',
+                  label: 'Sobre o iQoin',
                   onTap: () {
                     Navigator.pop(context);
                     context.push(AppRoutes.about);

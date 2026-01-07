@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 
-/// Tema global do app IoQoin
+/// Tema global do app iQoin
 /// Utiliza a paleta "Neofinance" para criar uma experiência
 /// visual premium e profissional.
 class AppTheme {
   AppTheme._();
 
-  /// Tema escuro principal do IoQoin
+  /// Tema escuro principal do iQoin
   static ThemeData get darkTheme {
     return ThemeData(
       useMaterial3: true,

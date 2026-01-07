@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
 
-/// Tela de boas-vindas do IoQoin
+/// Tela de boas-vindas do iQoin
 /// Primeira tela que o usuário vê ao abrir o app
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -95,7 +95,7 @@ class WelcomeScreen extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         const Text(
-          'IoQoin',
+          'iQoin',
           style: TextStyle(
             fontSize: 36,
             fontWeight: FontWeight.bold,

@@ -4,6 +4,7 @@ import '../models/transaction_model.dart'; // Para TransactionType
 class FixedTransactionModel {
   final String? id;
   final String userId;
+  final String? environmentId;
   final String categoryId;
   final String categoryName;
   final String categoryIcon;
@@ -14,6 +15,7 @@ class FixedTransactionModel {
   FixedTransactionModel({
     this.id,
     required this.userId,
+    this.environmentId,
     required this.categoryId,
     required this.categoryName,
     required this.categoryIcon,
@@ -28,6 +30,7 @@ class FixedTransactionModel {
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
+      'environmentId': environmentId,
       'categoryId': categoryId,
       'categoryName': categoryName,
       'categoryIcon': categoryIcon,
@@ -42,6 +45,7 @@ class FixedTransactionModel {
     return FixedTransactionModel(
       id: id,
       userId: map['userId'] ?? '',
+      environmentId: map['environmentId'],
       categoryId: map['categoryId'] ?? '',
       categoryName: map['categoryName'] ?? '',
       categoryIcon: map['categoryIcon'] ?? '',

@@ -12,45 +12,58 @@ service cloud.firestore {
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
+
+    // Função para verificar se o usuário tem acesso ao ambiente (por ser dono ou convidado)
+    // Verifica se existe um documento na subcoleção 'environments' do usuário com o ID do ambiente
+    function hasAccessToEnvironment(envId) {
+       return exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)/environments/$(envId));
+    }
     
     // Regras para coleção de usuários
     match /usuarios/{userId} {
-      allow read, write: if isAuthenticated() && isOwner(userId);
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isOwner(userId);
+      
+      // Regras para subcoleção de ambientes
+      match /environments/{environmentId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated() && isOwner(userId);
+      }
     }
     
     // Regras para coleção de categorias
     match /categorias/{categoryId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow read: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
+      allow create: if isAuthenticated() && hasAccessToEnvironment(request.resource.data.environmentId);
+      allow update, delete: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
     }
     
     // Regras para coleção de transações
     match /transacoes/{transactionId} {
-      allow read: if isAuthenticated() && isOwner(resource.data.userId);
-      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
-      allow update, delete: if isAuthenticated() && isOwner(resource.data.userId);
+      allow read: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
+      allow create: if isAuthenticated() && hasAccessToEnvironment(request.resource.data.environmentId);
+      allow update, delete: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
     }
     
     // Regras para coleção de objetivos
     match /objetivos/{goalId} {
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow read: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
+      allow create: if isAuthenticated() && hasAccessToEnvironment(request.resource.data.environmentId);
+      allow update, delete: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
     }
     
     // Regras para coleção de inscrições
     match /inscricoes/{subscriptionId} {
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow read: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
+      allow create: if isAuthenticated() && hasAccessToEnvironment(request.resource.data.environmentId);
+      allow update, delete: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
     }
 
     // Regras para coleção de transações fixas (Adicionado)
     match /fixed_transactions/{document} {
-      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
-      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow read: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
+      allow create: if isAuthenticated() && hasAccessToEnvironment(request.resource.data.environmentId);
+      allow update, delete: if isAuthenticated() && hasAccessToEnvironment(resource.data.environmentId);
     }
 
     // Regras para Notificações (Adicionado)
@@ -58,6 +71,21 @@ service cloud.firestore {
       allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
       allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Regras para Convites (MUITO IMPORTANTE: Adicionado para funcionar o sistema de convites)
+    match /invites/{inviteId} {
+      // Qualquer um autenticado pode criar um convite
+      allow create: if isAuthenticated();
+      
+      // Ler: Apenas quem enviou ou quem recebeu
+      allow read: if isAuthenticated() && (resource.data.toUserId == request.auth.uid || resource.data.fromUserId == request.auth.uid);
+      
+      // Atualizar: Apenas o destinatário (para aceitar/recusar) ou remetente (se quiser cancelar, opcional)
+      allow update: if isAuthenticated() && (resource.data.toUserId == request.auth.uid || resource.data.fromUserId == request.auth.uid);
+      
+      // Deletar: Ambos podem
+      allow delete: if isAuthenticated() && (resource.data.toUserId == request.auth.uid || resource.data.fromUserId == request.auth.uid);
     }
   }
 }

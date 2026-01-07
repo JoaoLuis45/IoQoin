@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 import '../models/goal_model.dart';
 import '../widgets/add_goal_sheet.dart';
 import '../widgets/goal_card.dart';
@@ -17,6 +18,8 @@ class GoalsScreen extends StatelessWidget {
     final authService = context.read<AuthService>();
     final firestoreService = context.watch<FirestoreService>();
     final userId = authService.user?.uid ?? '';
+    final envId =
+        context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
 
     return Column(
       children: [
@@ -62,7 +65,7 @@ class GoalsScreen extends StatelessWidget {
         // Lista de objetivos
         Expanded(
           child: StreamBuilder<List<GoalModel>>(
-            stream: firestoreService.getGoals(userId),
+            stream: firestoreService.getGoals(userId, envId),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(

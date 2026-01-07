@@ -1,4 +1,4 @@
-// Regras de Segurança do Firestore para o IoQoin
+// Regras de Segurança do Firestore para o iQoin
 // Copie e cole este conteúdo no Console do Firebase:
 // https://console.firebase.google.com/project/ioqoin/firestore/rules
 

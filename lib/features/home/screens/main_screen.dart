@@ -54,7 +54,7 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               Image.asset('assets/images/logo.png', height: 28),
               const SizedBox(width: 8),
-              const Text('IoQoin'),
+              const Text('iQoin'),
             ],
           ),
           actions: [

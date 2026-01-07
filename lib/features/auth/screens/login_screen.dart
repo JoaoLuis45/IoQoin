@@ -8,7 +8,7 @@ import '../services/auth_service.dart';
 import '../widgets/auth_text_field.dart';
 import '../widgets/forgot_password_sheet.dart';
 
-/// Tela de login do IoQoin
+/// Tela de login do iQoin
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 

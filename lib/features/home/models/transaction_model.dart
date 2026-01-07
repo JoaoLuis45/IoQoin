@@ -7,6 +7,7 @@ enum TransactionType { income, expense }
 class TransactionModel {
   final String? id;
   final String userId;
+  final String? environmentId;
   final String categoryId;
   final String categoryName;
   final double valor;
@@ -18,6 +19,7 @@ class TransactionModel {
   TransactionModel({
     this.id,
     required this.userId,
+    this.environmentId,
     required this.categoryId,
     required this.categoryName,
     required this.valor,
@@ -32,6 +34,7 @@ class TransactionModel {
     return TransactionModel(
       id: doc.id,
       userId: data['userId'] ?? '',
+      environmentId: data['environmentId'],
       categoryId: data['categoryId'] ?? '',
       categoryName: data['categoryName'] ?? '',
       valor: (data['valor'] ?? 0).toDouble(),
@@ -47,6 +50,7 @@ class TransactionModel {
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
+      'environmentId': environmentId,
       'categoryId': categoryId,
       'categoryName': categoryName,
       'valor': valor,

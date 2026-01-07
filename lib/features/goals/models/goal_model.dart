@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class GoalModel {
   final String? id;
   final String userId;
+  final String? environmentId;
   final String nome;
   final String icone;
   final double valorAlvo;
@@ -15,6 +16,7 @@ class GoalModel {
   GoalModel({
     this.id,
     required this.userId,
+    this.environmentId,
     required this.nome,
     required this.icone,
     required this.valorAlvo,
@@ -51,6 +53,7 @@ class GoalModel {
     return GoalModel(
       id: doc.id,
       userId: data['userId'] ?? '',
+      environmentId: data['environmentId'],
       nome: data['nome'] ?? '',
       icone: data['icone'] ?? 'savings',
       valorAlvo: (data['valorAlvo'] ?? 0).toDouble(),
@@ -67,6 +70,7 @@ class GoalModel {
   Map<String, dynamic> toFirestore() {
     return {
       'userId': userId,
+      'environmentId': environmentId,
       'nome': nome,
       'icone': icone,
       'valorAlvo': valorAlvo,
@@ -81,6 +85,7 @@ class GoalModel {
   GoalModel copyWith({
     String? id,
     String? userId,
+    String? environmentId,
     String? nome,
     String? icone,
     double? valorAlvo,
@@ -92,6 +97,7 @@ class GoalModel {
     return GoalModel(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+      environmentId: environmentId ?? this.environmentId,
       nome: nome ?? this.nome,
       icone: icone ?? this.icone,
       valorAlvo: valorAlvo ?? this.valorAlvo,

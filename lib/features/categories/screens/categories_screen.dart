@@ -6,6 +6,7 @@ import '../../../core/constants/category_icons.dart';
 import '../../auth/services/auth_service.dart';
 import '../../home/models/category_model.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../environments/services/environment_service.dart';
 
 /// Tela dedicada para gestão de categorias (CRUD)
 class CategoriesScreen extends StatefulWidget {
@@ -71,6 +72,8 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   Widget build(BuildContext context) {
     final authService = context.watch<AuthService>();
     final userId = authService.userModel?.uid;
+    final envId =
+        context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
 
     // Se não tiver usuário logado, retorna loading
     if (userId == null) {
@@ -101,8 +104,8 @@ class _CategoriesScreenState extends State<CategoriesScreen>
             child: TabBarView(
               controller: _tabController,
               children: [
-                _buildCategoryList(userId, CategoryType.expense),
-                _buildCategoryList(userId, CategoryType.income),
+                _buildCategoryList(userId, envId, CategoryType.expense),
+                _buildCategoryList(userId, envId, CategoryType.income),
               ],
             ),
           ),
@@ -127,7 +130,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
     );
   }
 
-  Widget _buildCategoryList(String userId, CategoryType type) {
+  Widget _buildCategoryList(String userId, String envId, CategoryType type) {
     final firestoreService = context.watch<FirestoreService>();
     final isExpense = type == CategoryType.expense;
     final themeColor = isExpense ? AppColors.alertRed : AppColors.successGreen;
@@ -146,14 +149,14 @@ class _CategoriesScreenState extends State<CategoriesScreen>
             ),
           ),
           child: _isAdding
-              ? _buildForm(firestoreService, userId, type, themeColor)
+              ? _buildForm(firestoreService, userId, envId, type, themeColor)
               : null,
         ),
 
         // Lista de Categorias
         Expanded(
           child: StreamBuilder<List<CategoryModel>>(
-            stream: firestoreService.getCategoriesStream(userId, type),
+            stream: firestoreService.getCategoriesStream(userId, envId, type),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
@@ -291,6 +294,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
   Widget _buildForm(
     FirestoreService firestoreService,
     String userId,
+    String envId,
     CategoryType type,
     Color themeColor,
   ) {
@@ -409,6 +413,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                 final updatedCategory = CategoryModel(
                   id: _editingCategoryId,
                   userId: userId,
+                  environmentId: envId,
                   nome: name,
                   icone: _selectedIcon,
                   tipo: type,
@@ -419,6 +424,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                 final category = CategoryModel(
                   id: null, // Firestore gera ID
                   userId: userId,
+                  environmentId: envId,
                   nome: name,
                   icone: _selectedIcon,
                   tipo: type,
