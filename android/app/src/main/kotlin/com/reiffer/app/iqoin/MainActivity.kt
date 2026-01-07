@@ -1,4 +1,4 @@
-package com.ioqoin.ioqoin
+package com.reiffer.app.iqoin
 
 import io.flutter.embedding.android.FlutterActivity
 

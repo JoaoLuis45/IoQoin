@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../models/environment_model.dart';
 import '../services/environment_service.dart';
+import '../../../core/utils/icon_utils.dart';
 
 class EnvironmentFormScreen extends StatefulWidget {
   final EnvironmentModel? environment;
@@ -33,16 +34,7 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
     '0xFF795548', // Brown
   ];
 
-  final List<int> _icons = [
-    58536, // person
-    57534, // home
-    57685, // work
-    59404, // shopping_cart
-    59501, // travel
-    57560, // savings
-    59640, // restaurant
-    57563, // directions_car
-  ];
+  final List<int> _icons = IconUtils.environmentIcons.keys.toList();
 
   @override
   void initState() {
@@ -251,7 +243,7 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
                             : null,
                       ),
                       child: Icon(
-                        IconData(code, fontFamily: 'MaterialIcons'),
+                        IconUtils.getEnvironmentIcon(code),
                         color: isSelected
                             ? AppColors.voltCyan
                             : AppColors.textSecondary,

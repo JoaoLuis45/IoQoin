@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyASomt00KbkL9zjnxwy71xUTxGT3Ael6sc',
-    appId: '1:738889544590:android:b855d034f9a4a38384eadf',
+    appId: '1:738889544590:android:dd8d19acea0f334b84eadf',
     messagingSenderId: '738889544590',
     projectId: 'ioqoin',
     storageBucket: 'ioqoin.firebasestorage.app',
@@ -59,10 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDQIwq3GQFmlGQbpT_WswSrmtVKOImZzcM',
-    appId: '1:738889544590:ios:28b9802f1c43d75b84eadf',
+    appId: '1:738889544590:ios:7901e5ea49434b5384eadf',
     messagingSenderId: '738889544590',
     projectId: 'ioqoin',
     storageBucket: 'ioqoin.firebasestorage.app',
-    iosBundleId: 'com.ioqoin.ioqoin',
+    iosBundleId: 'com.reiffer.app.iqoin',
   );
+
 }

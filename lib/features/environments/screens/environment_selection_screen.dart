@@ -10,6 +10,7 @@ import '../models/environment_model.dart';
 import '../services/environment_service.dart';
 import '../../../../core/constants/global_keys.dart';
 import 'environment_form_screen.dart';
+import '../../../../core/utils/icon_utils.dart';
 
 class EnvironmentSelectionScreen extends StatelessWidget {
   const EnvironmentSelectionScreen({super.key});
@@ -344,7 +345,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
               child: Icon(
                 isShared
                     ? Icons.groups
-                    : IconData(env.iconCodePoint, fontFamily: 'MaterialIcons'),
+                    : IconUtils.getEnvironmentIcon(env.iconCodePoint),
                 color: color,
                 size: 24,
               ),

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:738889544590:android:b855d034f9a4a38384eadf",
+        "mobilesdk_app_id": "1:738889544590:android:dd8d19acea0f334b84eadf",
         "android_client_info": {
-          "package_name": "com.ioqoin.ioqoin"
+          "package_name": "com.reiffer.app.iqoin"
         }
       },
       "oauth_client": [],

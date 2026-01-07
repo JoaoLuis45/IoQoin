@@ -7,6 +7,7 @@ import '../../shared/services/firestore_service.dart';
 import '../../environments/services/environment_service.dart';
 import '../widgets/expense_tab.dart';
 import '../widgets/income_tab.dart';
+import '../../../../core/utils/icon_utils.dart';
 import '../../environments/screens/environment_selection_screen.dart';
 
 /// Tela Home com abas de Receitas e Despesas e seletor de mês
@@ -172,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen>
         : AppColors.textSecondary;
     final name = currentEnv?.name ?? 'Selecione um ambiente';
     final icon = currentEnv != null
-        ? IconData(currentEnv.iconCodePoint, fontFamily: 'MaterialIcons')
+        ? IconUtils.getEnvironmentIcon(currentEnv.iconCodePoint)
         : Icons.add_circle_outline;
 
     return Container(
