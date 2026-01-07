@@ -29,89 +29,107 @@ class ExpenseTab extends StatelessWidget {
     final firestoreService = context.watch<FirestoreService>();
 
     return Stack(
+      fit: StackFit.expand,
       children: [
-        Column(
-          children: [
-            // Gerenciar categorias
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Suas despesas',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+        CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverOverlapInjector(
+              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+            ),
 
-                  TextButton.icon(
-                    onPressed: () => _showFixedManager(context),
-                    icon: const Icon(Icons.bookmark_border, size: 18),
-                    label: const Text('Fixas'),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.alertRed, // Accent Color
-                      backgroundColor: AppColors.alertRed.withValues(
-                        alpha: 0.1,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+            // Gerenciar categorias (Header)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Suas despesas',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+
+                    TextButton.icon(
+                      onPressed: () => _showFixedManager(context),
+                      icon: const Icon(Icons.bookmark_border, size: 18),
+                      label: const Text('Fixas'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.alertRed,
+                        backgroundColor: AppColors.alertRed.withValues(
+                          alpha: 0.1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
 
             // Lista de despesas
-            Expanded(
-              child: StreamBuilder<List<TransactionModel>>(
-                stream: firestoreService.getExpenses(
-                  userId,
-                  context.watch<EnvironmentService>().currentEnvironment?.id ??
-                      '',
-                  month: month,
-                  year: year,
-                ),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
+            StreamBuilder<List<TransactionModel>>(
+              stream: firestoreService.getExpenses(
+                userId,
+                context.watch<EnvironmentService>().currentEnvironment?.id ??
+                    '',
+                month: month,
+                year: year,
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const SliverFillRemaining(
+                    child: Center(
                       child: CircularProgressIndicator(
                         color: AppColors.voltCyan,
                       ),
-                    );
-                  }
-
-                  final transactions = snapshot.data ?? [];
-
-                  if (transactions.isEmpty) {
-                    return _buildEmptyState(context);
-                  }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-                    itemCount: transactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = transactions[index];
-                      return TransactionCard(
-                            transaction: transaction,
-                            onDelete: canAdd
-                                ? () => firestoreService.deleteTransaction(
-                                    transaction.id!,
-                                  )
-                                : () {}, // Não permite deletar em meses anteriores
-                            canDelete: canAdd,
-                          )
-                          .animate(delay: Duration(milliseconds: index * 50))
-                          .fadeIn()
-                          .slideX(begin: 0.1);
-                    },
+                    ),
                   );
-                },
-              ),
+                }
+
+                final transactions = snapshot.data ?? [];
+
+                if (transactions.isEmpty) {
+                  return SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _buildEmptyState(context),
+                  );
+                }
+
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final transaction = transactions[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child:
+                          TransactionCard(
+                                transaction: transaction,
+                                onDelete: canAdd
+                                    ? () => firestoreService.deleteTransaction(
+                                        transaction.id!,
+                                      )
+                                    : () {},
+                                canDelete: canAdd,
+                              )
+                              .animate(
+                                delay: Duration(milliseconds: index * 50),
+                              )
+                              .fadeIn()
+                              .slideX(begin: 0.1),
+                    );
+                  }, childCount: transactions.length),
+                );
+              },
             ),
+
+            // Espaço final para o FAB não cobrir o último item
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
           ],
         ),
 
-        // FAB para adicionar despesa (apenas no mês atual)
+        // FAB para adicionar despesa
         if (canAdd)
           Positioned(right: 20, bottom: 20, child: _buildAnimatedFAB(context)),
       ],

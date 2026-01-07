@@ -447,66 +447,67 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
               );
             }
 
-            return SizedBox(
-              height: 80,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  final isSelected = _selectedCategory?.id == category.id;
-                  final icon = CategoryIcons.getIcon(
-                    category.icone,
-                    isExpense: isExpense,
-                  );
+            return Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              children: categories.map((category) {
+                final isSelected = _selectedCategory?.id == category.id;
+                final icon = CategoryIcons.getIcon(
+                  category.icone,
+                  isExpense: isExpense,
+                );
 
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() => _selectedCategory = category);
-                    },
-                    child: Container(
-                      width: 80,
-                      margin: const EdgeInsets.only(right: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? accentColor.withValues(alpha: 0.2)
-                            : AppColors.deepFinBlueLight,
-                        borderRadius: BorderRadius.circular(16),
-                        border: isSelected
-                            ? Border.all(color: accentColor, width: 2)
-                            : null,
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            icon,
+                return GestureDetector(
+                  onTap: () {
+                    setState(() => _selectedCategory = category);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 72, // Ligeiramente menor para caber melhor
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? accentColor.withValues(alpha: 0.2)
+                          : AppColors.deepFinBlueLight,
+                      borderRadius: BorderRadius.circular(16),
+                      border: isSelected
+                          ? Border.all(color: accentColor, width: 2)
+                          : Border.all(
+                              color: Colors.transparent,
+                              width: 2,
+                            ), // Borda transparente para evitar pulo no layout
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          icon,
+                          color: isSelected
+                              ? accentColor
+                              : AppColors.textSecondary,
+                          size: 24,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          category.nome,
+                          style: TextStyle(
+                            fontSize: 10,
                             color: isSelected
                                 ? accentColor
                                 : AppColors.textSecondary,
-                            size: 28,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            category.nome,
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: isSelected
-                                  ? accentColor
-                                  : AppColors.textSecondary,
-                              fontWeight: isSelected
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                        ),
+                      ],
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              }).toList(),
             );
           },
         ),

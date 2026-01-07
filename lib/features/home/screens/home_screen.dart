@@ -64,69 +64,88 @@ class _HomeScreenState extends State<HomeScreen>
     final firestoreService = context.read<FirestoreService>();
     final userId = authService.user?.uid ?? '';
 
-    return Column(
-      children: [
-        // Header (Ambiente)
-        _buildHeader(context, context.watch<EnvironmentService>()),
+    return DefaultTabController(
+      length: 2,
+      child: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) {
+          return [
+            // Header (Ambiente)
+            SliverToBoxAdapter(
+              child: _buildHeader(context, context.watch<EnvironmentService>()),
+            ),
 
-        // Seletor de mês + Resumo
-        _buildMonthSelector(userId, firestoreService),
+            // Seletor de mês + Resumo
+            SliverToBoxAdapter(
+              child: _buildMonthSelector(userId, firestoreService),
+            ),
 
-        const SizedBox(height: 16),
+            // Tip se não for mês atual
+            if (!_isCurrentMonth)
+              SliverToBoxAdapter(child: _buildPastMonthTip())
+            else
+              const SliverToBoxAdapter(child: SizedBox(height: 16)),
 
-        // Tip se não for mês atual
-        if (!_isCurrentMonth) _buildPastMonthTip(),
-
-        // TabBar customizada
-        Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: AppColors.deepFinBlueLight,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: _buildTab(
-                  index: 0,
-                  icon: Icons.trending_down,
-                  label: 'Despesas',
+            // TabBar customizada (Pinned)
+            SliverOverlapAbsorber(
+              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+              sliver: SliverPersistentHeader(
+                pinned: true,
+                delegate: _HomeTabBarDelegate(
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: AppColors.deepFinBlueLight,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.deepFinBlue.withValues(alpha: 0.8),
+                          blurRadius: 10,
+                          offset: const Offset(0, -5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: _buildTab(
+                            index: 0,
+                            icon: Icons.trending_down,
+                            label: 'Despesas',
+                          ),
+                        ),
+                        Expanded(
+                          child: _buildTab(
+                            index: 1,
+                            icon: Icons.trending_up,
+                            label: 'Receitas',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              Expanded(
-                child: _buildTab(
-                  index: 1,
-                  icon: Icons.trending_up,
-                  label: 'Receitas',
-                ),
-              ),
-            ],
-          ),
-        ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1),
-
-        const SizedBox(height: 16),
-
-        // Conteúdo das abas
-        Expanded(
-          child: IndexedStack(
-            index: _currentTabIndex,
-            children: [
-              ExpenseTab(
-                userId: userId,
-                month: _selectedMonth,
-                year: _selectedYear,
-                canAdd: _isCurrentMonth,
-              ),
-              IncomeTab(
-                userId: userId,
-                month: _selectedMonth,
-                year: _selectedYear,
-                canAdd: _isCurrentMonth,
-              ),
-            ],
-          ),
+            ),
+          ];
+        },
+        body: IndexedStack(
+          index: _currentTabIndex,
+          children: [
+            ExpenseTab(
+              userId: userId,
+              month: _selectedMonth,
+              year: _selectedYear,
+              canAdd: _isCurrentMonth,
+            ),
+            IncomeTab(
+              userId: userId,
+              month: _selectedMonth,
+              year: _selectedYear,
+              canAdd: _isCurrentMonth,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -689,5 +708,35 @@ class _HomeScreenState extends State<HomeScreen>
         ),
       ],
     );
+  }
+}
+
+class _HomeTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final Widget child;
+
+  _HomeTabBarDelegate({required this.child});
+
+  @override
+  double get minExtent => 80.0; // Altura aproximada da tab bar + margens
+
+  @override
+  double get maxExtent => 80.0;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Container(
+      color: AppColors.deepFinBlue, // Fundo para cobrir o conteúdo ao rolar
+      alignment: Alignment.center,
+      child: child,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_HomeTabBarDelegate oldDelegate) {
+    return oldDelegate.child != child;
   }
 }

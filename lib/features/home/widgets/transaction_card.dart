@@ -82,6 +82,7 @@ class TransactionCard extends StatelessWidget {
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: AppColors.textSecondary),
                           overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
                       ),
                     ],
@@ -96,7 +97,7 @@ class TransactionCard extends StatelessWidget {
             '${isExpense ? '-' : '+'} R\$ ${transaction.valor.toStringAsFixed(2)}',
             style: TextStyle(
               color: color,
-              fontSize: 16,
+              fontSize: 17,
               fontWeight: FontWeight.bold,
             ),
           ),

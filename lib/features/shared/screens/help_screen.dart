@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
@@ -130,17 +131,46 @@ class _HelpScreenState extends State<HelpScreen> {
                   style: TextStyle(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Contato com suporte em breve!'),
-                        backgroundColor: AppColors.voltCyan,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.mail_outline),
-                  label: const Text('Fale Conosco'),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: () async {
+                      const phoneNumber = '5581997947843';
+                      final url = Uri.parse('https://wa.me/$phoneNumber');
+                      try {
+                        if (!await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        )) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Não foi possível abrir o WhatsApp',
+                                ),
+                                backgroundColor: AppColors.alertRed,
+                              ),
+                            );
+                          }
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Erro ao tentar abrir o WhatsApp'),
+                              backgroundColor: AppColors.alertRed,
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.chat),
+                    label: const Text('Fale Conosco no WhatsApp'),
+                  ),
                 ),
               ],
             ),
