@@ -6,6 +6,7 @@ import '../../../core/constants/category_icons.dart';
 import '../../shared/services/firestore_service.dart';
 import '../../environments/services/environment_service.dart';
 import '../models/category_model.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Sheet para gerenciar categorias (CRUD)
 class CategoryManagerSheet extends StatefulWidget {
@@ -42,6 +43,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
         context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
     final icons = CategoryIcons.getAllIcons(isExpense: isExpense);
     final color = isExpense ? AppColors.alertRed : AppColors.successGreen;
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
@@ -71,7 +73,9 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Categorias de ${isExpense ? 'Despesas' : 'Receitas'}',
+                    isExpense
+                        ? l10n.expenseCategoriesTitle
+                        : l10n.incomeCategoriesTitle,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   IconButton(
@@ -91,7 +95,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Nova categoria',
+                    l10n.newCategoryTitle,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
@@ -99,8 +103,8 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                   // Campo de nome
                   TextField(
                     controller: _nameController,
-                    decoration: const InputDecoration(
-                      hintText: 'Nome da categoria',
+                    decoration: InputDecoration(
+                      hintText: l10n.categoryNameHint,
                       prefixIcon: Icon(Icons.label_outline),
                     ),
                     textCapitalization: TextCapitalization.sentences,
@@ -110,7 +114,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
 
                   // Seletor de ícone
                   Text(
-                    'Selecione um ícone',
+                    l10n.selectIconLabel,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
                     ),
@@ -165,7 +169,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                           ? null
                           : () {
                               FocusScope.of(context).unfocus();
-                              _addCategory(firestoreService, envId);
+                              _addCategory(firestoreService, envId, l10n);
                             },
                       style: ElevatedButton.styleFrom(backgroundColor: color),
                       child: _isAdding
@@ -177,7 +181,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                                 color: AppColors.pureWhite,
                               ),
                             )
-                          : const Text('Adicionar categoria'),
+                          : Text(l10n.addCategoryButton),
                     ),
                   ),
                 ],
@@ -192,7 +196,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
               child: Row(
                 children: [
                   Text(
-                    'Suas categorias',
+                    l10n.yourCategoriesTitle,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ],
@@ -233,13 +237,13 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Nenhuma categoria criada',
+                            l10n.noCategoriesCreated,
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(color: AppColors.textSecondary),
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Adicione categorias acima',
+                            l10n.addCategoriesAboveTip,
                             style: Theme.of(context).textTheme.bodySmall
                                 ?.copyWith(
                                   color: AppColors.textSecondary.withValues(
@@ -262,6 +266,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
                             category,
                             firestoreService,
                             color,
+                            l10n,
                           )
                           .animate(delay: Duration(milliseconds: index * 30))
                           .fadeIn()
@@ -282,6 +287,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
     CategoryModel category,
     FirestoreService firestoreService,
     Color color,
+    AppLocalizations l10n,
   ) {
     final icon = CategoryIcons.getIcon(category.icone, isExpense: isExpense);
 
@@ -314,13 +320,13 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
             icon: const Icon(Icons.edit_outlined, size: 20),
             color: AppColors.textSecondary,
             onPressed: () =>
-                _showEditDialog(context, category, firestoreService),
+                _showEditDialog(context, category, firestoreService, l10n),
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline, size: 20),
             color: AppColors.alertRed,
             onPressed: () =>
-                _confirmDelete(context, category, firestoreService),
+                _confirmDelete(context, category, firestoreService, l10n),
           ),
         ],
       ),
@@ -330,12 +336,13 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
   Future<void> _addCategory(
     FirestoreService firestoreService,
     String envId,
+    AppLocalizations l10n,
   ) async {
     final name = _nameController.text.trim();
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Digite o nome da categoria')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.enterCategoryNameError)));
       return;
     }
 
@@ -359,13 +366,13 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Categoria adicionada!')));
+        ).showSnackBar(SnackBar(content: Text(l10n.categoryAddedSuccess)));
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Erro ao adicionar categoria')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.addCategoryError)));
       }
     }
   }
@@ -374,6 +381,7 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
     BuildContext context,
     CategoryModel category,
     FirestoreService firestoreService,
+    AppLocalizations l10n,
   ) async {
     final controller = TextEditingController(text: category.nome);
 
@@ -381,20 +389,20 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.deepFinBlueLight,
-        title: const Text('Editar categoria'),
+        title: Text(l10n.editCategoryTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(hintText: 'Nome da categoria'),
+          decoration: InputDecoration(hintText: l10n.categoryNameHint),
           autofocus: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Salvar'),
+            child: Text(l10n.saveChangesButton),
           ),
         ],
       ),
@@ -410,22 +418,23 @@ class _CategoryManagerSheetState extends State<CategoryManagerSheet> {
     BuildContext context,
     CategoryModel category,
     FirestoreService firestoreService,
+    AppLocalizations l10n,
   ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.deepFinBlueLight,
-        title: const Text('Excluir categoria'),
-        content: Text('Deseja excluir "${category.nome}"?'),
+        title: Text(l10n.deleteCategoryTitle),
+        content: Text(l10n.deleteCategoryMessage(category.nome)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: AppColors.alertRed),
-            child: const Text('Excluir'),
+            child: Text(l10n.deleteButton),
           ),
         ],
       ),

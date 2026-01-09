@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/notification_model.dart';
 import '../../subscriptions/models/subscription_model.dart';
-import '../../home/models/fixed_transaction_model.dart';
-import '../../home/models/transaction_model.dart';
 
 class NotificationService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

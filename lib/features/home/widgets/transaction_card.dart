@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/category_icons.dart';
 import '../models/transaction_model.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Card de transação (receita ou despesa)
 class TransactionCard extends StatelessWidget {
@@ -25,12 +26,13 @@ class TransactionCard extends StatelessWidget {
       transaction.categoryName.toLowerCase().replaceAll(' ', '_'),
       isExpense: isExpense,
     );
+    final l10n = AppLocalizations.of(context)!;
 
     final cardWidget = Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.deepFinBlueLight,
+        color: Theme.of(context).cardTheme.color ?? Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
       ),
@@ -68,7 +70,7 @@ class TransactionCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      _formatDate(transaction.data),
+                      _formatDate(transaction.data, l10n),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -116,7 +118,7 @@ class TransactionCard extends StatelessWidget {
       direction: DismissDirection.endToStart,
       onDismissed: (_) => onDelete(),
       confirmDismiss: (direction) async {
-        return await _showDeleteConfirmation(context);
+        return await _showDeleteConfirmation(context, l10n);
       },
       background: Container(
         margin: const EdgeInsets.only(bottom: 12),
@@ -136,41 +138,42 @@ class TransactionCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final transactionDate = DateTime(date.year, date.month, date.day);
 
     if (transactionDate == today) {
-      return 'Hoje';
+      return l10n.today;
     } else if (transactionDate == yesterday) {
-      return 'Ontem';
+      return l10n.yesterday;
     } else {
       return DateFormat('dd/MM/yyyy').format(date);
     }
   }
 
-  Future<bool> _showDeleteConfirmation(BuildContext context) async {
+  Future<bool> _showDeleteConfirmation(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            backgroundColor: AppColors.deepFinBlueLight,
-            title: const Text('Excluir transação'),
-            content: const Text(
-              'Tem certeza que deseja excluir esta transação?',
-            ),
+            backgroundColor: Theme.of(context).dialogTheme.backgroundColor,
+            title: Text(l10n.deleteTransactionTitle),
+            content: Text(l10n.deleteTransactionMessage),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar'),
+                child: Text(l10n.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.alertRed,
                 ),
-                child: const Text('Excluir'),
+                child: Text(l10n.deleteButton),
               ),
             ],
           ),

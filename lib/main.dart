@@ -11,13 +11,23 @@ import 'features/shared/services/storage_service.dart';
 import 'features/notifications/services/notification_service.dart';
 import 'features/environments/services/environment_service.dart';
 import 'features/invites/services/invite_service.dart';
+import 'features/shared/services/sync_service.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
+import 'features/settings/services/theme_service.dart';
+import 'features/settings/services/locale_service.dart';
 import 'core/constants/global_keys.dart';
+
+import 'package:intl/date_symbol_data_local.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializa o Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Inicializa formatação de datas (pt_BR)
+  await initializeDateFormatting('pt_BR', null);
 
   runApp(const IQoinApp());
 }
@@ -36,6 +46,9 @@ class IQoinApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => InviteService()),
         Provider(create: (_) => StorageService()),
         ChangeNotifierProvider(create: (_) => NotificationService()),
+        ChangeNotifierProvider(create: (_) => SyncService()),
+        ChangeNotifierProvider(create: (_) => ThemeService()),
+        ChangeNotifierProvider(create: (_) => LocaleService()),
       ],
       child: const IQoinRouter(),
     );
@@ -87,11 +100,24 @@ class _IQoinRouterState extends State<IQoinRouter> {
 
   @override
   Widget build(BuildContext context) {
+    final themeService = context.watch<ThemeService>();
+    final localeService = context.watch<LocaleService>();
+
     return MaterialApp.router(
       scaffoldMessengerKey: rootScaffoldMessengerKey, // Add key
       title: 'iQoin',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeService.themeMode,
+      locale: localeService.locale,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: _router,
     );
   }

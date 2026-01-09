@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../services/auth_service.dart';
 import '../widgets/auth_text_field.dart';
@@ -43,8 +44,8 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
 
         if (!success) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Erro ao enviar email. Verifique o endereço.'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.resetPasswordError),
               backgroundColor: AppColors.alertRed,
             ),
           );
@@ -55,7 +56,9 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.errorMessage(e.toString()),
+            ),
             backgroundColor: AppColors.alertRed,
           ),
         );
@@ -65,6 +68,8 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -91,7 +96,7 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
             ),
             const SizedBox(height: 24),
 
-            if (_emailSent) _buildSuccessView() else _buildFormView(),
+            if (_emailSent) _buildSuccessView(l10n) else _buildFormView(l10n),
 
             const SizedBox(height: 24),
           ],
@@ -100,40 +105,43 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
     );
   }
 
-  Widget _buildFormView() {
+  Widget _buildFormView(AppLocalizations l10n) {
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Recuperar Senha',
-            style: TextStyle(
+          Text(
+            l10n.resetPasswordTitle,
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
               color: AppColors.pureWhite,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Digite seu email para receber um link de redefinição de senha.',
-            style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          Text(
+            l10n.resetPasswordSubtitle,
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 24),
           AuthTextField(
             controller: _emailController,
-            label: 'Email',
-            hint: 'seu@email.com',
+            label: l10n.emailLabel,
+            hint: l10n.emailHint,
             keyboardType: TextInputType.emailAddress,
             prefixIcon: Icons.email_outlined,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Digite seu email';
+                return l10n.emailRequired;
               }
               if (!RegExp(
                 r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
               ).hasMatch(value)) {
-                return 'Email inválido';
+                return l10n.emailInvalid;
               }
               return null;
             },
@@ -152,7 +160,7 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
                         color: AppColors.deepFinBlue,
                       ),
                     )
-                  : const Text('Enviar Link'),
+                  : Text(l10n.sendLinkButton),
             ),
           ),
         ],
@@ -160,7 +168,7 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
     );
   }
 
-  Widget _buildSuccessView() {
+  Widget _buildSuccessView(AppLocalizations l10n) {
     return Column(
       children: [
         const Icon(
@@ -169,19 +177,19 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
           color: AppColors.successGreen,
         ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
         const SizedBox(height: 24),
-        const Text(
-          'Email Enviado!',
-          style: TextStyle(
+        Text(
+          l10n.emailSentTitle,
+          style: const TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
             color: AppColors.pureWhite,
           ),
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Verifique sua caixa de entrada (e spam) para redefinir sua senha.',
+        Text(
+          l10n.emailSentMessage,
           textAlign: TextAlign.center,
-          style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 16),
         ),
         const SizedBox(height: 32),
         SizedBox(
@@ -192,7 +200,7 @@ class _ForgotPasswordSheetState extends State<ForgotPasswordSheet> {
               backgroundColor: AppColors.deepFinBlueLight,
               foregroundColor: AppColors.pureWhite,
             ),
-            child: const Text('Entendi'),
+            child: Text(l10n.gotIt),
           ),
         ),
       ],

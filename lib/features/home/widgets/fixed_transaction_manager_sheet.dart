@@ -9,6 +9,7 @@ import '../../environments/services/environment_service.dart';
 import '../models/category_model.dart';
 import '../models/fixed_transaction_model.dart';
 import '../models/transaction_model.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 class FixedTransactionManagerSheet extends StatefulWidget {
   final String userId;
@@ -53,14 +54,18 @@ class _FixedTransactionManagerSheetState
     });
   }
 
-  Future<void> _submit(FirestoreService firestoreService, String envId) async {
+  Future<void> _submit(
+    FirestoreService firestoreService,
+    String envId,
+    AppLocalizations l10n,
+  ) async {
     final valueText = _valueController.text.trim().replaceAll(',', '.');
     final value = double.tryParse(valueText);
 
     if (value == null || value <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, digite um valor válido'),
+        SnackBar(
+          content: Text(l10n.enterValidValue),
           backgroundColor: AppColors.alertRed,
         ),
       );
@@ -69,8 +74,8 @@ class _FixedTransactionManagerSheetState
 
     if (_selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecione uma categoria'),
+        SnackBar(
+          content: Text(l10n.selectCategoryError),
           backgroundColor: AppColors.alertRed,
         ),
       );
@@ -100,7 +105,7 @@ class _FixedTransactionManagerSheetState
       if (id != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Template salvo com sucesso!'),
+            content: Text(l10n.templateSavedSuccess),
             backgroundColor: AppColors.successGreen,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -114,8 +119,8 @@ class _FixedTransactionManagerSheetState
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erro ao salvar. Verifique sua conexão ou permissões.'),
+        SnackBar(
+          content: Text(l10n.saveError(e.toString())),
           backgroundColor: AppColors.alertRed,
         ),
       );
@@ -129,14 +134,15 @@ class _FixedTransactionManagerSheetState
     final firestoreService = context.watch<FirestoreService>();
     final envId =
         context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.85,
-        decoration: const BoxDecoration(
-          color: AppColors.deepFinBlue,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
           boxShadow: [
             BoxShadow(
               color: Colors.black45,
@@ -181,16 +187,15 @@ class _FixedTransactionManagerSheetState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isExpense ? 'Despesas Fixas' : 'Receitas Fixas',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.pureWhite,
-                          ),
+                          isExpense
+                              ? l10n.fixedExpensesTitle
+                              : l10n.fixedIncomeTitle,
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Gerencie seus modelos de preenchimento',
+                          l10n.manageTemplatesSubtitle,
                           style: TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary.withValues(
@@ -204,12 +209,12 @@ class _FixedTransactionManagerSheetState
                   if (_isAdding)
                     IconButton(
                       onPressed: _resetForm,
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.close_rounded,
-                        color: AppColors.pureWhite,
+                        color: Theme.of(context).iconTheme.color,
                       ),
                       style: IconButton.styleFrom(
-                        backgroundColor: AppColors.deepFinBlueLight,
+                        backgroundColor: Theme.of(context).cardColor,
                       ),
                     ),
                 ],
@@ -222,8 +227,8 @@ class _FixedTransactionManagerSheetState
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 300),
                 child: _isAdding
-                    ? _buildAddForm(firestoreService, envId)
-                    : _buildList(firestoreService, envId),
+                    ? _buildAddForm(firestoreService, envId, l10n)
+                    : _buildList(firestoreService, envId, l10n),
               ),
             ),
 
@@ -245,8 +250,8 @@ class _FixedTransactionManagerSheetState
                       shadowColor: accentColor.withValues(alpha: 0.4),
                     ),
                     icon: const Icon(Icons.add, color: Colors.white),
-                    label: const Text(
-                      'Criar Nova Fixa',
+                    label: Text(
+                      l10n.createNewFixedButton,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -262,7 +267,11 @@ class _FixedTransactionManagerSheetState
     );
   }
 
-  Widget _buildList(FirestoreService firestoreService, String envId) {
+  Widget _buildList(
+    FirestoreService firestoreService,
+    String envId,
+    AppLocalizations l10n,
+  ) {
     return StreamBuilder<List<FixedTransactionModel>>(
       stream: firestoreService.getFixedTransactions(
         widget.userId,
@@ -288,8 +297,8 @@ class _FixedTransactionManagerSheetState
                     color: AppColors.alertRed,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Erro ao carregar dados',
+                  Text(
+                    l10n.loadError,
                     style: TextStyle(
                       color: AppColors.pureWhite,
                       fontWeight: FontWeight.bold,
@@ -297,7 +306,7 @@ class _FixedTransactionManagerSheetState
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Isso pode ser falta de permissão ou índice no Firebase.\n${snapshot.error}',
+                    '${l10n.permissionOrIndexError}\n${snapshot.error}',
                     style: const TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 12,
@@ -320,7 +329,7 @@ class _FixedTransactionManagerSheetState
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    color: AppColors.deepFinBlueLight,
+                    color: Theme.of(context).cardColor,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -331,9 +340,8 @@ class _FixedTransactionManagerSheetState
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Sem modelos salvos',
+                  l10n.noTemplatesFound,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: AppColors.pureWhite,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -341,7 +349,7 @@ class _FixedTransactionManagerSheetState
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 40),
                   child: Text(
-                    'Crie templates para agilizar o lançamento de contas recorrentes como aluguel, salário, etc.',
+                    l10n.createTemplatesTip,
                     textAlign: TextAlign.center,
                     style: TextStyle(color: AppColors.textSecondary),
                   ),
@@ -373,24 +381,24 @@ class _FixedTransactionManagerSheetState
                 return await showDialog(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    backgroundColor: AppColors.deepFinBlueLight,
-                    title: const Text(
-                      'Excluir?',
-                      style: TextStyle(color: Colors.white),
+                    backgroundColor: Theme.of(context).dialogBackgroundColor,
+                    title: Text(
+                      l10n.deleteTemplateTitle,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
-                    content: const Text(
-                      'Deseja remover este modelo?',
+                    content: Text(
+                      l10n.deleteTemplateMessage,
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancelar'),
+                        child: Text(l10n.cancel),
                       ),
                       TextButton(
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: const Text(
-                          'Excluir',
+                        child: Text(
+                          l10n.deleteButton,
                           style: TextStyle(color: AppColors.alertRed),
                         ),
                       ),
@@ -400,15 +408,15 @@ class _FixedTransactionManagerSheetState
               },
               onDismissed: (_) {
                 firestoreService.deleteFixedTransaction(item.id!);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Modelo removido')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(l10n.templateRemoved)));
               },
               child: Container(
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.deepFinBlueLight,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: AppColors.divider.withValues(alpha: 0.05),
@@ -427,7 +435,7 @@ class _FixedTransactionManagerSheetState
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: AppColors.deepFinBlue,
+                        color: Theme.of(context).scaffoldBackgroundColor,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: accentColor.withValues(alpha: 0.3),
@@ -449,11 +457,11 @@ class _FixedTransactionManagerSheetState
                         children: [
                           Text(
                             item.categoryName,
-                            style: const TextStyle(
-                              color: AppColors.pureWhite,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
                           ),
                           if (item.descricao != null &&
                               item.descricao!.isNotEmpty)
@@ -498,7 +506,11 @@ class _FixedTransactionManagerSheetState
     );
   }
 
-  Widget _buildAddForm(FirestoreService firestoreService, String envId) {
+  Widget _buildAddForm(
+    FirestoreService firestoreService,
+    String envId,
+    AppLocalizations l10n,
+  ) {
     final categoriesStream = isExpense
         ? firestoreService.getExpenseCategories(widget.userId, envId)
         : firestoreService.getIncomeCategories(widget.userId, envId);
@@ -509,11 +521,11 @@ class _FixedTransactionManagerSheetState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Valor
-          _buildLabel('Valor Padrão'),
+          _buildLabel(l10n.defaultAmountLabel),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             decoration: BoxDecoration(
-              color: AppColors.deepFinBlueLight,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: accentColor.withValues(alpha: 0.3)),
             ),
@@ -535,10 +547,8 @@ class _FixedTransactionManagerSheetState
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
-                    style: const TextStyle(
-                      fontSize: 32,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.pureWhite,
                     ),
                     decoration: InputDecoration(
                       border: InputBorder.none,
@@ -560,7 +570,7 @@ class _FixedTransactionManagerSheetState
           const SizedBox(height: 32),
 
           // Categorias
-          _buildLabel('Categoria'),
+          _buildLabel(l10n.categoryLabel),
           StreamBuilder<List<CategoryModel>>(
             stream: categoriesStream,
             builder: (context, snapshot) {
@@ -569,7 +579,7 @@ class _FixedTransactionManagerSheetState
               }
               final categories = snapshot.data!;
               if (categories.isEmpty) {
-                return const Text('Nenhuma categoria encontrada');
+                return Text(l10n.noCategoriesFound);
               }
 
               return Wrap(
@@ -588,7 +598,7 @@ class _FixedTransactionManagerSheetState
                       decoration: BoxDecoration(
                         color: isSelected
                             ? accentColor
-                            : AppColors.deepFinBlueLight,
+                            : Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected ? accentColor : Colors.transparent,
@@ -641,11 +651,11 @@ class _FixedTransactionManagerSheetState
           const SizedBox(height: 32),
 
           // Descrição
-          _buildLabel('Descrição (Opcional)'),
+          _buildLabel(l10n.descriptionOptionalLabel),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: AppColors.deepFinBlueLight,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
             ),
             child: TextField(
@@ -655,7 +665,7 @@ class _FixedTransactionManagerSheetState
                 hintText: 'Ex: Aluguel do Apartamento',
                 prefixIcon: Icon(Icons.notes, color: AppColors.textSecondary),
               ),
-              style: const TextStyle(color: Colors.white),
+              style: Theme.of(context).textTheme.bodyLarge,
             ),
           ),
 
@@ -668,7 +678,7 @@ class _FixedTransactionManagerSheetState
             child: ElevatedButton(
               onPressed: _isSubmitting
                   ? null
-                  : () => _submit(firestoreService, envId),
+                  : () => _submit(firestoreService, envId, l10n),
               style: ElevatedButton.styleFrom(
                 backgroundColor: accentColor,
                 shape: RoundedRectangleBorder(
@@ -685,8 +695,8 @@ class _FixedTransactionManagerSheetState
                         strokeWidth: 2,
                       ),
                     )
-                  : const Text(
-                      'Salvar Template',
+                  : Text(
+                      l10n.saveTemplateButton,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,

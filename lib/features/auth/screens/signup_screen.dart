@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
 import '../services/auth_service.dart';
@@ -50,13 +51,15 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Criar conta'),
+        title: Text(l10n.registerTitle),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -75,14 +78,14 @@ class _SignupScreenState extends State<SignupScreen> {
 
                 // Título
                 Text(
-                  'Crie sua conta',
+                  l10n.registerTitle,
                   style: Theme.of(context).textTheme.displaySmall,
                 ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1),
 
                 const SizedBox(height: 8),
 
                 Text(
-                  'Comece a organizar suas finanças agora',
+                  l10n.registerSubtitle,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -93,12 +96,20 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Campo Nome
                 AuthTextField(
                   controller: _nomeController,
-                  label: 'Nome',
-                  hint: 'Seu nome completo',
+                  label: l10n.nameLabel,
+                  hint: l10n.nameHint,
                   keyboardType: TextInputType.name,
                   textCapitalization: TextCapitalization.words,
                   prefixIcon: Icons.person_outlined,
-                  validator: _validateNome,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l10n.nameRequired;
+                    }
+                    if (value.length < 2) {
+                      return l10n.nameMinLength;
+                    }
+                    return null;
+                  },
                 ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.2),
 
                 const SizedBox(height: 20),
@@ -106,11 +117,22 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Campo Email
                 AuthTextField(
                   controller: _emailController,
-                  label: 'Email',
-                  hint: 'seu@email.com',
+                  label: l10n.emailLabel,
+                  hint: l10n.emailHint,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email_outlined,
-                  validator: _validateEmail,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l10n.emailRequired;
+                    }
+                    final emailRegex = RegExp(
+                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                    );
+                    if (!emailRegex.hasMatch(value)) {
+                      return l10n.emailInvalid;
+                    }
+                    return null;
+                  },
                 ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.2),
 
                 const SizedBox(height: 20),
@@ -118,8 +140,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Campo Senha
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Senha',
-                  hint: 'Mínimo 6 caracteres',
+                  label: l10n.passwordLabel,
+                  hint: l10n.passwordHint,
                   obscureText: _obscurePassword,
                   prefixIcon: Icons.lock_outlined,
                   suffixIcon: IconButton(
@@ -132,7 +154,15 @@ class _SignupScreenState extends State<SignupScreen> {
                       setState(() => _obscurePassword = !_obscurePassword);
                     },
                   ),
-                  validator: _validatePassword,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l10n.passwordRequired;
+                    }
+                    if (value.length < 6) {
+                      return l10n.passwordMinLength;
+                    }
+                    return null;
+                  },
                 ).animate(delay: 400.ms).fadeIn().slideY(begin: 0.2),
 
                 const SizedBox(height: 20),
@@ -140,8 +170,8 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Campo Confirmar Senha
                 AuthTextField(
                   controller: _confirmPasswordController,
-                  label: 'Confirmar senha',
-                  hint: 'Digite novamente',
+                  label: l10n.confirmPasswordLabel,
+                  hint: l10n.confirmPasswordHint,
                   obscureText: _obscureConfirmPassword,
                   prefixIcon: Icons.lock_outlined,
                   suffixIcon: IconButton(
@@ -157,7 +187,15 @@ class _SignupScreenState extends State<SignupScreen> {
                       );
                     },
                   ),
-                  validator: _validateConfirmPassword,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return l10n.confirmPasswordRequired;
+                    }
+                    if (value != _passwordController.text) {
+                      return l10n.passwordsDoNotMatch;
+                    }
+                    return null;
+                  },
                 ).animate(delay: 500.ms).fadeIn().slideY(begin: 0.2),
 
                 const SizedBox(height: 32),
@@ -220,7 +258,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   color: AppColors.deepFinBlue,
                                 ),
                               )
-                            : const Text('Criar conta'),
+                            : Text(l10n.registerButton),
                       ),
                     );
                   },
@@ -234,7 +272,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Já tem uma conta? ',
+                        '${l10n.alreadyHaveAccount} ',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -242,7 +280,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       TextButton(
                         onPressed: () =>
                             context.pushReplacement(AppRoutes.login),
-                        child: const Text('Entrar'),
+                        child: Text(l10n.loginButton),
                       ),
                     ],
                   ),
@@ -253,46 +291,5 @@ class _SignupScreenState extends State<SignupScreen> {
         ),
       ),
     );
-  }
-
-  String? _validateNome(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Digite seu nome';
-    }
-    if (value.length < 2) {
-      return 'Nome muito curto';
-    }
-    return null;
-  }
-
-  String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Digite seu email';
-    }
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    if (!emailRegex.hasMatch(value)) {
-      return 'Email inválido';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Digite uma senha';
-    }
-    if (value.length < 6) {
-      return 'A senha deve ter pelo menos 6 caracteres';
-    }
-    return null;
-  }
-
-  String? _validateConfirmPassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Confirme sua senha';
-    }
-    if (value != _passwordController.text) {
-      return 'As senhas não coincidem';
-    }
-    return null;
   }
 }

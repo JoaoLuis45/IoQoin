@@ -6,12 +6,15 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../auth/services/auth_service.dart';
 
+import 'package:ioqoin/l10n/app_localizations.dart';
+
 /// Menu lateral (Drawer) do app com visual aprimorado
 class DrawerMenu extends StatelessWidget {
   const DrawerMenu({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final authService = context.watch<AuthService>();
     final user = authService.userModel;
 
@@ -21,8 +24,10 @@ class DrawerMenu extends StatelessWidget {
     final displayName = authUser?.displayName ?? user?.nome ?? 'Usuário';
     final email = authUser?.email ?? user?.email ?? '';
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Drawer(
-      backgroundColor: AppColors.deepFinBlue,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       elevation: 0,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -30,14 +35,22 @@ class DrawerMenu extends StatelessWidget {
           // Header com Gradiente
           Container(
             padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [AppColors.deepFinBlueLight, AppColors.deepFinBlue],
+                colors: isDark
+                    ? [AppColors.deepFinBlueLight, AppColors.deepFinBlue]
+                    : [
+                        Theme.of(context).cardColor,
+                        Theme.of(context).scaffoldBackgroundColor,
+                      ],
               ),
               border: Border(
-                bottom: BorderSide(color: AppColors.deepFinBlueLight, width: 1),
+                bottom: BorderSide(
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                  width: 1,
+                ),
               ),
             ),
             child: Column(
@@ -48,11 +61,9 @@ class DrawerMenu extends StatelessWidget {
                   children: [
                     Image.asset('assets/images/logo.png', height: 28),
                     const SizedBox(width: 12),
-                    const Text(
+                    Text(
                       'iQoin',
-                      style: TextStyle(
-                        color: AppColors.pureWhite,
-                        fontSize: 20,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1,
                       ),
@@ -105,11 +116,11 @@ class DrawerMenu extends StatelessWidget {
                         children: [
                           Text(
                             displayName,
-                            style: const TextStyle(
-                              color: AppColors.pureWhite,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -131,11 +142,11 @@ class DrawerMenu extends StatelessWidget {
                             InkWell(
                               onTap: () {
                                 Clipboard.setData(
-                                  ClipboardData(text: user!.userTag!),
+                                  ClipboardData(text: user!.userTag ?? ''),
                                 );
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Tag copiada!'),
+                                  SnackBar(
+                                    content: Text(l10n.profileTagCopied),
                                     backgroundColor: AppColors.successGreen,
                                     duration: Duration(seconds: 1),
                                   ),
@@ -224,7 +235,7 @@ class DrawerMenu extends StatelessWidget {
               children: [
                 _StyledDrawerItem(
                   icon: Icons.person_outline_rounded,
-                  label: 'Meu Perfil',
+                  label: l10n.drawerMyProfile,
                   onTap: () {
                     Navigator.pop(context);
                     context.push(AppRoutes.profile);
@@ -233,7 +244,7 @@ class DrawerMenu extends StatelessWidget {
                 const SizedBox(height: 8),
                 _StyledDrawerItem(
                   icon: Icons.help_outline_rounded,
-                  label: 'Ajuda',
+                  label: l10n.drawerHelp,
                   onTap: () {
                     Navigator.pop(context);
                     context.push(AppRoutes.help);
@@ -242,10 +253,19 @@ class DrawerMenu extends StatelessWidget {
                 const SizedBox(height: 8),
                 _StyledDrawerItem(
                   icon: Icons.info_outline_rounded,
-                  label: 'Sobre o iQoin',
+                  label: l10n.drawerAbout,
                   onTap: () {
                     Navigator.pop(context);
                     context.push(AppRoutes.about);
+                  },
+                ),
+                const SizedBox(height: 8),
+                _StyledDrawerItem(
+                  icon: Icons.settings_outlined,
+                  label: l10n.drawerSettings,
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push(AppRoutes.settings);
                   },
                 ),
               ],
@@ -261,10 +281,10 @@ class DrawerMenu extends StatelessWidget {
                 const SizedBox(height: 16),
                 _StyledDrawerItem(
                   icon: Icons.logout_rounded,
-                  label: 'Sair da conta',
+                  label: l10n.drawerLogout,
                   isDestructive: true,
                   onTap: () async {
-                    final confirmed = await _showLogoutDialog(context);
+                    final confirmed = await _showLogoutDialog(context, l10n);
                     if (confirmed && context.mounted) {
                       await authService.signOut();
                       // Redirecionamento automático via GoRouter listener
@@ -273,7 +293,7 @@ class DrawerMenu extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Versão 1.0.0',
+                  '${l10n.drawerVersion} 1.0.0',
                   style: TextStyle(
                     color: AppColors.textSecondary.withValues(alpha: 0.3),
                     fontSize: 10,
@@ -295,28 +315,33 @@ class DrawerMenu extends StatelessWidget {
     return '${parts[0][0]}${parts.last[0]}'.toUpperCase();
   }
 
-  Future<bool> _showLogoutDialog(BuildContext context) async {
+  Future<bool> _showLogoutDialog(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) async {
     return await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            backgroundColor: AppColors.deepFinBlueLight,
+            backgroundColor: Theme.of(context).dialogBackgroundColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
               side: const BorderSide(color: AppColors.voltCyan, width: 0.5),
             ),
-            title: const Text(
-              'Confirmar saída',
-              style: TextStyle(color: AppColors.pureWhite),
+            title: Text(
+              l10n.drawerLogoutConfirmTitle,
+              style: Theme.of(context).textTheme.titleLarge,
             ),
-            content: const Text(
-              'Tem certeza que deseja desconectar sua conta?',
-              style: TextStyle(color: AppColors.textSecondary),
+            content: Text(
+              l10n.drawerLogoutConfirmMessage,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text(
-                  'Cancelar',
+                child: Text(
+                  l10n.cancel,
                   style: TextStyle(color: AppColors.textSecondary),
                 ),
               ),
@@ -326,7 +351,7 @@ class DrawerMenu extends StatelessWidget {
                   backgroundColor: AppColors.alertRed.withValues(alpha: 0.2),
                   foregroundColor: AppColors.alertRed,
                 ),
-                child: const Text('Sair'),
+                child: Text(l10n.drawerLogout),
               ),
             ],
           ),
@@ -350,7 +375,9 @@ class _StyledDrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isDestructive ? AppColors.alertRed : AppColors.pureWhite;
+    final color = isDestructive
+        ? AppColors.alertRed
+        : Theme.of(context).textTheme.bodyLarge?.color ?? AppColors.pureWhite;
     final iconColor = isDestructive ? AppColors.alertRed : AppColors.voltCyan;
 
     return Material(

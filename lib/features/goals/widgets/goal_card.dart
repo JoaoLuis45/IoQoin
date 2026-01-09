@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/goal_icons.dart';
 import '../models/goal_model.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Card de objetivo com progresso visual
 class GoalCard extends StatelessWidget {
@@ -23,6 +24,7 @@ class GoalCard extends StatelessWidget {
         : goal.atrasado
         ? AppColors.alertRed
         : AppColors.voltCyan;
+    final l10n = AppLocalizations.of(context)!;
 
     return Dismissible(
       key: Key(goal.id ?? ''),
@@ -47,7 +49,7 @@ class GoalCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: AppColors.deepFinBlueLight,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: progressColor.withValues(alpha: 0.3),
@@ -99,9 +101,9 @@ class GoalCard extends StatelessWidget {
                                 ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text(
-                                'Concluído!',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.goalCompletedStatus,
+                                style: const TextStyle(
                                   color: AppColors.successGreen,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -120,9 +122,9 @@ class GoalCard extends StatelessWidget {
                                 ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: const Text(
-                                'Atrasado',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.goalOverdueStatus,
+                                style: const TextStyle(
                                   color: AppColors.alertRed,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
@@ -131,7 +133,9 @@ class GoalCard extends StatelessWidget {
                             )
                           else
                             Text(
-                              '${goal.diasRestantes} dias restantes',
+                              l10n.daysRemainingSuffix(
+                                goal.diasRestantes.toString(),
+                              ),
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: AppColors.textSecondary),
                             ),
@@ -175,7 +179,7 @@ class GoalCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'de R\$ ${goal.valorAlvo.toStringAsFixed(2)}',
+                  '${l10n.goalProgressOf} R\$ ${goal.valorAlvo.toStringAsFixed(2)}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),

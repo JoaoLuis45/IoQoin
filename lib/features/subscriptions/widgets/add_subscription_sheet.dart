@@ -5,6 +5,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/subscription_icons.dart';
 import '../../shared/services/firestore_service.dart';
 import '../models/subscription_model.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Sheet para adicionar nova assinatura
 class AddSubscriptionSheet extends StatefulWidget {
@@ -38,9 +39,9 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.deepFinBlue,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: EdgeInsets.fromLTRB(
           24,
@@ -71,7 +72,7 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
 
                 Center(
                   child: Text(
-                    'Nova Assinatura',
+                    AppLocalizations.of(context)!.newSubscriptionTitle,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -81,14 +82,20 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
                 // Nome
                 TextFormField(
                   controller: _nomeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome da assinatura',
-                    hintText: 'Ex: Netflix, Spotify',
-                    prefixIcon: Icon(Icons.subscriptions_outlined),
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(
+                      context,
+                    )!.subscriptionNameLabel,
+                    hintText: AppLocalizations.of(
+                      context,
+                    )!.subscriptionNameHint,
+                    prefixIcon: const Icon(Icons.subscriptions_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite um nome';
+                      return AppLocalizations.of(
+                        context,
+                      )!.subscriptionNameRequired;
                     }
                     return null;
                   },
@@ -102,19 +109,19 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  decoration: const InputDecoration(
-                    labelText: 'Valor',
+                  decoration: InputDecoration(
+                    labelText: AppLocalizations.of(context)!.amountLabel,
                     hintText: '0,00',
                     prefixText: 'R\$ ',
-                    prefixIcon: Icon(Icons.attach_money),
+                    prefixIcon: const Icon(Icons.attach_money),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite um valor';
+                      return AppLocalizations.of(context)!.targetAmountRequired;
                     }
                     final parsed = double.tryParse(value.replaceAll(',', '.'));
                     if (parsed == null || parsed <= 0) {
-                      return 'Valor inválido';
+                      return AppLocalizations.of(context)!.invalidAmountError;
                     }
                     return null;
                   },
@@ -124,7 +131,7 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
 
                 // Frequência
                 Text(
-                  'Frequência',
+                  AppLocalizations.of(context)!.subscriptionFrequencyLabel,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -145,7 +152,7 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.voltCyan.withValues(alpha: 0.2)
-                                : AppColors.deepFinBlueLight,
+                                : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: isSelected
@@ -176,7 +183,7 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
 
                 // Dia de cobrança
                 Text(
-                  'Dia de cobrança',
+                  AppLocalizations.of(context)!.subscriptionBillingDayLabel,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -191,7 +198,9 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
                         max: 28,
                         divisions: 27,
                         activeColor: AppColors.voltCyan,
-                        inactiveColor: AppColors.deepFinBlueLight,
+                        inactiveColor: Theme.of(
+                          context,
+                        ).dividerColor.withValues(alpha: 0.2),
                         onChanged: (value) {
                           setState(() => _diaCobranca = value.round());
                         },
@@ -223,7 +232,7 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
 
                 // Seletor de ícone
                 Text(
-                  'Ícone',
+                  AppLocalizations.of(context)!.subscriptionIconLabel,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -248,7 +257,7 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.voltCyan.withValues(alpha: 0.2)
-                                : AppColors.deepFinBlueLight,
+                                : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
@@ -285,7 +294,11 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
                               color: AppColors.deepFinBlue,
                             ),
                           )
-                        : const Text('Adicionar assinatura'),
+                        : Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.subscriptionsAddButton,
+                          ),
                   ),
                 ).animate().fadeIn(delay: 200.ms),
               ],
@@ -319,8 +332,10 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Assinatura adicionada!'),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.subscriptionAddedSuccess,
+            ),
             backgroundColor: AppColors.successGreen,
           ),
         );
@@ -329,7 +344,9 @@ class _AddSubscriptionSheetState extends State<AddSubscriptionSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.saveError(e.toString()),
+            ),
             backgroundColor: AppColors.alertRed,
           ),
         );

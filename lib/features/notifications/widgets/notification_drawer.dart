@@ -7,6 +7,7 @@ import '../../../core/constants/app_colors.dart';
 import '../models/notification_model.dart';
 import '../services/notification_service.dart';
 import '../../auth/services/auth_service.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 class NotificationDrawer extends StatelessWidget {
   const NotificationDrawer({super.key});
@@ -16,6 +17,7 @@ class NotificationDrawer extends StatelessWidget {
     final authService = context.watch<AuthService>();
     final notificationService = context.watch<NotificationService>();
     final userId = authService.user?.uid ?? '';
+    final l10n = AppLocalizations.of(context)!;
 
     // Trigger check moved to MainScreen
 
@@ -28,7 +30,9 @@ class NotificationDrawer extends StatelessWidget {
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
             child: Container(
-              color: AppColors.deepFinBlue.withValues(alpha: 0.95),
+              color: Theme.of(
+                context,
+              ).scaffoldBackgroundColor.withValues(alpha: 0.95),
             ),
           ),
 
@@ -36,7 +40,7 @@ class NotificationDrawer extends StatelessWidget {
             child: Column(
               children: [
                 // Header Premium
-                _buildHeader(context, notificationService, userId),
+                _buildHeader(context, notificationService, userId, l10n),
 
                 // Lista de Notificações
                 Expanded(
@@ -48,13 +52,13 @@ class NotificationDrawer extends StatelessWidget {
                       }
 
                       if (snapshot.hasError) {
-                        return _buildErrorState(snapshot.error);
+                        return _buildErrorState(snapshot.error, l10n);
                       }
 
                       final notifications = snapshot.data ?? [];
 
                       if (notifications.isEmpty) {
-                        return _buildEmptyState();
+                        return _buildEmptyState(context, l10n);
                       }
 
                       return ListView.separated(
@@ -71,6 +75,7 @@ class NotificationDrawer extends StatelessWidget {
                                 context,
                                 note,
                                 notificationService,
+                                l10n,
                               )
                               .animate(delay: (50 * index).ms)
                               .fadeIn()
@@ -92,19 +97,20 @@ class NotificationDrawer extends StatelessWidget {
     BuildContext context,
     NotificationService service,
     String userId,
+    AppLocalizations l10n,
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.deepFinBlue,
+        color: Theme.of(context).cardColor,
         border: Border(
           bottom: BorderSide(
-            color: AppColors.pureWhite.withValues(alpha: 0.05),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
           ),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -127,21 +133,27 @@ class NotificationDrawer extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              const Text(
-                'Central de Avisos',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.pureWhite,
-                  letterSpacing: 0.5,
+              Expanded(
+                child: Text(
+                  l10n.notificationsTitle,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               IconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.close, color: AppColors.textSecondary),
+                icon: Icon(
+                  Icons.close,
+                  color: Theme.of(context).iconTheme.color,
+                ),
                 style: IconButton.styleFrom(
-                  backgroundColor: AppColors.pureWhite.withValues(alpha: 0.05),
+                  backgroundColor: Theme.of(
+                    context,
+                  ).dividerColor.withValues(alpha: 0.1),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -157,60 +169,72 @@ class NotificationDrawer extends StatelessWidget {
                 stream: service.getUnreadCount(userId),
                 builder: (context, snapshot) {
                   final count = snapshot.data ?? 0;
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: count > 0
-                          ? AppColors.alertRed.withValues(alpha: 0.1)
-                          : AppColors.successGreen.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: count > 0
-                            ? AppColors.alertRed.withValues(alpha: 0.3)
-                            : AppColors.successGreen.withValues(alpha: 0.3),
+                  return Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          count > 0
-                              ? Icons.mark_email_unread_outlined
-                              : Icons.check_circle_outline,
-                          size: 14,
+                      decoration: BoxDecoration(
+                        color: count > 0
+                            ? AppColors.alertRed.withValues(alpha: 0.1)
+                            : AppColors.successGreen.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
                           color: count > 0
-                              ? AppColors.alertRed
-                              : AppColors.successGreen,
+                              ? AppColors.alertRed.withValues(alpha: 0.3)
+                              : AppColors.successGreen.withValues(alpha: 0.3),
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          count > 0 ? '$count não lidas' : 'Tudo lido',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            count > 0
+                                ? Icons.mark_email_unread_outlined
+                                : Icons.check_circle_outline,
+                            size: 14,
                             color: count > 0
                                 ? AppColors.alertRed
                                 : AppColors.successGreen,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              count > 0
+                                  ? l10n.notificationsUnread(count)
+                                  : l10n.notificationsAllRead,
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: count > 0
+                                    ? AppColors.alertRed
+                                    : AppColors.successGreen,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
               ),
               const Spacer(),
-              TextButton.icon(
-                onPressed: () => service.markAllAsRead(userId),
-                icon: const Icon(Icons.done_all, size: 16),
-                label: const Text('Ler todas'),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppColors.textSecondary,
-                  textStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
+              Flexible(
+                child: TextButton.icon(
+                  onPressed: () => service.markAllAsRead(userId),
+                  icon: const Icon(Icons.done_all, size: 16),
+                  label: Text(
+                    l10n.notificationsMarkAllRead,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    textStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
               ),
@@ -221,7 +245,7 @@ class NotificationDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -229,7 +253,7 @@ class NotificationDrawer extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: AppColors.pureWhite.withValues(alpha: 0.03),
+              color: Theme.of(context).cardColor,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -240,20 +264,17 @@ class NotificationDrawer extends StatelessWidget {
           ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack),
           const SizedBox(height: 24),
           Text(
-            'Tudo tranquilo',
-            style: TextStyle(
-              color: AppColors.pureWhite.withValues(alpha: 0.9),
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            l10n.notificationsEmptyTitle,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
-            'Você não tem novas notificações no momento.',
-            style: TextStyle(
-              color: AppColors.textSecondary.withValues(alpha: 0.7),
-              fontSize: 14,
-            ),
+            l10n.notificationsEmptyMessage,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -261,7 +282,7 @@ class NotificationDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorState(Object? error) {
+  Widget _buildErrorState(Object? error, AppLocalizations l10n) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -274,8 +295,8 @@ class NotificationDrawer extends StatelessWidget {
               size: 48,
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Erro de Conexão',
+            Text(
+              l10n.notificationsConnectionError,
               style: TextStyle(
                 color: AppColors.pureWhite,
                 fontWeight: FontWeight.bold,
@@ -284,7 +305,7 @@ class NotificationDrawer extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Verifique se o índice foi criado no Firebase.\n$error',
+              '${l10n.notificationsErrorHint}\n$error',
               style: const TextStyle(
                 color: AppColors.textSecondary,
                 fontSize: 12,
@@ -301,6 +322,7 @@ class NotificationDrawer extends StatelessWidget {
     BuildContext context,
     NotificationModel note,
     NotificationService service,
+    AppLocalizations l10n,
   ) {
     Color iconColor;
     IconData iconData;
@@ -350,8 +372,8 @@ class NotificationDrawer extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: note.isRead
-                ? AppColors.pureWhite.withValues(alpha: 0.03)
-                : AppColors.pureWhite.withValues(alpha: 0.08),
+                ? Theme.of(context).cardColor.withValues(alpha: 0.5)
+                : Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: note.isRead
@@ -391,7 +413,7 @@ class NotificationDrawer extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: note.isRead
-                        ? AppColors.pureWhite.withValues(alpha: 0.05)
+                        ? Theme.of(context).dividerColor.withValues(alpha: 0.1)
                         : iconColor.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
@@ -416,19 +438,16 @@ class NotificationDrawer extends StatelessWidget {
                           Expanded(
                             child: Text(
                               note.title,
-                              style: TextStyle(
-                                color: note.isRead
-                                    ? AppColors.pureWhite.withValues(alpha: 0.7)
-                                    : AppColors.pureWhite,
-                                fontWeight: note.isRead
-                                    ? FontWeight.w500
-                                    : FontWeight.w700,
-                                fontSize: 15,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: note.isRead
+                                        ? FontWeight.w500
+                                        : FontWeight.w700,
+                                  ),
                             ),
                           ),
                           Text(
-                            _formatTime(note.createdAt),
+                            _formatTime(note.createdAt, l10n),
                             style: TextStyle(
                               color: AppColors.textSecondary.withValues(
                                 alpha: 0.6,
@@ -441,12 +460,8 @@ class NotificationDrawer extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         note.body,
-                        style: TextStyle(
-                          color: note.isRead
-                              ? AppColors.textSecondary.withValues(alpha: 0.7)
-                              : AppColors.textSecondary,
-                          fontSize: 13,
-                          height: 1.4,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -460,7 +475,7 @@ class NotificationDrawer extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime time) {
+  String _formatTime(DateTime time, AppLocalizations l10n) {
     final now = DateTime.now();
     final diff = now.difference(time);
 
@@ -470,11 +485,11 @@ class NotificationDrawer extends StatelessWidget {
       }
       return "${diff.inHours}h";
     } else if (diff.inDays == 1) {
-      return "Ontem";
+      return l10n.timeYesterday;
     } else if (diff.inDays < 7) {
       return "${diff.inDays}d";
     } else {
-      return DateFormat('dd/MM').format(time);
+      return DateFormat('dd/MM', l10n.localeName).format(time);
     }
   }
 }

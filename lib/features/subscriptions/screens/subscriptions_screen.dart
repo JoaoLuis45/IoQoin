@@ -4,10 +4,13 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../shared/services/sync_service.dart';
 import '../../environments/services/environment_service.dart';
 import '../models/subscription_model.dart';
 import '../widgets/add_subscription_sheet.dart';
 import '../widgets/subscription_card.dart';
+
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Tela de Inscrições (Assinaturas Recorrentes)
 class SubscriptionsScreen extends StatelessWidget {
@@ -41,7 +44,11 @@ class SubscriptionsScreen extends StatelessWidget {
 
               if (snapshot.hasError) {
                 return Center(
-                  child: Text('Erro ao carregar inscrições: ${snapshot.error}'),
+                  child: Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.goalsLoadError(snapshot.error.toString()),
+                  ),
                 );
               }
 
@@ -51,28 +58,37 @@ class SubscriptionsScreen extends StatelessWidget {
                 return _buildEmptyState(context);
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
-                itemCount: subscriptions.length,
-                itemBuilder: (context, index) {
-                  final subscription = subscriptions[index];
-                  return SubscriptionCard(
-                        subscription: subscription,
-                        onToggle: () => _toggleSubscription(
-                          context,
-                          firestoreService,
-                          subscription,
-                        ),
-                        onDelete: () => _confirmDelete(
-                          context,
-                          firestoreService,
-                          subscription,
-                        ),
-                      )
-                      .animate(delay: Duration(milliseconds: index * 50))
-                      .fadeIn()
-                      .slideX(begin: 0.1);
+              return RefreshIndicator(
+                onRefresh: () async {
+                  await context.read<SyncService>().reload();
+                  await Future.delayed(const Duration(milliseconds: 500));
                 },
+                backgroundColor: AppColors.deepFinBlueLight,
+                color: AppColors.voltCyan,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                  itemCount: subscriptions.length,
+                  itemBuilder: (context, index) {
+                    final subscription = subscriptions[index];
+                    return SubscriptionCard(
+                          subscription: subscription,
+                          onToggle: () => _toggleSubscription(
+                            context,
+                            firestoreService,
+                            subscription,
+                          ),
+                          onDelete: () => _confirmDelete(
+                            context,
+                            firestoreService,
+                            subscription,
+                          ),
+                        )
+                        .animate(delay: Duration(milliseconds: index * 50))
+                        .fadeIn()
+                        .slideX(begin: 0.1);
+                  },
+                ),
               );
             },
           ),
@@ -86,21 +102,30 @@ class SubscriptionsScreen extends StatelessWidget {
     String userId,
     FirestoreService firestoreService,
   ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            AppColors.deepFinBlueLight,
-            AppColors.deepFinBlueLight.withValues(alpha: 0.8),
-          ],
+          colors: isDark
+              ? [
+                  AppColors.deepFinBlueLight,
+                  AppColors.deepFinBlueLight.withValues(alpha: 0.8),
+                ]
+              : [
+                  Theme.of(context).cardColor,
+                  Theme.of(context).scaffoldBackgroundColor,
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColors.voltCyan.withValues(alpha: 0.2),
+          color: isDark
+              ? AppColors.voltCyan.withValues(alpha: 0.2)
+              : Theme.of(context).dividerColor.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
@@ -112,7 +137,7 @@ class SubscriptionsScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Minhas Assinaturas',
+                  AppLocalizations.of(context)!.subscriptionsTitle,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
               ),
@@ -131,7 +156,7 @@ class SubscriptionsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Acompanhe seus gastos recorrentes',
+            AppLocalizations.of(context)!.subscriptionsSubtitle,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
@@ -156,7 +181,7 @@ class SubscriptionsScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Total mensal',
+                        AppLocalizations.of(context)!.subscriptionsTotalMonthly,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -182,7 +207,9 @@ class SubscriptionsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${subscriptions.where((s) => s.ativo).length} ativas',
+                      AppLocalizations.of(context)!.subscriptionsActiveCount(
+                        subscriptions.where((s) => s.ativo).length,
+                      ),
                       style: const TextStyle(
                         color: AppColors.voltCyan,
                         fontSize: 14,
@@ -219,14 +246,14 @@ class SubscriptionsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           Text(
-            'Nenhuma assinatura cadastrada',
+            AppLocalizations.of(context)!.subscriptionsEmptyTitle,
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
-            'Adicione suas assinaturas\npara acompanhar os gastos',
+            AppLocalizations.of(context)!.subscriptionsEmptyMessage,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary.withValues(alpha: 0.7),
@@ -236,7 +263,7 @@ class SubscriptionsScreen extends StatelessWidget {
           ElevatedButton.icon(
             onPressed: () => _showAddSubscriptionSheet(context),
             icon: const Icon(Icons.add),
-            label: const Text('Adicionar assinatura'),
+            label: Text(AppLocalizations.of(context)!.subscriptionsAddButton),
           ),
         ],
       ).animate().fadeIn(duration: 500.ms),
@@ -249,7 +276,9 @@ class SubscriptionsScreen extends StatelessWidget {
 
     if (userId == null || userId.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro: Usuário não identificado')),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.userUnidentifiedError),
+        ),
       );
       return;
     }
@@ -257,7 +286,7 @@ class SubscriptionsScreen extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       builder: (context) => AddSubscriptionSheet(userId: userId),
     );
   }
@@ -280,13 +309,23 @@ class SubscriptionsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.deepFinBlueLight,
-        title: const Text('Excluir assinatura'),
-        content: Text('Deseja excluir "${subscription.nome}"?'),
+        backgroundColor: Theme.of(context).dialogBackgroundColor,
+        title: Text(
+          AppLocalizations.of(context)!.subscriptionsDeleteTitle,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
+        content: Text(
+          AppLocalizations.of(
+            context,
+          )!.subscriptionsDeleteMessage(subscription.nome),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -294,7 +333,7 @@ class SubscriptionsScreen extends StatelessWidget {
               if (context.mounted) Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.alertRed),
-            child: const Text('Excluir'),
+            child: Text(AppLocalizations.of(context)!.deleteButton),
           ),
         ],
       ),

@@ -6,7 +6,10 @@ import '../../../core/constants/category_icons.dart';
 import '../../auth/services/auth_service.dart';
 import '../../home/models/category_model.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../shared/services/sync_service.dart';
 import '../../environments/services/environment_service.dart';
+import '../../dashboard/screens/transactions_by_category_screen.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Tela dedicada para gestão de categorias (CRUD)
 class CategoriesScreen extends StatefulWidget {
@@ -81,21 +84,27 @@ class _CategoriesScreenState extends State<CategoriesScreen>
     }
 
     return Scaffold(
-      backgroundColor: AppColors.deepFinBlue, // Dark theme para consistência
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: Column(
         children: [
           // Abas superiores (Despesas / Receitas)
           // Usando uma cor ligeiramente diferente para distinguir do corpo, mas ainda escura
           Container(
-            color: AppColors.deepFinBlueLight,
+            color: Theme.of(context).cardColor,
             child: TabBar(
               controller: _tabController,
               indicatorColor: AppColors.voltCyan,
               labelColor: AppColors.voltCyan,
               unselectedLabelColor: AppColors.textSecondary,
-              tabs: const [
-                Tab(text: 'Despesas', icon: Icon(Icons.money_off)),
-                Tab(text: 'Receitas', icon: Icon(Icons.attach_money)),
+              tabs: [
+                Tab(
+                  text: AppLocalizations.of(context)!.categoriesTabExpenses,
+                  icon: const Icon(Icons.money_off),
+                ),
+                Tab(
+                  text: AppLocalizations.of(context)!.categoriesTabIncome,
+                  icon: const Icon(Icons.attach_money),
+                ),
               ],
             ),
           ),
@@ -125,7 +134,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
               backgroundColor: AppColors.voltCyan,
               foregroundColor: AppColors.deepFinBlue,
               icon: const Icon(Icons.add),
-              label: const Text('Nova Categoria'),
+              label: Text(AppLocalizations.of(context)!.categoriesNewCategory),
             ),
     );
   }
@@ -143,15 +152,51 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           height: _isAdding ? null : 0,
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
-            color: AppColors.deepFinBlueLight.withValues(alpha: 0.3),
-            border: const Border(
-              bottom: BorderSide(color: AppColors.divider, width: 0.5),
-            ),
+            color: Theme.of(context).cardColor.withValues(alpha: 0.3),
+            // border: const Border(
+            //   bottom: BorderSide(color: AppColors.divider, width: 0.5),
+            // ), // REMOVIDO: Linha branca feia
+            borderRadius: BorderRadius.circular(
+              16,
+            ), // Rounded for form container too if visible
           ),
           child: _isAdding
               ? _buildForm(firestoreService, userId, envId, type, themeColor)
               : null,
         ),
+
+        // Tip de ajuda Redesenhado
+        if (!_isAdding)
+          Container(
+            margin: const EdgeInsets.only(bottom: 24, top: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.voltCyan.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: AppColors.voltCyan.withValues(alpha: 0.2),
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.touch_app_outlined,
+                  size: 16,
+                  color: AppColors.voltCyan.withValues(alpha: 0.8),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context)!.categoriesHistoryTip,
+                  style: TextStyle(
+                    color: AppColors.voltCyan.withValues(alpha: 0.9),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
 
         // Lista de Categorias
         Expanded(
@@ -163,10 +208,10 @@ class _CategoriesScreenState extends State<CategoriesScreen>
               }
 
               if (snapshot.hasError) {
-                return const Center(
+                return Center(
                   child: Text(
-                    'Erro ao carregar categorias',
-                    style: TextStyle(color: AppColors.alertRed),
+                    AppLocalizations.of(context)!.categoriesLoadError,
+                    style: const TextStyle(color: AppColors.alertRed),
                   ),
                 );
               }
@@ -184,105 +229,169 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                         color: AppColors.textSecondary.withValues(alpha: 0.3),
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Nenhuma categoria encontrada',
-                        style: TextStyle(color: AppColors.textSecondary),
+                      Text(
+                        AppLocalizations.of(context)!.categoriesEmpty,
+                        style: const TextStyle(color: AppColors.textSecondary),
                       ),
                     ],
                   ),
                 );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.only(bottom: 80, top: 8),
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  // category.id deve existir se veio do Firestore
-                  final catId = category.id;
+              return RefreshIndicator(
+                onRefresh: () async {
+                  await context.read<SyncService>().reload();
+                  await Future.delayed(const Duration(milliseconds: 500));
+                },
+                backgroundColor: Theme.of(context).cardColor,
+                color: AppColors.voltCyan,
+                child: ListView.builder(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 80, top: 8),
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    // category.id deve existir se veio do Firestore
+                    final catId = category.id;
 
-                  return Dismissible(
-                    key: Key(catId ?? 'cat_$index'),
-                    direction: DismissDirection.endToStart,
-                    background: Container(
-                      color: AppColors.alertRed,
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.only(right: 20),
-                      child: const Icon(Icons.delete, color: Colors.white),
-                    ),
-                    confirmDismiss: (direction) async {
-                      return await showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          backgroundColor: AppColors.deepFinBlue,
-                          title: const Text(
-                            'Excluir categoria?',
-                            style: TextStyle(color: AppColors.pureWhite),
-                          ),
-                          content: const Text(
-                            'Isso não excluirá as transações existentes.',
-                            style: TextStyle(color: AppColors.textSecondary),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, false),
-                              child: const Text(
-                                'Cancelar',
-                                style: TextStyle(color: AppColors.voltCyan),
-                              ),
+                    return Dismissible(
+                      key: Key(catId ?? 'cat_$index'),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: AppColors.alertRed,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      confirmDismiss: (direction) async {
+                        return await showDialog(
+                          context: context,
+                          builder: (ctx) => AlertDialog(
+                            backgroundColor: Theme.of(
+                              ctx,
+                            ).dialogBackgroundColor,
+                            title: Text(
+                              AppLocalizations.of(
+                                context,
+                              )!.categoriesDeleteTitle,
+                              style: Theme.of(ctx).textTheme.titleLarge,
                             ),
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx, true),
-                              child: const Text(
-                                'Excluir',
-                                style: TextStyle(color: AppColors.alertRed),
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    onDismissed: (direction) {
-                      if (catId != null) {
-                        firestoreService.deleteCategory(catId);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
                             content: Text(
-                              'Categoria "${category.nome}" excluída',
-                              style: const TextStyle(
-                                color: AppColors.pureWhite,
-                              ),
+                              AppLocalizations.of(
+                                context,
+                              )!.categoriesDeleteMessage,
+                              style: Theme.of(ctx).textTheme.bodyMedium
+                                  ?.copyWith(color: AppColors.textSecondary),
                             ),
-                            backgroundColor: AppColors.deepFinBlueLight,
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, false),
+                                child: Text(
+                                  AppLocalizations.of(context)!.cancel,
+                                  style: const TextStyle(
+                                    color: AppColors.voltCyan,
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(ctx, true),
+                                child: Text(
+                                  AppLocalizations.of(context)!.deleteButton,
+                                  style: const TextStyle(
+                                    color: AppColors.alertRed,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         );
-                      }
-                    },
-                    child: ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
+                      },
+                      onDismissed: (direction) {
+                        if (catId != null) {
+                          firestoreService.deleteCategory(catId);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.categoriesDeleted(category.nome),
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface,
+                                ),
+                              ),
+                              backgroundColor: Theme.of(context).cardColor,
+                            ),
+                          );
+                        }
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
-                          color: themeColor.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).dividerColor.withValues(alpha: 0.1),
+                          ),
                         ),
-                        child: Icon(
-                          _getIconData(category.icone, isExpense),
-                          color: themeColor,
+                        child: ListTile(
+                          leading: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: themeColor.withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              _getIconData(category.icone, isExpense),
+                              color: themeColor,
+                              size: 20,
+                            ),
+                          ),
+                          // Texto deve ser branco no tema escuro
+                          title: Text(
+                            category.nome,
+                            style: Theme.of(context).textTheme.bodyLarge
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit_outlined, size: 20),
+                            color: AppColors.textSecondary,
+                            onPressed: () => _startEditing(category),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          onTap: () {
+                            if (catId != null) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      TransactionsByCategoryScreen(
+                                        categoryId: catId,
+                                        categoryName: category.nome,
+                                        categoryIcon: category.icone,
+                                        isExpense: isExpense,
+                                      ),
+                                ),
+                              );
+                            }
+                          },
                         ),
                       ),
-                      // Texto deve ser branco no tema escuro
-                      title: Text(
-                        category.nome,
-                        style: const TextStyle(color: AppColors.pureWhite),
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.edit_outlined, size: 20),
-                        color: AppColors.textSecondary,
-                        onPressed: () => _startEditing(category),
-                      ),
-                    ),
-                  ).animate().fadeIn(delay: (50 * index).ms).slideX();
-                },
+                    ).animate().fadeIn(delay: (50 * index).ms).slideX();
+                  },
+                ),
               );
             },
           ),
@@ -309,7 +418,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           Row(
             children: [
               Text(
-                _isEditing ? 'Editar Categoria' : 'Nova Categoria',
+                _isEditing
+                    ? AppLocalizations.of(context)!.categoriesEditCategory
+                    : AppLocalizations.of(context)!.categoriesNewCategory,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -326,10 +437,10 @@ class _CategoriesScreenState extends State<CategoriesScreen>
           const SizedBox(height: 16),
           TextField(
             controller: _nameController,
-            style: const TextStyle(color: AppColors.pureWhite),
+            style: Theme.of(context).textTheme.bodyLarge,
             cursorColor: AppColors.voltCyan,
             decoration: InputDecoration(
-              hintText: 'Nome da categoria',
+              hintText: AppLocalizations.of(context)!.categoriesNameHint,
               hintStyle: TextStyle(
                 color: AppColors.textSecondary.withValues(alpha: 0.5),
               ),
@@ -338,8 +449,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                 color: themeColor,
               ),
               filled: true,
-              fillColor:
-                  AppColors.deepFinBlueLight, // Input contrastante mas escuro
+              fillColor: Theme.of(
+                context,
+              ).cardColor, // Input contrastante mas escuro
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
@@ -378,7 +490,7 @@ class _CategoriesScreenState extends State<CategoriesScreen>
                     decoration: BoxDecoration(
                       color: isSelected
                           ? themeColor
-                          : AppColors.deepFinBlueLight,
+                          : Theme.of(context).cardColor,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: isSelected
@@ -440,7 +552,9 @@ class _CategoriesScreenState extends State<CategoriesScreen>
               ),
             ),
             child: Text(
-              _isEditing ? 'Salvar Alterações' : 'Adicionar',
+              _isEditing
+                  ? AppLocalizations.of(context)!.categoriesSaveButton
+                  : AppLocalizations.of(context)!.categoriesAddButton,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),

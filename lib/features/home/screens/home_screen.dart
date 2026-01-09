@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../shared/services/sync_service.dart';
 import '../../environments/services/environment_service.dart';
 import '../widgets/expense_tab.dart';
 import '../widgets/income_tab.dart';
@@ -57,100 +59,151 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   bool get wantKeepAlive => true;
 
+  // Chave para identificar a posição da TabBar (limite do header)
+  final GlobalKey _tabBarKey = GlobalKey();
+  bool _shouldAllowRefresh = true;
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
+    final l10n = AppLocalizations.of(context)!;
     final authService = context.read<AuthService>();
     final firestoreService = context.read<FirestoreService>();
     final userId = authService.user?.uid ?? '';
 
     return DefaultTabController(
       length: 2,
-      child: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) {
-          return [
-            // Header (Ambiente)
-            SliverToBoxAdapter(
-              child: _buildHeader(context, context.watch<EnvironmentService>()),
-            ),
+      child: Listener(
+        onPointerDown: (event) {
+          // Verifica se o toque começou acima ou na TabBar
+          final renderBox =
+              _tabBarKey.currentContext?.findRenderObject() as RenderBox?;
+          if (renderBox != null) {
+            final position = renderBox.localToGlobal(Offset.zero);
+            // Considera o final da TabBar como o limite
+            final limitY = position.dy + renderBox.size.height;
 
-            // Seletor de mês + Resumo
-            SliverToBoxAdapter(
-              child: _buildMonthSelector(userId, firestoreService),
-            ),
+            // Permite refresh apenas se o toque for acima do limite
+            // (no Header, Mês ou TabBar)
+            _shouldAllowRefresh = event.position.dy <= limitY;
+          } else {
+            // Fallback caso não encontre a renderBox
+            _shouldAllowRefresh = true;
+          }
+        },
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await context.read<SyncService>().reload();
+            await Future.delayed(const Duration(milliseconds: 500));
+          },
+          notificationPredicate: (notification) {
+            // Aceita se permitido pelo hit-test E se for uma notificação de profundidade rasa (0 ou 1)
+            // NestedScrollView as vezes emite depth 1 para o outer scroll view dependendo da estrutura
+            return _shouldAllowRefresh && notification.depth <= 1;
+          },
+          backgroundColor: Theme.of(context).cardColor,
+          color: AppColors.voltCyan,
+          child: NestedScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                // Header (Ambiente)
+                SliverToBoxAdapter(
+                  child: _buildHeader(
+                    context,
+                    context.watch<EnvironmentService>(),
+                    l10n,
+                  ),
+                ),
 
-            // Tip se não for mês atual
-            if (!_isCurrentMonth)
-              SliverToBoxAdapter(child: _buildPastMonthTip())
-            else
-              const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                // Seletor de mês + Resumo
+                SliverToBoxAdapter(
+                  child: _buildMonthSelector(userId, firestoreService, l10n),
+                ),
 
-            // TabBar customizada (Pinned)
-            SliverOverlapAbsorber(
-              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-              sliver: SliverPersistentHeader(
-                pinned: true,
-                delegate: _HomeTabBarDelegate(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    decoration: BoxDecoration(
-                      color: AppColors.deepFinBlueLight,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.deepFinBlue.withValues(alpha: 0.8),
-                          blurRadius: 10,
-                          offset: const Offset(0, -5),
+                // Tip se não for mês atual
+                if (!_isCurrentMonth)
+                  SliverToBoxAdapter(child: _buildPastMonthTip(l10n))
+                else
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+                // TabBar customizada (Pinned)
+                SliverOverlapAbsorber(
+                  handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                    context,
+                  ),
+                  sliver: SliverPersistentHeader(
+                    pinned: true,
+                    delegate: _HomeTabBarDelegate(
+                      key: _tabBarKey,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(
+                                context,
+                              ).shadowColor.withValues(alpha: 0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, -5),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: _buildTab(
-                            index: 0,
-                            icon: Icons.trending_down,
-                            label: 'Despesas',
-                          ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _buildTab(
+                                index: 0,
+                                icon: Icons.trending_down,
+                                label: l10n.expenses,
+                              ),
+                            ),
+                            Expanded(
+                              child: _buildTab(
+                                index: 1,
+                                icon: Icons.trending_up,
+                                label: l10n.income,
+                              ),
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: _buildTab(
-                            index: 1,
-                            icon: Icons.trending_up,
-                            label: 'Receitas',
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
-              ),
+              ];
+            },
+            body: IndexedStack(
+              index: _currentTabIndex,
+              children: [
+                ExpenseTab(
+                  userId: userId,
+                  month: _selectedMonth,
+                  year: _selectedYear,
+                  canAdd: _isCurrentMonth,
+                ),
+                IncomeTab(
+                  userId: userId,
+                  month: _selectedMonth,
+                  year: _selectedYear,
+                  canAdd: _isCurrentMonth,
+                ),
+              ],
             ),
-          ];
-        },
-        body: IndexedStack(
-          index: _currentTabIndex,
-          children: [
-            ExpenseTab(
-              userId: userId,
-              month: _selectedMonth,
-              year: _selectedYear,
-              canAdd: _isCurrentMonth,
-            ),
-            IncomeTab(
-              userId: userId,
-              month: _selectedMonth,
-              year: _selectedYear,
-              canAdd: _isCurrentMonth,
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, EnvironmentService envService) {
+  Widget _buildHeader(
+    BuildContext context,
+    EnvironmentService envService,
+    AppLocalizations l10n,
+  ) {
     if (envService.isLoading) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -171,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen>
     final color = currentEnv != null
         ? Color(int.parse(currentEnv.colorHex))
         : AppColors.textSecondary;
-    final name = currentEnv?.name ?? 'Selecione um ambiente';
+    final name = currentEnv?.name ?? l10n.selectEnvironment;
     final icon = currentEnv != null
         ? IconUtils.getEnvironmentIcon(currentEnv.iconCodePoint)
         : Icons.add_circle_outline;
@@ -179,19 +232,12 @@ class _HomeScreenState extends State<HomeScreen>
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 16, 20, 8),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.deepFinBlueLight,
-            AppColors.deepFinBlueLight.withValues(alpha: 0.6),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: color.withValues(alpha: 0.3)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Colors.black.withValues(alpha: 0.05),
             offset: const Offset(0, 4),
             blurRadius: 12,
           ),
@@ -233,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Ambiente Atual',
+                        l10n.currentEnvironment,
                         style: TextStyle(
                           color: AppColors.textSecondary.withValues(alpha: 0.8),
                           fontSize: 12,
@@ -243,8 +289,8 @@ class _HomeScreenState extends State<HomeScreen>
                       const SizedBox(height: 2),
                       Text(
                         name,
-                        style: const TextStyle(
-                          color: AppColors.pureWhite,
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.titleLarge?.color,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -259,8 +305,13 @@ class _HomeScreenState extends State<HomeScreen>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.deepFinBlue,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.1),
+                    ),
                   ),
                   child: const Icon(
                     Icons.tune,
@@ -276,19 +327,16 @@ class _HomeScreenState extends State<HomeScreen>
     ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.2);
   }
 
-  Widget _buildMonthSelector(String userId, FirestoreService firestoreService) {
+  Widget _buildMonthSelector(
+    String userId,
+    FirestoreService firestoreService,
+    AppLocalizations l10n,
+  ) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.deepFinBlueLight,
-            AppColors.deepFinBlueLight.withValues(alpha: 0.8),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: _isCurrentMonth
@@ -319,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen>
 
               // Mês e ano
               GestureDetector(
-                onTap: _showMonthPicker,
+                onTap: () => _showMonthPicker(l10n),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -401,7 +449,7 @@ class _HomeScreenState extends State<HomeScreen>
                 children: [
                   // Saldo (Compacto)
                   _buildSummaryValue(
-                    label: 'Saldo',
+                    label: l10n.balance,
                     value: balance,
                     color: AppColors.voltCyan,
                     icon: Icons.account_balance_wallet,
@@ -419,7 +467,7 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       Expanded(
                         child: _buildSummaryValue(
-                          label: 'Despesas',
+                          label: l10n.expenses,
                           value: expense,
                           color: AppColors.alertRed,
                           icon: Icons.arrow_downward,
@@ -432,7 +480,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       Expanded(
                         child: _buildSummaryValue(
-                          label: 'Receitas',
+                          label: l10n.income,
                           value: income,
                           color: AppColors.successGreen,
                           icon: Icons.arrow_upward,
@@ -449,7 +497,7 @@ class _HomeScreenState extends State<HomeScreen>
     ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.2);
   }
 
-  Widget _buildPastMonthTip() {
+  Widget _buildPastMonthTip(AppLocalizations l10n) {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -466,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen>
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Modo visualização: não é possível adicionar transações em meses passados.',
+              l10n.viewModeTip,
               style: TextStyle(color: AppColors.warningYellow, fontSize: 12),
             ),
           ),
@@ -508,10 +556,10 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
-  void _showMonthPicker() {
+  void _showMonthPicker(AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.deepFinBlue,
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -530,8 +578,10 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             const SizedBox(height: 20),
             Text(
-              'Selecionar Mês',
-              style: Theme.of(context).textTheme.titleLarge,
+              l10n.selectMonth,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Theme.of(context).textTheme.titleLarge?.color,
+              ),
             ),
             const SizedBox(height: 20),
             SizedBox(
@@ -561,7 +611,7 @@ class _HomeScreenState extends State<HomeScreen>
                       style: TextStyle(
                         color: isSelected
                             ? AppColors.voltCyan
-                            : AppColors.pureWhite,
+                            : Theme.of(context).textTheme.bodyLarge?.color,
                         fontWeight: isSelected
                             ? FontWeight.bold
                             : FontWeight.normal,
@@ -577,9 +627,9 @@ class _HomeScreenState extends State<HomeScreen>
                               color: AppColors.voltCyan.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text(
-                              'Atual',
-                              style: TextStyle(
+                            child: Text(
+                              l10n.currentTag,
+                              style: const TextStyle(
                                 color: AppColors.voltCyan,
                                 fontSize: 12,
                               ),
@@ -714,8 +764,9 @@ class _HomeScreenState extends State<HomeScreen>
 
 class _HomeTabBarDelegate extends SliverPersistentHeaderDelegate {
   final Widget child;
+  final Key? key;
 
-  _HomeTabBarDelegate({required this.child});
+  _HomeTabBarDelegate({required this.child, this.key});
 
   @override
   double get minExtent => 80.0; // Altura aproximada da tab bar + margens
@@ -730,7 +781,8 @@ class _HomeTabBarDelegate extends SliverPersistentHeaderDelegate {
     bool overlapsContent,
   ) {
     return Container(
-      color: AppColors.deepFinBlue, // Fundo para cobrir o conteúdo ao rolar
+      key: key,
+      color: Theme.of(context).scaffoldBackgroundColor,
       alignment: Alignment.center,
       child: child,
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/routes/app_routes.dart';
 import '../services/auth_service.dart';
@@ -45,13 +46,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => context.pop(),
         ),
-        title: const Text('Entrar'),
+        title: Text(l10n.loginTitle),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -70,14 +73,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 // Título
                 Text(
-                  'Bem-vindo de volta!',
+                  l10n.welcomeBack,
                   style: Theme.of(context).textTheme.displaySmall,
                 ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1),
 
                 const SizedBox(height: 8),
 
                 Text(
-                  'Entre para continuar gerenciando suas finanças',
+                  l10n.loginSubtitle,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -88,8 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Campo Email
                 AuthTextField(
                   controller: _emailController,
-                  label: 'Email',
-                  hint: 'seu@email.com',
+                  label: l10n.emailLabel,
+                  hint: l10n.emailHint,
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email_outlined,
                   validator: _validateEmail,
@@ -100,8 +103,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Campo Senha
                 AuthTextField(
                   controller: _passwordController,
-                  label: 'Senha',
-                  hint: '••••••••',
+                  label: l10n.passwordLabel,
+                  hint: l10n.passwordHint,
                   obscureText: _obscurePassword,
                   prefixIcon: Icons.lock_outlined,
                   suffixIcon: IconButton(
@@ -131,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         builder: (context) => const ForgotPasswordSheet(),
                       );
                     },
-                    child: const Text('Esqueci minha senha'),
+                    child: Text(l10n.forgotPassword),
                   ),
                 ).animate(delay: 400.ms).fadeIn(),
 
@@ -195,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: AppColors.deepFinBlue,
                                 ),
                               )
-                            : const Text('Entrar'),
+                            : Text(l10n.loginButton),
                       ),
                     );
                   },
@@ -209,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Não tem uma conta? ',
+                        '${l10n.createAccountText} ',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),
@@ -217,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextButton(
                         onPressed: () =>
                             context.pushReplacement(AppRoutes.signup),
-                        child: const Text('Criar conta'),
+                        child: Text(l10n.createAccountButton),
                       ),
                     ],
                   ),

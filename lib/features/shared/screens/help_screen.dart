@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../core/constants/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 class HelpScreen extends StatefulWidget {
   const HelpScreen({super.key});
@@ -11,45 +12,39 @@ class HelpScreen extends StatefulWidget {
 }
 
 class _HelpScreenState extends State<HelpScreen> {
-  // Lista de FAQs
-  final List<Map<String, String>> _faqs = [
-    {
-      'question': 'Como adiciono uma nova transação?',
-      'answer':
-          'Na tela inicial, toque na aba "Despesas" ou "Receitas" e use o botão "+" no canto inferior direito. Preencha os dados e salve.',
-    },
-    {
-      'question': 'Posso editar uma transação?',
-      'answer':
-          'Atualmente, para garantir a integridade dos dados, recomendamos excluir a transação incorreta (deslizando para a esquerda) e criar uma nova.',
-    },
-    {
-      'question': 'Como funcionam os Objetivos?',
-      'answer':
-          'Na aba "Objetivos", você pode criar metas financeiras (ex: Viagem, Carro). Defina um valor alvo e adicione economias progressivamente para acompanhar seu progresso visualmente.',
-    },
-    {
-      'question': 'O que são as Inscrições?',
-      'answer':
-          'A aba "Inscrições" serve para listar seus gastos recorrentes (Netflix, Spotify, Academia). Isso ajuda a visualizar quanto do seu orçamento mensal já está comprometido.',
-    },
-    {
-      'question': 'Meus dados estão seguros?',
-      'answer':
-          'Sim! Seus dados são armazenados na nuvem do Google (Firebase) com autenticação segura. Apenas você tem acesso às suas informações.',
-    },
-    {
-      'question': 'Como altero minha senha?',
-      'answer':
-          'Vá até o menu lateral, toque em "Perfil" e selecione a opção "Alterar senha". Um email de redefinição será enviado para você.',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    // Lista de FAQs
+    final List<Map<String, String>> _faqs = [
+      {
+        'question': AppLocalizations.of(context)!.helpFaq1Question,
+        'answer': AppLocalizations.of(context)!.helpFaq1Answer,
+      },
+      {
+        'question': AppLocalizations.of(context)!.helpFaq2Question,
+        'answer': AppLocalizations.of(context)!.helpFaq2Answer,
+      },
+      {
+        'question': AppLocalizations.of(context)!.helpFaq3Question,
+        'answer': AppLocalizations.of(context)!.helpFaq3Answer,
+      },
+      {
+        'question': AppLocalizations.of(context)!.helpFaq4Question,
+        'answer': AppLocalizations.of(context)!.helpFaq4Answer,
+      },
+      {
+        'question': AppLocalizations.of(context)!.helpFaq5Question,
+        'answer': AppLocalizations.of(context)!.helpFaq5Answer,
+      },
+      {
+        'question': AppLocalizations.of(context)!.helpFaq6Question,
+        'answer': AppLocalizations.of(context)!.helpFaq6Answer,
+      },
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ajuda e FAQ'),
+        title: Text(AppLocalizations.of(context)!.helpTitle),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
@@ -77,12 +72,12 @@ class _HelpScreenState extends State<HelpScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Como podemos ajudar?',
+                  AppLocalizations.of(context)!.helpHeaderTitle,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Confira as perguntas frequentes abaixo',
+                  AppLocalizations.of(context)!.helpHeaderSubtitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -109,7 +104,7 @@ class _HelpScreenState extends State<HelpScreen> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.deepFinBlueLight,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: AppColors.voltCyan.withValues(alpha: 0.3),
@@ -117,18 +112,18 @@ class _HelpScreenState extends State<HelpScreen> {
             ),
             child: Column(
               children: [
-                const Text(
-                  'Ainda tem dúvidas?',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.pureWhite,
-                  ),
+                Text(
+                  AppLocalizations.of(context)!.helpContactTitle,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Entre em contato com o suporte',
-                  style: TextStyle(color: AppColors.textSecondary),
+                Text(
+                  AppLocalizations.of(context)!.helpContactSubtitle,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 SizedBox(
@@ -148,9 +143,11 @@ class _HelpScreenState extends State<HelpScreen> {
                         )) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
+                              SnackBar(
                                 content: Text(
-                                  'Não foi possível abrir o WhatsApp',
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.helpWhatsappError,
                                 ),
                                 backgroundColor: AppColors.alertRed,
                               ),
@@ -160,8 +157,10 @@ class _HelpScreenState extends State<HelpScreen> {
                       } catch (e) {
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Erro ao tentar abrir o WhatsApp'),
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(context)!.helpWhatsappError,
+                              ),
                               backgroundColor: AppColors.alertRed,
                             ),
                           );
@@ -169,7 +168,9 @@ class _HelpScreenState extends State<HelpScreen> {
                       }
                     },
                     icon: const Icon(Icons.chat),
-                    label: const Text('Fale Conosco no WhatsApp'),
+                    label: Text(
+                      AppLocalizations.of(context)!.helpWhatsappButton,
+                    ),
                   ),
                 ),
               ],
@@ -184,7 +185,7 @@ class _HelpScreenState extends State<HelpScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: AppColors.deepFinBlueLight,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Theme(
@@ -192,10 +193,9 @@ class _HelpScreenState extends State<HelpScreen> {
         child: ExpansionTile(
           title: Text(
             question,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              color: AppColors.pureWhite,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
           iconColor: AppColors.voltCyan,
           collapsedIconColor: AppColors.textSecondary,
@@ -203,7 +203,7 @@ class _HelpScreenState extends State<HelpScreen> {
           children: [
             Text(
               answer,
-              style: const TextStyle(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondary,
                 height: 1.5,
               ),

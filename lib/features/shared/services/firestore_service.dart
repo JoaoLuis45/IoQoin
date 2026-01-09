@@ -293,6 +293,28 @@ class FirestoreService extends ChangeNotifier {
         });
   }
 
+  /// Stream de transações filtradas por categoria
+  Stream<List<TransactionModel>> getTransactionsByCategory(
+    String userId,
+    String environmentId,
+    String categoryId,
+  ) {
+    if (environmentId.isEmpty) return Stream.value([]);
+
+    return _firestore
+        .collection('transacoes')
+        .where('environmentId', isEqualTo: environmentId)
+        .where('categoryId', isEqualTo: categoryId)
+        .snapshots()
+        .map((snapshot) {
+          final list = snapshot.docs
+              .map((doc) => TransactionModel.fromFirestore(doc))
+              .toList();
+          list.sort((a, b) => b.data.compareTo(a.data));
+          return list;
+        });
+  }
+
   /// Adiciona uma nova transação
   Future<String?> addTransaction(TransactionModel transaction) async {
     try {

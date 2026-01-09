@@ -8,9 +8,11 @@ import '../models/transaction_model.dart';
 import '../widgets/add_transaction_sheet.dart';
 import '../widgets/fixed_transaction_manager_sheet.dart';
 import '../widgets/transaction_card.dart';
+import '../widgets/filter_transaction_sheet.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Aba de Receitas
-class IncomeTab extends StatelessWidget {
+class IncomeTab extends StatefulWidget {
   final String userId;
   final int month;
   final int year;
@@ -25,20 +27,74 @@ class IncomeTab extends StatelessWidget {
   });
 
   @override
+  State<IncomeTab> createState() => _IncomeTabState();
+}
+
+class _IncomeTabState extends State<IncomeTab> {
+  // Filtros
+  DateTime? _filterStartDate;
+  DateTime? _filterEndDate;
+  double? _filterMinValue;
+  double? _filterMaxValue;
+  List<String> _selectedCategoryIds = [];
+
+  bool get _hasActiveFilters =>
+      _filterStartDate != null ||
+      _filterEndDate != null ||
+      _filterMinValue != null ||
+      _filterMaxValue != null ||
+      _selectedCategoryIds.isNotEmpty;
+
+  void _showFilterSheet() {
+    // Definir limites do mês atual para o date picker
+    final firstDate = DateTime(widget.year, widget.month, 1);
+    final lastDate = DateTime(widget.year, widget.month + 1, 0);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Theme.of(context).bottomSheetTheme.backgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => FilterTransactionSheet(
+        transactionType: TransactionType.income,
+        initialDate: firstDate,
+        finalDate: lastDate,
+        filterStartDate: _filterStartDate,
+        filterEndDate: _filterEndDate,
+        filterMinValue: _filterMinValue,
+        filterMaxValue: _filterMaxValue,
+        selectedCategoryIds: _selectedCategoryIds,
+        onApply: (start, end, min, max, categories) {
+          setState(() {
+            _filterStartDate = start;
+            _filterEndDate = end;
+            _filterMinValue = min;
+            _filterMaxValue = max;
+            _selectedCategoryIds = categories;
+          });
+        },
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final firestoreService = context.watch<FirestoreService>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Stack(
       fit: StackFit.expand,
       children: [
         CustomScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverOverlapInjector(
               handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
             ),
 
-            // Gerenciar categorias (Header)
+            // Header (Título e Botões)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -46,23 +102,61 @@ class IncomeTab extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Suas receitas',
+                      l10n.yourIncomeTitle,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
 
-                    TextButton.icon(
-                      onPressed: () => _showFixedManager(context),
-                      icon: const Icon(Icons.bookmark_border, size: 18),
-                      label: const Text('Fixas'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.successGreen,
-                        backgroundColor: AppColors.successGreen.withValues(
-                          alpha: 0.1,
+                    Row(
+                      children: [
+                        // Botão Filtrar
+                        TextButton.icon(
+                          onPressed: _showFilterSheet,
+                          icon: Icon(
+                            _hasActiveFilters
+                                ? Icons.filter_alt
+                                : Icons.filter_alt_outlined,
+                            size: 18,
+                            color: _hasActiveFilters
+                                ? AppColors.voltCyan
+                                : AppColors.textSecondary,
+                          ),
+                          label: Text(
+                            '${l10n.filterLabel}${_hasActiveFilters ? " •" : ""}',
+                            style: TextStyle(
+                              color: _hasActiveFilters
+                                  ? AppColors.voltCyan
+                                  : AppColors.textSecondary,
+                              fontWeight: _hasActiveFilters
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: _hasActiveFilters
+                                ? AppColors.voltCyan.withValues(alpha: 0.1)
+                                : Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        const SizedBox(width: 8),
+                        // Botão Fixas
+                        TextButton.icon(
+                          onPressed: () => _showFixedManager(context),
+                          icon: const Icon(Icons.bookmark_border, size: 18),
+                          label: Text(l10n.fixedLabel),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.successGreen,
+                            backgroundColor: AppColors.successGreen.withValues(
+                              alpha: 0.1,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
@@ -72,11 +166,11 @@ class IncomeTab extends StatelessWidget {
             // Lista de receitas
             StreamBuilder<List<TransactionModel>>(
               stream: firestoreService.getIncomes(
-                userId,
+                widget.userId,
                 context.watch<EnvironmentService>().currentEnvironment?.id ??
                     '',
-                month: month,
-                year: year,
+                month: widget.month,
+                year: widget.year,
               ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -89,12 +183,47 @@ class IncomeTab extends StatelessWidget {
                   );
                 }
 
-                final transactions = snapshot.data ?? [];
+                var transactions = snapshot.data ?? [];
+
+                // Aplicar filtros no cliente
+                if (_hasActiveFilters) {
+                  transactions = transactions.where((t) {
+                    // Filtro de Data
+                    if (_filterStartDate != null &&
+                        t.data.isBefore(
+                          _filterStartDate!.subtract(const Duration(days: 1)),
+                        )) {
+                      return false;
+                    }
+                    if (_filterEndDate != null &&
+                        t.data.isAfter(
+                          _filterEndDate!.add(const Duration(days: 1)),
+                        )) {
+                      return false;
+                    }
+
+                    // Filtro de Valor
+                    if (_filterMinValue != null && t.valor < _filterMinValue!) {
+                      return false;
+                    }
+                    if (_filterMaxValue != null && t.valor > _filterMaxValue!) {
+                      return false;
+                    }
+
+                    // Filtro de Categoria
+                    if (_selectedCategoryIds.isNotEmpty &&
+                        !_selectedCategoryIds.contains(t.categoryId)) {
+                      return false;
+                    }
+
+                    return true;
+                  }).toList();
+                }
 
                 if (transactions.isEmpty) {
                   return SliverFillRemaining(
                     hasScrollBody: false,
-                    child: _buildEmptyState(context),
+                    child: _buildEmptyState(context, l10n),
                   );
                 }
 
@@ -106,12 +235,12 @@ class IncomeTab extends StatelessWidget {
                       child:
                           TransactionCard(
                                 transaction: transaction,
-                                onDelete: canAdd
+                                onDelete: widget.canAdd
                                     ? () => firestoreService.deleteTransaction(
                                         transaction.id!,
                                       )
                                     : () {},
-                                canDelete: canAdd,
+                                canDelete: widget.canAdd,
                               )
                               .animate(
                                 delay: Duration(milliseconds: index * 50),
@@ -130,32 +259,43 @@ class IncomeTab extends StatelessWidget {
         ),
 
         // FAB
-        if (canAdd)
+        if (widget.canAdd)
           Positioned(right: 20, bottom: 20, child: _buildAnimatedFAB(context)),
       ],
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
+  Widget _buildEmptyState(BuildContext context, AppLocalizations l10n) {
+    // Se tiver filtros ativos e lista vazia, muda a mensagem
+    final isFiltered = _hasActiveFilters;
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            Icons.account_balance_wallet_outlined,
+            isFiltered
+                ? Icons.filter_list_off
+                : Icons.account_balance_wallet_outlined,
             size: 80,
             color: AppColors.successGreen.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
-            canAdd ? 'Nenhuma receita registrada' : 'Nenhuma receita neste mês',
+            isFiltered
+                ? l10n.noIncomeFound
+                : (widget.canAdd
+                      ? l10n.noIncomeRegistered
+                      : l10n.noIncomeThisMonth),
             style: Theme.of(
               context,
             ).textTheme.titleMedium?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
-            canAdd ? 'Toque no + para adicionar' : 'Apenas visualização',
+            isFiltered
+                ? l10n.adjustFiltersTip
+                : (widget.canAdd ? l10n.tapToAddTip : l10n.viewOnlyLabel),
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppColors.textSecondary.withValues(alpha: 0.7),
             ),
@@ -204,7 +344,7 @@ class IncomeTab extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => FixedTransactionManagerSheet(
-        userId: userId,
+        userId: widget.userId,
         transactionType: TransactionType.income,
       ),
     );
@@ -216,7 +356,7 @@ class IncomeTab extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddTransactionSheet(
-        userId: userId,
+        userId: widget.userId,
         transactionType: TransactionType.income,
       ),
     );

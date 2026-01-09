@@ -9,6 +9,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../shared/services/storage_service.dart';
 import '../../auth/services/auth_service.dart';
 
+import 'package:ioqoin/l10n/app_localizations.dart';
+
 /// Tela de Perfil do usuário
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -23,12 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _telefoneController = TextEditingController();
   DateTime? _dataNascimento;
   String? _genero;
-  final List<String> _generos = [
-    'Masculino',
-    'Feminino',
-    'Outro',
-    'Prefiro não dizer',
-  ];
+  late List<String> _generos;
 
   bool _isEditing = false;
   bool _isLoading = false;
@@ -36,7 +33,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    // Generos depend on L10n, initialized in build or didChangeDependencies usually?
+    // Or simpler: just use keys in build. We will map index or values in build.
+    // Actually, let's keep it simple and init in build or using context.
+    // For now, let's just leave _loadUserData call.
     _loadUserData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final l10n = AppLocalizations.of(context)!;
+    _generos = [
+      l10n.profileGenderMale,
+      l10n.profileGenderFemale,
+      l10n.profileGenderOther,
+      l10n.profileGenderPreferNotToSay,
+    ];
   }
 
   void _loadUserData() {
@@ -69,6 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final authService = context.watch<AuthService>();
     final user = authService.user;
 
@@ -80,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               icon: const Icon(Icons.arrow_back_ios),
               onPressed: () => Navigator.pop(context),
             ),
-            title: const Text('Perfil'),
+            title: Text(l10n.profileTitle),
             actions: [
               if (!_isEditing)
                 IconButton(
@@ -184,7 +198,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: AppColors.deepFinBlueLight,
+                          color: Theme.of(context).cardColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: AppColors.voltCyan,
@@ -220,7 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       authService.userModel!.userTag!.isNotEmpty)
                     _buildInfoCard(
                       icon: Icons.tag,
-                      label: 'Sua Tag (ID de Usuário)',
+                      label: l10n.profileTagLabel,
                       value: authService.userModel!.userTag!,
                       isEditable: true,
                       customEditWidget: Row(
@@ -228,11 +242,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Expanded(
                             child: Text(
                               authService.userModel!.userTag!,
-                              style: const TextStyle(
-                                color: AppColors.pureWhite,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
                             ),
                           ),
                           StatefulBuilder(
@@ -250,10 +264,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                   );
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Tag copiada!'),
+                                    SnackBar(
+                                      content: Text(l10n.profileTagCopied),
                                       backgroundColor: AppColors.successGreen,
-                                      duration: Duration(seconds: 1),
+                                      duration: const Duration(seconds: 1),
                                     ),
                                   );
                                 },
@@ -266,8 +280,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   else
                     _buildInfoCard(
                       icon: Icons.tag,
-                      label: 'Sua Tag (ID de Usuário)',
-                      value: 'Gerando ID...',
+                      label: l10n.profileTagLabel,
+                      value: l10n.profileGeneratingId,
                       isEditable: false,
                       customEditWidget: Row(
                         children: [
@@ -281,7 +295,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'Gerando seu ID único...',
+                            l10n.profileGeneratingId,
                             style: TextStyle(
                               color: AppColors.textSecondary,
                               fontStyle: FontStyle.italic,
@@ -296,7 +310,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Nome
                   _buildInfoCard(
                     icon: Icons.person_outlined,
-                    label: 'Nome',
+                    label: l10n.profileNameLabel,
                     value:
                         (user?.displayName != null &&
                             user!.displayName!.isNotEmpty)
@@ -311,23 +325,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   // Telefone
                   _buildInfoCard(
                     icon: Icons.phone_outlined,
-                    label: 'Telefone',
+                    label: l10n.profilePhoneLabel,
                     value: _telefoneController.text,
                     isEditable: true,
                     controller: _telefoneController,
-                    hint: 'Adicione seu telefone',
+                    hint: l10n.profilePhoneHint,
                     keyboardType: TextInputType.phone,
                   ),
 
                   const SizedBox(height: 16),
 
                   // Data de Nascimento
-                  _buildDateSelector(),
+                  _buildDateSelector(l10n),
 
                   const SizedBox(height: 16),
 
                   // Gênero
-                  _buildGenderSelector(),
+                  _buildGenderSelector(l10n),
 
                   const SizedBox(height: 32),
 
@@ -346,7 +360,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: AppColors.deepFinBlue,
                                 ),
                               )
-                            : const Text('Salvar alterações'),
+                            : Text(l10n.profileSaveButton),
                       ),
                     ).animate().fadeIn(duration: 300.ms),
 
@@ -356,15 +370,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   if (!_isEditing) ...[
                     _buildActionTile(
                       icon: Icons.delete_outline,
-                      title: 'Excluir conta',
-                      subtitle: 'Remover permanentemente seus dados',
+                      title: l10n.profileDeleteAccountTitle,
+                      subtitle: l10n.profileDeleteAccountSubtitle,
                       color: AppColors.alertRed,
-                      onTap: _confirmDeleteAccount,
+                      onTap: () => _confirmDeleteAccount(l10n),
                     ),
                     _buildActionTile(
                       icon: Icons.logout,
-                      title: 'Sair',
-                      subtitle: 'Encerrar sessão neste dispositivo',
+                      title: l10n.profileLogoutTitle,
+                      subtitle: l10n.profileLogoutSubtitle,
                       onTap: _logout,
                     ),
                   ],
@@ -397,7 +411,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.deepFinBlueLight,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -418,7 +432,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppColors.textSecondary,
                     fontSize: 12,
                   ),
@@ -429,10 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       TextFormField(
                         controller: controller,
                         keyboardType: keyboardType,
-                        style: const TextStyle(
-                          color: AppColors.pureWhite,
-                          fontSize: 16,
-                        ),
+                        style: Theme.of(context).textTheme.bodyLarge,
                         decoration: InputDecoration(
                           hintText: hint,
                           hintStyle: TextStyle(
@@ -450,11 +461,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 else
                   Text(
                     value.isNotEmpty ? value : (hint ?? '-'),
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: value.isNotEmpty
-                          ? AppColors.pureWhite
+                          ? Theme.of(context).textTheme.bodyLarge?.color
                           : AppColors.textSecondary.withValues(alpha: 0.5),
-                      fontSize: 16,
                     ),
                   ),
               ],
@@ -491,7 +501,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
         ),
         trailing: Icon(Icons.chevron_right, color: color),
-        tileColor: AppColors.deepFinBlueLight,
+        tileColor: Theme.of(context).cardColor,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     ).animate().fadeIn(duration: 300.ms);
@@ -522,9 +532,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Icons.photo_library,
                 color: AppColors.voltCyan,
               ),
-              title: const Text(
-                'Galeria',
-                style: TextStyle(color: AppColors.pureWhite),
+              title: Text(
+                AppLocalizations.of(context)!.profilePhotoGallery,
+                style: const TextStyle(color: AppColors.pureWhite),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -533,9 +543,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.camera_alt, color: AppColors.voltCyan),
-              title: const Text(
-                'Câmera',
-                style: TextStyle(color: AppColors.pureWhite),
+              title: Text(
+                // Assuming we use l10n for Camera/Gallery if available, else hardcode for now or add keys
+                // I added keys in ARB task
+                AppLocalizations.of(context)!.profilePhotoCamera,
+                style: const TextStyle(color: AppColors.pureWhite),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -593,8 +605,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Foto de perfil atualizada!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.profilePhotoUpdated),
             backgroundColor: AppColors.successGreen,
           ),
         );
@@ -604,7 +616,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao enviar foto: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.errorMessage(e.toString()),
+            ),
             backgroundColor: AppColors.alertRed,
           ),
         );
@@ -632,8 +646,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Perfil atualizado!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.profileUpdated),
             backgroundColor: AppColors.successGreen,
           ),
         );
@@ -643,7 +657,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.errorMessage(e.toString()),
+            ),
             backgroundColor: AppColors.alertRed,
           ),
         );
@@ -651,19 +667,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  void _confirmDeleteAccount() {
+  void _confirmDeleteAccount(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.deepFinBlueLight,
-        title: const Text('Excluir conta'),
-        content: const Text(
-          'Esta ação é irreversível. Todos os seus dados serão perdidos. Deseja continuar?',
-        ),
+        title: Text(l10n.profileDeleteAccountTitle),
+        content: Text(l10n.profileDeleteConfirmMessage),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -671,7 +685,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               await _deleteAccount();
             },
             style: TextButton.styleFrom(foregroundColor: AppColors.alertRed),
-            child: const Text('Excluir'),
+            child: Text(
+              l10n.profileDeleteAccountTitle,
+            ), // Recycle title 'Excluir conta' or 'Excluir'
           ),
         ],
       ),
@@ -706,7 +722,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao sair: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.saveError(e.toString()),
+            ),
             backgroundColor: AppColors.alertRed,
           ),
         );
@@ -714,15 +732,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Widget _buildDateSelector() {
+  Widget _buildDateSelector(AppLocalizations l10n) {
     return _buildInfoCard(
       icon: Icons.calendar_today_outlined,
-      label: 'Data de Nascimento',
-      value: _dataNascimento != null ? _formatDate(_dataNascimento!) : '-',
+      label: l10n.profileBirthDateLabel,
+      value: _dataNascimento != null
+          ? _formatDate(_dataNascimento!, l10n)
+          : '-',
       isEditable: true,
-      hint: 'Selecione',
+      hint: l10n.profileGenderSelect,
       customEditWidget: GestureDetector(
-        onTap: _selectDate,
+        onTap: () => _selectDate(l10n),
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: const BoxDecoration(
@@ -735,11 +755,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 _dataNascimento != null
-                    ? _formatDate(_dataNascimento!)
-                    : 'Selecione',
+                    ? _formatDate(_dataNascimento!, l10n)
+                    : l10n.profileGenderSelect,
                 style: TextStyle(
                   color: _dataNascimento != null
-                      ? AppColors.pureWhite
+                      ? Theme.of(context).textTheme.bodyLarge?.color
                       : AppColors.textSecondary.withValues(alpha: 0.5),
                   fontSize: 16,
                 ),
@@ -752,10 +772,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildGenderSelector() {
+  Widget _buildGenderSelector(AppLocalizations l10n) {
     return _buildInfoCard(
       icon: Icons.people_outline,
-      label: 'Gênero',
+      label: l10n.profileGenderLabel,
       value: _genero ?? '-',
       isEditable: true,
       customEditWidget: InputDecorator(
@@ -773,15 +793,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     value: g,
                     child: Text(
                       g,
-                      style: const TextStyle(color: AppColors.pureWhite),
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
                 )
                 .toList(),
             onChanged: (v) => setState(() => _genero = v),
-            dropdownColor: AppColors.deepFinBlue,
+            dropdownColor: Theme.of(context).cardColor,
             icon: const Icon(Icons.arrow_drop_down, color: AppColors.voltCyan),
-            style: const TextStyle(color: AppColors.pureWhite, fontSize: 16),
+            style: Theme.of(context).textTheme.bodyLarge,
             isExpanded: true,
           ),
         ),
@@ -789,7 +809,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _selectDate() async {
+  Future<void> _selectDate(AppLocalizations l10n) async {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
@@ -816,7 +836,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations l10n) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 }

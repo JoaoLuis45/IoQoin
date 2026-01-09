@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/goal_icons.dart';
 import '../../shared/services/firestore_service.dart';
 import '../models/goal_model.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Sheet para adicionar novo objetivo
 class AddGoalSheet extends StatefulWidget {
@@ -34,12 +36,13 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.deepFinBlue,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: EdgeInsets.fromLTRB(
           24,
@@ -71,7 +74,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                 // Título
                 Center(
                   child: Text(
-                    'Novo Objetivo',
+                    l10n.newGoalTitle,
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -81,14 +84,14 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                 // Nome
                 TextFormField(
                   controller: _nomeController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome do objetivo',
-                    hintText: 'Ex: Viagem para praia',
-                    prefixIcon: Icon(Icons.flag_outlined),
+                  decoration: InputDecoration(
+                    labelText: l10n.goalNameLabel,
+                    hintText: l10n.goalNameHint,
+                    prefixIcon: const Icon(Icons.flag_outlined),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite um nome';
+                      return l10n.goalNameRequired;
                     }
                     return null;
                   },
@@ -102,19 +105,19 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                   ),
-                  decoration: const InputDecoration(
-                    labelText: 'Valor alvo',
+                  decoration: InputDecoration(
+                    labelText: l10n.targetAmountLabel,
                     hintText: '0,00',
                     prefixText: 'R\$ ',
-                    prefixIcon: Icon(Icons.attach_money),
+                    prefixIcon: const Icon(Icons.attach_money),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Digite um valor';
+                      return l10n.targetAmountRequired;
                     }
                     final parsed = double.tryParse(value.replaceAll(',', '.'));
                     if (parsed == null || parsed <= 0) {
-                      return 'Valor inválido';
+                      return l10n.invalidAmountError;
                     }
                     return null;
                   },
@@ -124,7 +127,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
 
                 // Seletor de ícone
                 Text(
-                  'Ícone',
+                  l10n.iconLabel,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -149,7 +152,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                           decoration: BoxDecoration(
                             color: isSelected
                                 ? AppColors.voltCyan.withValues(alpha: 0.2)
-                                : AppColors.deepFinBlueLight,
+                                : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
                               color: isSelected
@@ -174,7 +177,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
 
                 // Data limite
                 Text(
-                  'Data limite',
+                  l10n.deadlineDateLabel,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     color: AppColors.textSecondary,
                   ),
@@ -188,7 +191,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                       vertical: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.deepFinBlueLight,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -200,12 +203,17 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          _formatDate(_dataLimite),
+                          _formatDate(_dataLimite, l10n),
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                         const Spacer(),
                         Text(
-                          '${_dataLimite.difference(DateTime.now()).inDays} dias',
+                          l10n.daysRemaining(
+                            _dataLimite
+                                .difference(DateTime.now())
+                                .inDays
+                                .toString(),
+                          ),
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: AppColors.textSecondary),
                         ),
@@ -230,7 +238,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                               color: AppColors.deepFinBlue,
                             ),
                           )
-                        : const Text('Criar objetivo'),
+                        : Text(l10n.createGoalButton),
                   ),
                 ).animate().fadeIn(delay: 200.ms),
               ],
@@ -241,22 +249,8 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan',
-      'Fev',
-      'Mar',
-      'Abr',
-      'Mai',
-      'Jun',
-      'Jul',
-      'Ago',
-      'Set',
-      'Out',
-      'Nov',
-      'Dez',
-    ];
-    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  String _formatDate(DateTime date, AppLocalizations l10n) {
+    return DateFormat.yMMMd(l10n.localeName).format(date);
   }
 
   Future<void> _selectDate() async {
@@ -286,6 +280,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
   }
 
   Future<void> _createGoal() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -307,8 +302,8 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Objetivo criado com sucesso!'),
+          SnackBar(
+            content: Text(l10n.goalCreatedSuccess),
             backgroundColor: AppColors.successGreen,
           ),
         );
@@ -317,7 +312,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao criar objetivo: $e'),
+            content: Text(l10n.createGoalError(e.toString())),
             backgroundColor: AppColors.alertRed,
           ),
         );

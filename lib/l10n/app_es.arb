@@ -1,0 +1,270 @@
+{
+  "@@locale": "es",
+  "appTitle": "iQoin",
+  "@appTitle": {
+    "description": "Nombre de la aplicación"
+  },
+  "homeWelcome": "Bienvenido de nuevo,",
+  "homeBalance": "Saldo Total",
+  "homeIncome": "Ingresos",
+  "homeExpenses": "Gastos",
+  "homeRecentTransactions": "Transacciones Recientes",
+  "homeViewAll": "Ver todo",
+  "homeNoTransactions": "Sin transacciones aún",
+  "bottomNavHome": "Inicio",
+  "bottomNavTransactions": "Transacciones",
+  "bottomNavGoals": "Objetivos",
+  "bottomNavProfile": "Perfil",
+  "authLoginTitle": "Iniciar Sesión",
+  "authRegisterTitle": "Registrarse",
+  "authEmailLabel": "Correo",
+  "authPasswordLabel": "Contraseña",
+  "authNameLabel": "Nombre",
+  "authLoginButton": "Entrar",
+  "authRegisterButton": "Registrarse",
+  "authGoogleButton": "Continuar con Google",
+  "authAppleButton": "Continuar con Apple",
+  "authForgotPassword": "¿Olvidaste tu contraseña?",
+  "authNoAccount": "¿No tienes cuenta? Regístrate",
+  "authHaveAccount": "¿Ya tienes cuenta? Inicia sesión",
+  "authErrorTitle": "Error de Autenticación",
+  "authSuccessTitle": "Éxito",
+  "envDevLabel": "Desarrollo",
+  "envProdLabel": "Producción",
+  "envSwitchTitle": "Cambiar Ambiente",
+  "envSwitchMessage": "Estás cambiando a {envName}",
+  "@envSwitchMessage": {
+    "placeholders": {
+      "envName": {
+        "type": "String"
+      }
+    }
+  },
+  "transactionNewTitle": "Nueva Transacción",
+  "transactionEditTitle": "Editar Transacción",
+  "transactionTypeIncome": "Ingreso",
+  "transactionTypeExpense": "Gasto",
+  "transactionDescriptionLabel": "Descripción",
+  "transactionAmountLabel": "Monto",
+  "transactionDateLabel": "Fecha",
+  "transactionCategoryLabel": "Categoría",
+  "transactionSaveButton": "Guardar",
+  "goalNewTitle": "Nuevo Objetivo",
+  "goalEditTitle": "Editar Objetivo",
+  "goalNameLabel": "Nombre del Objetivo",
+  "goalTargetAmountLabel": "Monto Meta",
+  "goalCurrentAmountLabel": "Monto Actual",
+  "goalDeadlineLabel": "Fecha Límite",
+  "goalSaveButton": "Guardar Objetivo",
+  "goalProgressLabel": "{percent}% alcanzado",
+  "@goalProgressLabel": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "profileTitle": "Perfil",
+  "profileEditButton": "Editar Perfil",
+  "profileLogoutButton": "Cerrar Sesión",
+  "profileSettingsTitle": "Configuración",
+  "profileHelpTitle": "Ayuda y Soporte",
+  "profileAboutTitle": "Acerca de",
+  "profileThemeLabel": "Tema Oscuro",
+  "profileLanguageLabel": "Idioma",
+  "commonError": "Algo salió mal",
+  "commonRetry": "Reintentar",
+  "commonCancel": "Cancelar",
+  "commonConfirm": "Confirmar",
+  "commonSuccess": "Acción completada con éxito",
+  "drawerHome": "Inicio",
+  "drawerTransactions": "Transacciones",
+  "drawerGoals": "Objetivos",
+  "drawerProfile": "Perfil",
+  "drawerSettings": "Configuración",
+  "drawerHelp": "Ayuda",
+  "drawerAbout": "Acerca de",
+  "drawerLogout": "Cerrar Sesión",
+  "drawerVersion": "Versión 1.0.0",
+  "notificationsTitle": "Notificaciones",
+  "notificationsEmpty": "Sin notificaciones recientes",
+  "notificationsMarkAllRead": "Marcar todas como leídas",
+  "notificationNewTransaction": "Nueva Transacción",
+  "notificationGoalReached": "¡Objetivo Alcanzado!",
+  "notificationSystemUpdate": "Actualización del Sistema",
+  "profileTagLabel": "Mi Etiqueta",
+  "profileTagHelp": "Usa esta etiqueta para agregar amigos",
+  "profileTagCopied": "¡Etiqueta copiada al portapapeles!",
+  "profileEditTitle": "Editar Perfil",
+  "profileNameLabel": "Nombre Completo",
+  "profilePhoneLabel": "Teléfono",
+  "profileBirthDateLabel": "Fecha de Nacimiento",
+  "profileGenderLabel": "Género",
+  "profileGenderMale": "Masculino",
+  "profileGenderFemale": "Femenino",
+  "profileGenderOther": "Otro",
+  "profileGenderSelect": "Seleccionar género",
+  "profilePhotoUpdated": "¡Foto de perfil actualizada con éxito!",
+  "profileUpdated": "¡Perfil actualizado con éxito!",
+  "userUnidentifiedError": "Error: Usuario no identificado",
+  "saveError": "Error al guardar: {error}",
+  "@saveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "newSubscriptionTitle": "Nueva Suscripción",
+  "subscriptionNameLabel": "Nombre de la Suscripción",
+  "subscriptionNameHint": "Ej: Netflix, Spotify",
+  "subscriptionNameRequired": "Ingrese un nombre",
+  "amountLabel": "Monto",
+  "targetAmountRequired": "Ingrese un monto",
+  "invalidAmountError": "Monto inválido",
+  "subscriptionFrequencyLabel": "Frecuencia",
+  "subscriptionBillingDayLabel": "Día de Cobro",
+  "subscriptionIconLabel": "Ícono",
+  "subscriptionAddedSuccess": "¡Suscripción agregada!",
+  "subscriptionsTitle": "Mis Suscripciones",
+  "subscriptionsSubtitle": "Sigue tus gastos recurrentes",
+  "subscriptionsTotalMonthly": "Total Mensual",
+  "subscriptionsActiveCount": "{count} activas",
+  "@subscriptionsActiveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subscriptionsEmptyTitle": "Sin suscripciones registradas",
+  "subscriptionsEmptyMessage": "Añade tus suscripciones\npara seguir los gastos",
+  "subscriptionsAddButton": "Añadir Suscripción",
+  "subscriptionsDeleteTitle": "Eliminar Suscripción",
+  "subscriptionsDeleteMessage": "¿Deseas eliminar \"{name}\"?",
+  "@subscriptionsDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteButton": "Eliminar",
+  "cancel": "Cancelar",
+  "dashboardTitle": "Tableros",
+  "dashboardMonthlyOverview": "Resumen Mensual",
+  "dashboardExpenseByCategory": "Gastos por Categoría",
+  "dashboardIncomeByCategory": "Ingresos por Categoría",
+  "dashboardNoData": "Sin datos para mostrar",
+  "dashboardTouchDetails": "Toque para ver detalles",
+  "monthJan": "Ene",
+  "monthFeb": "Feb",
+  "monthMar": "Mar",
+  "monthApr": "Abr",
+  "monthMay": "May",
+  "monthJun": "Jun",
+  "monthJul": "Jul",
+  "monthAug": "Ago",
+  "monthSep": "Sep",
+  "monthOct": "Oct",
+  "monthNov": "Nov",
+  "monthDec": "Dic",
+  "aboutTitle": "Acerca de",
+  "aboutDescriptionTitle": "Tu herramienta completa para",
+  "aboutDescriptionSubtitle": "gestión financiera personal",
+  "aboutDescriptionBody": "Controla tus ingresos, gastos y alcanza tus objetivos financieros de manera simple e intuitiva.",
+  "aboutFeatureExpenses": "Ingresos y Gastos",
+  "aboutFeatureExpensesDesc": "Registra y categoriza tus transacciones",
+  "aboutFeatureGoals": "Objetivos",
+  "aboutFeatureGoalsDesc": "Define metas de ahorro e inversión",
+  "aboutFeatureSubscriptions": "Inscripciones",
+  "aboutFeatureSubscriptionsDesc": "Sigue tus suscripciones recurrentes",
+  "aboutCopyright": "© 2026 iQoin. Todos los derechos reservados.",
+  "categoriesTitle": "Categorías",
+  "categoriesTabExpenses": "Gastos",
+  "categoriesTabIncome": "Ingresos",
+  "categoriesNewCategory": "Nueva Categoría",
+  "categoriesEditCategory": "Editar Categoría",
+  "categoriesHistoryTip": "Toque una categoría para ver el historial",
+  "categoriesLoadError": "Error al cargar categorías",
+  "categoriesEmpty": "No se encontraron categorías",
+  "categoriesDeleteTitle": "¿Eliminar categoría?",
+  "categoriesDeleteMessage": "Esto no eliminará las transacciones existentes.",
+  "categoriesDeleted": "Categoría \"{name}\" eliminada",
+  "@categoriesDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoriesNameHint": "Nombre de la categoría",
+  "categoriesSaveButton": "Guardar Cambios",
+  "categoriesAddButton": "Añadir",
+  "helpTitle": "Ayuda y FAQ",
+  "helpHeaderTitle": "¿Cómo podemos ayudar?",
+  "helpHeaderSubtitle": "Consulta las preguntas frecuentes a continuación",
+  "helpContactTitle": "¿Aún tienes dudas?",
+  "helpContactSubtitle": "Contactar soporte",
+  "helpWhatsappButton": "Hable con nosotros en WhatsApp",
+  "helpWhatsappError": "No se pudo abrir WhatsApp",
+  "helpFaq1Question": "¿Cómo añado una nueva transacción?",
+  "helpFaq1Answer": "En la pantalla de inicio, toque la pestaña \"Gastos\" o \"Ingresos\" y use el botón \"+\" en la esquina inferior derecha. Complete los datos y guarde.",
+  "helpFaq2Question": "¿Puedo editar una transacción?",
+  "helpFaq2Answer": "Actualmente, para garantizar la integridad de los datos, recomendamos eliminar la transacción incorrecta (deslizando hacia la izquierda) y crear una nueva.",
+  "helpFaq3Question": "¿Cómo funcionan los Objetivos?",
+  "helpFaq3Answer": "En la pestaña \"Objetivos\", puede crear metas financieras (ej: Viaje, Coche). Defina un monto objetivo y agregue ahorros progresivamente para ver su progreso visualmente.",
+  "helpFaq4Question": "¿Qué son las Inscripciones?",
+  "helpFaq4Answer": "La pestaña \"Inscripciones\" sirve para listar sus gastos recurrentes (Netflix, Spotify, Gimnasio). Esto ayuda a visualizar cuánto de su presupuesto mensual ya está comprometido.",
+  "helpFaq5Question": "¿Están seguros mis datos?",
+  "helpFaq5Answer": "¡Sí! Sus datos se almacenan en la nube de Google (Firebase) con autenticación segura. Solo usted tiene acceso a su información.",
+  "helpFaq6Question": "¿Cómo cambio mi contraseña?",
+  "helpFaq6Answer": "Vaya al menú lateral, toque en \"Perfil\" y seleccione la opción \"Cambiar contraseña\". Se le enviará un correo electrónico de restablecimiento.",
+  "expenseCategoriesTitle": "Categorías de Gastos",
+  "incomeCategoriesTitle": "Categorías de Ingresos",
+  "newCategoryTitle": "Nueva Categoría",
+  "categoryNameHint": "Nombre de la Categoría",
+  "selectIconLabel": "Seleccionar Ícono",
+  "addCategoryButton": "Añadir Categoría",
+  "yourCategoriesTitle": "Tus Categorías",
+  "noCategoriesCreated": "Sin categorías creadas",
+  "addCategoriesAboveTip": "Añade categorías arriba para comenzar",
+  "enterCategoryNameError": "Ingrese un nombre de categoría",
+  "categoryAddedSuccess": "¡Categoría agregada!",
+  "addCategoryError": "Error al agregar categoría",
+  "editCategoryTitle": "Editar Categoría",
+  "saveChangesButton": "Guardar Cambios",
+  "deleteCategoryTitle": "Eliminar Categoría",
+  "deleteCategoryMessage": "¿Deseas eliminar \"{name}\"?",
+  "@deleteCategoryMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsTitle": "Objetivos",
+  "goalsEmptyTitle": "Aún no hay objetivos",
+  "goalsEmptyMessage": "Crea un objetivo para empezar a ahorrar",
+  "goalsAddButton": "Agregar Objetivo",
+  "goalAddedSuccess": "¡Objetivo agregado con éxito!",
+  "goalsLoadError": "Error al cargar objetivos: {error}",
+  "@goalsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "transactionAddedSuccess": "¡Transacción agregada!",
+  "transactionDateSelector": "Seleccionar Fecha",
+  "transactionCategorySelector": "Seleccionar Categoría",
+  "transactionDescriptionHint": "Descripción (opcional)",
+  "transactionEmptyCategory": "Seleccione una categoría",
+  "transactionEmptyDate": "Seleccione una fecha",
+  "transactionEmptyAmount": "Ingrese un monto",
+  "transactionEmptyDescription": "Ingrese una descripción",
+  "logoutConfirmTitle": "Cerrar Sesión",
+  "logoutConfirmMessage": "¿Estás seguro de que quieres cerrar sesión?",
+  "logoutButton": "Cerrar Sesión"
+}

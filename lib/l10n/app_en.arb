@@ -1,0 +1,270 @@
+{
+  "@@locale": "en",
+  "appTitle": "iQoin",
+  "@appTitle": {
+    "description": "App Name"
+  },
+  "homeWelcome": "Welcome back,",
+  "homeBalance": "Total Balance",
+  "homeIncome": "Income",
+  "homeExpenses": "Expenses",
+  "homeRecentTransactions": "Recent Transactions",
+  "homeViewAll": "View all",
+  "homeNoTransactions": "No transactions yet",
+  "bottomNavHome": "Home",
+  "bottomNavTransactions": "Transactions",
+  "bottomNavGoals": "Goals",
+  "bottomNavProfile": "Profile",
+  "authLoginTitle": "Login",
+  "authRegisterTitle": "Register",
+  "authEmailLabel": "Email",
+  "authPasswordLabel": "Password",
+  "authNameLabel": "Name",
+  "authLoginButton": "Login",
+  "authRegisterButton": "Register",
+  "authGoogleButton": "Continue with Google",
+  "authAppleButton": "Continue with Apple",
+  "authForgotPassword": "Forgot password?",
+  "authNoAccount": "Don't have an account? Register",
+  "authHaveAccount": "Already have an account? Login",
+  "authErrorTitle": "Authentication Error",
+  "authSuccessTitle": "Success",
+  "envDevLabel": "Development",
+  "envProdLabel": "Production",
+  "envSwitchTitle": "Switch Environment",
+  "envSwitchMessage": "You are switching to {envName}",
+  "@envSwitchMessage": {
+    "placeholders": {
+      "envName": {
+        "type": "String"
+      }
+    }
+  },
+  "transactionNewTitle": "New Transaction",
+  "transactionEditTitle": "Edit Transaction",
+  "transactionTypeIncome": "Income",
+  "transactionTypeExpense": "Expense",
+  "transactionDescriptionLabel": "Description",
+  "transactionAmountLabel": "Amount",
+  "transactionDateLabel": "Date",
+  "transactionCategoryLabel": "Category",
+  "transactionSaveButton": "Save",
+  "goalNewTitle": "New Goal",
+  "goalEditTitle": "Edit Goal",
+  "goalNameLabel": "Goal Name",
+  "goalTargetAmountLabel": "Target Amount",
+  "goalCurrentAmountLabel": "Current Amount",
+  "goalDeadlineLabel": "Deadline",
+  "goalSaveButton": "Save Goal",
+  "goalProgressLabel": "{percent}% achieved",
+  "@goalProgressLabel": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "profileTitle": "Profile",
+  "profileEditButton": "Edit Profile",
+  "profileLogoutButton": "Logout",
+  "profileSettingsTitle": "Settings",
+  "profileHelpTitle": "Help & Support",
+  "profileAboutTitle": "About",
+  "profileThemeLabel": "Dark Theme",
+  "profileLanguageLabel": "Language",
+  "commonError": "Something went wrong",
+  "commonRetry": "Retry",
+  "commonCancel": "Cancel",
+  "commonConfirm": "Confirm",
+  "commonSuccess": "Action completed successfully",
+  "drawerHome": "Home",
+  "drawerTransactions": "Transactions",
+  "drawerGoals": "Goals",
+  "drawerProfile": "Profile",
+  "drawerSettings": "Settings",
+  "drawerHelp": "Help",
+  "drawerAbout": "About",
+  "drawerLogout": "Logout",
+  "drawerVersion": "Version 1.0.0",
+  "notificationsTitle": "Notifications",
+  "notificationsEmpty": "No recent notifications",
+  "notificationsMarkAllRead": "Mark all as read",
+  "notificationNewTransaction": "New Transaction",
+  "notificationGoalReached": "Goal Reached!",
+  "notificationSystemUpdate": "System Update",
+  "profileTagLabel": "My Tag",
+  "profileTagHelp": "Use this tag to add friends",
+  "profileTagCopied": "Tag copied to clipboard!",
+  "profileEditTitle": "Edit Profile",
+  "profileNameLabel": "Full Name",
+  "profilePhoneLabel": "Phone",
+  "profileBirthDateLabel": "Birth Date",
+  "profileGenderLabel": "Gender",
+  "profileGenderMale": "Male",
+  "profileGenderFemale": "Female",
+  "profileGenderOther": "Other",
+  "profileGenderSelect": "Select gender",
+  "profilePhotoUpdated": "Profile photo updated successfully!",
+  "profileUpdated": "Profile updated successfully!",
+  "userUnidentifiedError": "Error: User not identified",
+  "saveError": "Error saving: {error}",
+  "@saveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "newSubscriptionTitle": "New Subscription",
+  "subscriptionNameLabel": "Subscription Name",
+  "subscriptionNameHint": "Ex: Netflix, Spotify",
+  "subscriptionNameRequired": "Enter a name",
+  "amountLabel": "Amount",
+  "targetAmountRequired": "Enter an amount",
+  "invalidAmountError": "Invalid amount",
+  "subscriptionFrequencyLabel": "Frequency",
+  "subscriptionBillingDayLabel": "Billing Day",
+  "subscriptionIconLabel": "Icon",
+  "subscriptionAddedSuccess": "Subscription added!",
+  "subscriptionsTitle": "My Subscriptions",
+  "subscriptionsSubtitle": "Track your recurring expenses",
+  "subscriptionsTotalMonthly": "Monthly Total",
+  "subscriptionsActiveCount": "{count} active",
+  "@subscriptionsActiveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "subscriptionsEmptyTitle": "No subscriptions registered",
+  "subscriptionsEmptyMessage": "Add your subscriptions\nto track expenses",
+  "subscriptionsAddButton": "Add Subscription",
+  "subscriptionsDeleteTitle": "Delete Subscription",
+  "subscriptionsDeleteMessage": "Do you want to delete \"{name}\"?",
+  "@subscriptionsDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteButton": "Delete",
+  "cancel": "Cancel",
+  "dashboardTitle": "Dashboards",
+  "dashboardMonthlyOverview": "Monthly Overview",
+  "dashboardExpenseByCategory": "Expenses by Category",
+  "dashboardIncomeByCategory": "Income by Category",
+  "dashboardNoData": "No data to display",
+  "dashboardTouchDetails": "Touch to see details",
+  "monthJan": "Jan",
+  "monthFeb": "Feb",
+  "monthMar": "Mar",
+  "monthApr": "Apr",
+  "monthMay": "May",
+  "monthJun": "Jun",
+  "monthJul": "Jul",
+  "monthAug": "Aug",
+  "monthSep": "Sep",
+  "monthOct": "Oct",
+  "monthNov": "Nov",
+  "monthDec": "Dec",
+  "aboutTitle": "About",
+  "aboutDescriptionTitle": "Your complete tool for",
+  "aboutDescriptionSubtitle": "personal financial management",
+  "aboutDescriptionBody": "Control your income, expenses, and reach your financial goals in a simple and intuitive way.",
+  "aboutFeatureExpenses": "Income & Expenses",
+  "aboutFeatureExpensesDesc": "Register and categorize your transactions",
+  "aboutFeatureGoals": "Goals",
+  "aboutFeatureGoalsDesc": "Set savings and investment goals",
+  "aboutFeatureSubscriptions": "Subscriptions",
+  "aboutFeatureSubscriptionsDesc": "Track your recurring subscriptions",
+  "aboutCopyright": "© 2026 iQoin. All rights reserved.",
+  "categoriesTitle": "Categories",
+  "categoriesTabExpenses": "Expenses",
+  "categoriesTabIncome": "Income",
+  "categoriesNewCategory": "New Category",
+  "categoriesEditCategory": "Edit Category",
+  "categoriesHistoryTip": "Touch a category to see history",
+  "categoriesLoadError": "Error loading categories",
+  "categoriesEmpty": "No categories found",
+  "categoriesDeleteTitle": "Delete Category?",
+  "categoriesDeleteMessage": "This will not delete existing transactions.",
+  "categoriesDeleted": "Category \"{name}\" deleted",
+  "@categoriesDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "categoriesNameHint": "Category Name",
+  "categoriesSaveButton": "Save Changes",
+  "categoriesAddButton": "Add",
+  "helpTitle": "Help & FAQ",
+  "helpHeaderTitle": "How can we help?",
+  "helpHeaderSubtitle": "Check the frequently asked questions below",
+  "helpContactTitle": "Still have questions?",
+  "helpContactSubtitle": "Contact support",
+  "helpWhatsappButton": "Contact us on WhatsApp",
+  "helpWhatsappError": "Could not open WhatsApp",
+  "helpFaq1Question": "How do I add a new transaction?",
+  "helpFaq1Answer": "On the home screen, tap the \"Expenses\" or \"Income\" tab and use the \"+\" button in the bottom right corner. Fill in the details and save.",
+  "helpFaq2Question": "Can I edit a transaction?",
+  "helpFaq2Answer": "Currently, to ensure data integrity, we recommend deleting the incorrect transaction (swipe left) and creating a new one.",
+  "helpFaq3Question": "How do Goals work?",
+  "helpFaq3Answer": "In the \"Goals\" tab, you can create financial goals (e.g., Travel, Car). Set a target amount and add savings progressively to visually track your progress.",
+  "helpFaq4Question": "What are Subscriptions?",
+  "helpFaq4Answer": "The \"Subscriptions\" tab is used to list your recurring expenses (Netflix, Spotify, Gym). This helps visualize how much of your monthly budget is already committed.",
+  "helpFaq5Question": "Is my data safe?",
+  "helpFaq5Answer": "Yes! Your data is stored in the Google cloud (Firebase) with secure authentication. Only you have access to your information.",
+  "helpFaq6Question": "How do I change my password?",
+  "helpFaq6Answer": "Go to the side menu, tap \"Profile\" and select the \"Change Password\" option. A reset email will be sent to you.",
+  "expenseCategoriesTitle": "Expense Categories",
+  "incomeCategoriesTitle": "Income Categories",
+  "newCategoryTitle": "New Category",
+  "categoryNameHint": "Category Name",
+  "selectIconLabel": "Select Icon",
+  "addCategoryButton": "Add Category",
+  "yourCategoriesTitle": "Your Categories",
+  "noCategoriesCreated": "No categories created",
+  "addCategoriesAboveTip": "Add categories above to get started",
+  "enterCategoryNameError": "Enter a category name",
+  "categoryAddedSuccess": "Category added!",
+  "addCategoryError": "Error adding category",
+  "editCategoryTitle": "Edit Category",
+  "saveChangesButton": "Save Changes",
+  "deleteCategoryTitle": "Delete Category",
+  "deleteCategoryMessage": "Do you want to delete \"{name}\"?",
+  "@deleteCategoryMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "goalsTitle": "Goals",
+  "goalsEmptyTitle": "No goals yet",
+  "goalsEmptyMessage": "Create a goal to start saving",
+  "goalsAddButton": "Add Goal",
+  "goalAddedSuccess": "Goal added successfully!",
+  "goalsLoadError": "Error loading goals: {error}",
+  "@goalsLoadError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "transactionAddedSuccess": "Transaction added!",
+  "transactionDateSelector": "Select Date",
+  "transactionCategorySelector": "Select Category",
+  "transactionDescriptionHint": "Description (optional)",
+  "transactionEmptyCategory": "Select a category",
+  "transactionEmptyDate": "Select a date",
+  "transactionEmptyAmount": "Enter an amount",
+  "transactionEmptyDescription": "Enter a description",
+  "logoutConfirmTitle": "Logout",
+  "logoutConfirmMessage": "Are you sure you want to logout?",
+  "logoutButton": "Logout"
+}

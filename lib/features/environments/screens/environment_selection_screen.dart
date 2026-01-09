@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../invites/services/invite_service.dart';
@@ -16,31 +17,34 @@ class EnvironmentSelectionScreen extends StatelessWidget {
   const EnvironmentSelectionScreen({super.key});
 
   @override
+  @override
   Widget build(BuildContext context) {
     final authService = context.watch<AuthService>();
     final userId = authService.user?.uid ?? '';
     final userTag = authService.userModel?.userTag ?? '';
     final envService = context.watch<EnvironmentService>();
     final inviteService = context.watch<InviteService>();
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: AppColors.deepFinBlue,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Meus Ambientes'),
+            Text(
+              l10n.myEnvironmentsTitle,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             if (userTag.isNotEmpty)
               InkWell(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: userTag));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Tag copiada para a área de transferência!',
-                      ),
+                    SnackBar(
+                      content: Text(l10n.tagCopied),
                       backgroundColor: AppColors.successGreen,
-                      duration: Duration(seconds: 2),
+                      duration: const Duration(seconds: 2),
                     ),
                   );
                 },
@@ -81,7 +85,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Gerando ID...',
+                    l10n.generatingId,
                     style: TextStyle(
                       fontSize: 12,
                       color: AppColors.voltCyan.withValues(alpha: 0.8),
@@ -92,8 +96,8 @@ class EnvironmentSelectionScreen extends StatelessWidget {
               ),
           ],
         ),
-        backgroundColor: AppColors.deepFinBlue,
-        foregroundColor: AppColors.pureWhite,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).textTheme.titleLarge?.color,
         actions: [
           StreamBuilder<List<InviteModel>>(
             stream: inviteService.watchMyInvites(userId),
@@ -105,7 +109,8 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.mail_outline),
-                    onPressed: () => _showPendingInvites(context, invites),
+                    onPressed: () =>
+                        _showPendingInvites(context, invites, l10n),
                   ),
                   if (hasInvites)
                     Positioned(
@@ -140,7 +145,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
           if (snapshot.hasError) {
             return Center(
               child: Text(
-                'Erro ao carregar ambientes',
+                l10n.errorLoadingEnvironments,
                 style: const TextStyle(color: AppColors.alertRed),
               ),
             );
@@ -151,14 +156,14 @@ class EnvironmentSelectionScreen extends StatelessWidget {
           return CustomScrollView(
             slivers: [
               // Premium Info Section
-              SliverToBoxAdapter(child: _buildInfoSection(context)),
+              SliverToBoxAdapter(child: _buildInfoSection(context, l10n)),
 
               // Title
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
                 sliver: SliverToBoxAdapter(
                   child: Text(
-                    'Seus Ambientes',
+                    l10n.yourEnvironmentsSection,
                     style: TextStyle(
                       color: AppColors.voltCyan,
                       fontSize: 14,
@@ -184,6 +189,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                         env,
                         isSelected,
                         userId,
+                        l10n,
                       ),
                     );
                   }, childCount: environments.length),
@@ -210,16 +216,23 @@ class EnvironmentSelectionScreen extends StatelessWidget {
   }
 
   // ... (Info methods unchanged)
-  Widget _buildInfoSection(BuildContext context) {
+  Widget _buildInfoSection(BuildContext context, AppLocalizations l10n) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            Color(0xFF2A2D3E), // Darker shade
-            AppColors.deepFinBlueLight.withValues(alpha: 0.8),
-          ],
+          colors: isDark
+              ? [
+                  const Color(0xFF2A2D3E), // Darker shade
+                  AppColors.deepFinBlueLight.withValues(alpha: 0.8),
+                ]
+              : [
+                  Theme.of(context).cardColor,
+                  Theme.of(context).scaffoldBackgroundColor,
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -251,10 +264,10 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 16),
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Como funcionam os Ambientes?',
-                  style: TextStyle(
+                  l10n.howItWorksTitle,
+                  style: const TextStyle(
                     color: AppColors.pureWhite,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -265,7 +278,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Ambientes são espaços isolados para organizar suas finanças separadamente.',
+            l10n.howItWorksDescription,
             style: TextStyle(
               color: AppColors.textSecondary.withValues(alpha: 0.9),
               fontSize: 14,
@@ -275,17 +288,14 @@ class EnvironmentSelectionScreen extends StatelessWidget {
           const SizedBox(height: 16),
           _buildInfoItem(
             icon: Icons.person_outline,
-            text: 'Pessoal: seus gastos diários e investimentos.',
+            text: l10n.personalEnvironment,
           ),
           const SizedBox(height: 8),
-          _buildInfoItem(
-            icon: Icons.work_outline,
-            text: 'Trabalho: receitas e despesas profissionais.',
-          ),
+          _buildInfoItem(icon: Icons.work_outline, text: l10n.workEnvironment),
           const SizedBox(height: 8),
           _buildInfoItem(
             icon: Icons.flight_takeoff,
-            text: 'Viagens: orçamentos para suas aventuras.',
+            text: l10n.travelEnvironment,
           ),
         ],
       ),
@@ -315,6 +325,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
     EnvironmentModel env,
     bool isSelected,
     String currentUserId,
+    AppLocalizations l10n,
   ) {
     final color = Color(int.parse(env.colorHex));
     final isShared = env.isShared;
@@ -323,7 +334,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
       elevation: 0,
       color: isSelected
           ? color.withValues(alpha: 0.15)
-          : AppColors.deepFinBlueLight,
+          : Theme.of(context).cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
@@ -371,8 +382,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
         ),
         title: Text(
           env.name,
-          style: const TextStyle(
-            color: AppColors.pureWhite,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
@@ -382,12 +392,15 @@ class EnvironmentSelectionScreen extends StatelessWidget {
           children: [
             if (env.isDefault)
               Text(
-                'Padrão',
-                style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                l10n.defaultTag,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 12,
+                ),
               ),
             if (isShared)
               Text(
-                'Compartilhado',
+                l10n.sharedTag,
                 style: TextStyle(
                   color: AppColors.voltCyan.withValues(alpha: 0.8),
                   fontSize: 12,
@@ -401,14 +414,14 @@ class EnvironmentSelectionScreen extends StatelessWidget {
             if (!isShared) // Only show invite button for owned environments
               IconButton(
                 icon: const Icon(Icons.person_add, color: AppColors.voltCyan),
-                onPressed: () => _showInviteDialog(context, env),
-                tooltip: 'Convidar',
+                onPressed: () => _showInviteDialog(context, env, l10n),
+                tooltip: l10n.inviteTooltip,
               )
             else // Show leave button for shared environments
               IconButton(
                 icon: const Icon(Icons.exit_to_app, color: AppColors.alertRed),
-                onPressed: () => _confirmLeaveEnvironment(context, env),
-                tooltip: 'Sair do Ambiente',
+                onPressed: () => _confirmLeaveEnvironment(context, env, l10n),
+                tooltip: l10n.leaveTooltip,
               ),
             IconButton(
               icon: const Icon(Icons.edit, color: AppColors.textSecondary),
@@ -441,7 +454,11 @@ class EnvironmentSelectionScreen extends StatelessWidget {
     );
   }
 
-  void _showInviteDialog(BuildContext parentContext, EnvironmentModel env) {
+  void _showInviteDialog(
+    BuildContext parentContext,
+    EnvironmentModel env,
+    AppLocalizations l10n,
+  ) {
     final tagController = TextEditingController();
     final inviteService = parentContext.read<InviteService>();
     final authService = parentContext.read<AuthService>();
@@ -449,24 +466,24 @@ class EnvironmentSelectionScreen extends StatelessWidget {
     showDialog(
       context: parentContext,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.deepFinBlue,
-        title: const Text(
-          'Convidar Usuário',
-          style: TextStyle(color: AppColors.pureWhite),
+        backgroundColor: Theme.of(dialogContext).dialogBackgroundColor,
+        title: Text(
+          l10n.inviteUserTitle,
+          style: Theme.of(dialogContext).textTheme.titleLarge,
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Convide alguém para participar do ambiente "${env.name}". Digite a TAG do usuário (ex: #12345).',
+              l10n.inviteUserMessage(env.name),
               style: const TextStyle(color: AppColors.textSecondary),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: tagController,
-              style: const TextStyle(color: AppColors.pureWhite),
+              style: Theme.of(dialogContext).textTheme.bodyLarge,
               decoration: InputDecoration(
-                labelText: 'Tag do Usuário',
+                labelText: l10n.userTagLabel,
                 labelStyle: const TextStyle(color: AppColors.textSecondary),
                 hintText: '#XXXXX',
                 hintStyle: TextStyle(
@@ -485,9 +502,9 @@ class EnvironmentSelectionScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Text(
+              l10n.cancel,
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -511,8 +528,8 @@ class EnvironmentSelectionScreen extends StatelessWidget {
 
                 if (error == null) {
                   rootScaffoldMessengerKey.currentState?.showSnackBar(
-                    const SnackBar(
-                      content: Text('Convite enviado com sucesso!'),
+                    SnackBar(
+                      content: Text(l10n.inviteSentSuccess),
                       backgroundColor: AppColors.successGreen,
                     ),
                   );
@@ -534,9 +551,9 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                 );
               }
             },
-            child: const Text(
-              'Enviar',
-              style: TextStyle(color: AppColors.deepFinBlue),
+            child: Text(
+              l10n.send,
+              style: const TextStyle(color: AppColors.deepFinBlue),
             ),
           ),
         ],
@@ -544,10 +561,14 @@ class EnvironmentSelectionScreen extends StatelessWidget {
     );
   }
 
-  void _showPendingInvites(BuildContext context, List<InviteModel> invites) {
+  void _showPendingInvites(
+    BuildContext context,
+    List<InviteModel> invites,
+    AppLocalizations l10n,
+  ) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.deepFinBlue,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -557,22 +578,20 @@ class EnvironmentSelectionScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Convites Pendentes',
-              style: TextStyle(
-                color: AppColors.pureWhite,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+            Text(
+              l10n.pendingInvitesTitle,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             if (invites.isEmpty)
-              const Center(
+              Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32.0),
+                  padding: const EdgeInsets.all(32.0),
                   child: Text(
-                    'Nenhum convite pendente.',
-                    style: TextStyle(color: AppColors.textSecondary),
+                    l10n.noPendingInvites,
+                    style: const TextStyle(color: AppColors.textSecondary),
                   ),
                 ),
               )
@@ -586,7 +605,7 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.deepFinBlueLight,
+                      color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: AppColors.voltCyan.withValues(alpha: 0.3),
@@ -597,15 +616,12 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                       children: [
                         Text(
                           invite.environmentName,
-                          style: const TextStyle(
-                            color: AppColors.pureWhite,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Convidado por: ${invite.fromUserName}',
+                          l10n.invitedBy(invite.fromUserName),
                           style: const TextStyle(
                             color: AppColors.textSecondary,
                           ),
@@ -620,9 +636,11 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                                 await service.rejectInvite(invite.id);
                                 if (context.mounted) Navigator.pop(context);
                               },
-                              child: const Text(
-                                'Recusar',
-                                style: TextStyle(color: AppColors.alertRed),
+                              child: Text(
+                                l10n.decline,
+                                style: const TextStyle(
+                                  color: AppColors.alertRed,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -639,9 +657,11 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                                 );
                                 if (context.mounted) Navigator.pop(context);
                               },
-                              child: const Text(
-                                'Aceitar',
-                                style: TextStyle(color: AppColors.deepFinBlue),
+                              child: Text(
+                                l10n.accept,
+                                style: const TextStyle(
+                                  color: AppColors.deepFinBlue,
+                                ),
                               ),
                             ),
                           ],
@@ -660,25 +680,26 @@ class EnvironmentSelectionScreen extends StatelessWidget {
   void _confirmLeaveEnvironment(
     BuildContext parentContext,
     EnvironmentModel env,
+    AppLocalizations l10n,
   ) {
     showDialog(
       context: parentContext,
       builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.deepFinBlue,
-        title: const Text(
-          'Sair do Ambiente',
-          style: TextStyle(color: AppColors.pureWhite),
+        backgroundColor: Theme.of(dialogContext).dialogBackgroundColor,
+        title: Text(
+          l10n.leaveEnvironmentTitle,
+          style: Theme.of(dialogContext).textTheme.titleLarge,
         ),
         content: Text(
-          'Tem certeza que deseja sair do ambiente "${env.name}"? Você perderá o acesso a todos os dados compartilhados.',
+          l10n.leaveEnvironmentMessage(env.name),
           style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: AppColors.textSecondary),
+            child: Text(
+              l10n.cancel,
+              style: const TextStyle(color: AppColors.textSecondary),
             ),
           ),
           ElevatedButton(
@@ -698,15 +719,15 @@ class EnvironmentSelectionScreen extends StatelessWidget {
 
                 if (success) {
                   rootScaffoldMessengerKey.currentState?.showSnackBar(
-                    const SnackBar(
-                      content: Text('Você saiu do ambiente com sucesso.'),
+                    SnackBar(
+                      content: Text(l10n.leaveSuccess),
                       backgroundColor: AppColors.successGreen,
                     ),
                   );
                 } else {
                   rootScaffoldMessengerKey.currentState?.showSnackBar(
-                    const SnackBar(
-                      content: Text('Erro ao sair do ambiente.'),
+                    SnackBar(
+                      content: Text(l10n.leaveError),
                       backgroundColor: AppColors.alertRed,
                     ),
                   );
@@ -720,9 +741,9 @@ class EnvironmentSelectionScreen extends StatelessWidget {
                 );
               }
             },
-            child: const Text(
-              'Sair',
-              style: TextStyle(color: AppColors.pureWhite),
+            child: Text(
+              l10n.leaveButton,
+              style: const TextStyle(color: AppColors.pureWhite),
             ),
           ),
         ],

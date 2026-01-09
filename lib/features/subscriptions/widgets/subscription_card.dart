@@ -44,7 +44,7 @@ class SubscriptionCard extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.deepFinBlueLight,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isActive ? color.withValues(alpha: 0.3) : Colors.transparent,
@@ -77,7 +77,7 @@ class SubscriptionCard extends StatelessWidget {
                     subscription.nome,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: isActive
-                          ? AppColors.pureWhite
+                          ? Theme.of(context).textTheme.titleMedium?.color
                           : AppColors.textSecondary,
                     ),
                   ),

@@ -5,7 +5,10 @@ import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../home/models/transaction_model.dart';
 import '../../shared/services/firestore_service.dart';
+import '../../shared/services/sync_service.dart';
 import '../../environments/services/environment_service.dart';
+import 'transactions_by_category_screen.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -70,8 +73,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final currentYear = DateTime.now().year;
     final years = [currentYear, currentYear - 1, currentYear - 2];
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: AppColors.deepFinBlue, // Dark Theme
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: StreamBuilder<List<TransactionModel>>(
         stream: _transactionsStream,
         builder: (context, snapshot) {
@@ -90,98 +95,117 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           final transactions = snapshot.data ?? [];
 
-          return CustomScrollView(
-            slivers: [
-              // Header Flutuante
-              SliverAppBar(
-                backgroundColor: AppColors.deepFinBlue,
-                elevation: 0,
-                floating: true,
-                title: Row(
-                  children: [
-                    Image.asset('assets/images/logo.png', height: 24),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Dashboards',
-                      style: TextStyle(
-                        color: AppColors.pureWhite,
-                        fontWeight: FontWeight.bold,
+          return RefreshIndicator(
+            onRefresh: () async {
+              await context.read<SyncService>().reload();
+              await Future.delayed(const Duration(milliseconds: 500));
+            },
+            backgroundColor: Theme.of(context).cardColor,
+            color: AppColors.voltCyan,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                // Header Flutuante
+                SliverAppBar(
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  elevation: 0,
+                  floating: true,
+                  title: Row(
+                    children: [
+                      Image.asset('assets/images/logo.png', height: 24),
+                      const SizedBox(width: 8),
+                      Text(
+                        AppLocalizations.of(context)!.dashboardTitle,
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.titleLarge?.color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    Container(
+                      margin: const EdgeInsets.only(right: 16),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isDark
+                              ? AppColors.voltCyan.withValues(alpha: 0.3)
+                              : AppColors.deepFinBlue.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: DropdownButton<int>(
+                        value: _selectedYear,
+                        dropdownColor: Theme.of(context).cardColor,
+                        underline: const SizedBox(),
+                        icon: const Icon(
+                          Icons.keyboard_arrow_down,
+                          color: AppColors.voltCyan,
+                        ),
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        items: years.map((year) {
+                          return DropdownMenuItem(
+                            value: year,
+                            child: Text('$year'),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) setState(() => _selectedYear = val);
+                        },
                       ),
                     ),
                   ],
                 ),
-                actions: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 16),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: AppColors.deepFinBlueLight,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColors.voltCyan.withValues(alpha: 0.3),
+
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      _buildSectionTitle(
+                        AppLocalizations.of(context)!.dashboardMonthlyOverview,
                       ),
-                    ),
-                    child: DropdownButton<int>(
-                      value: _selectedYear,
-                      dropdownColor: AppColors.deepFinBlueLight,
-                      underline: const SizedBox(),
-                      icon: const Icon(
-                        Icons.keyboard_arrow_down,
-                        color: AppColors.voltCyan,
+                      const SizedBox(height: 16),
+                      _buildMonthlyComparisonChart(transactions),
+
+                      const SizedBox(height: 32),
+                      _buildSectionTitle(
+                        AppLocalizations.of(
+                          context,
+                        )!.dashboardExpenseByCategory,
                       ),
-                      style: const TextStyle(
-                        color: AppColors.pureWhite,
-                        fontWeight: FontWeight.bold,
+                      const SizedBox(height: 16),
+                      DashboardCategoryChart(
+                        transactions: transactions,
+                        isExpense: true,
+                        touchedIndex: _touchedExpenseIndex,
+                        onTouch: (index) =>
+                            setState(() => _touchedExpenseIndex = index),
                       ),
-                      items: years.map((year) {
-                        return DropdownMenuItem(
-                          value: year,
-                          child: Text('$year'),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) setState(() => _selectedYear = val);
-                      },
-                    ),
+
+                      const SizedBox(height: 32),
+                      _buildSectionTitle(
+                        AppLocalizations.of(context)!.dashboardIncomeByCategory,
+                      ),
+                      const SizedBox(height: 16),
+                      DashboardCategoryChart(
+                        transactions: transactions,
+                        isExpense: false,
+                        touchedIndex: _touchedIncomeIndex,
+                        onTouch: (index) =>
+                            setState(() => _touchedIncomeIndex = index),
+                      ),
+
+                      const SizedBox(height: 100),
+                    ]),
                   ),
-                ],
-              ),
-
-              SliverPadding(
-                padding: const EdgeInsets.all(16),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    _buildSectionTitle('Visão Geral Mensal'),
-                    const SizedBox(height: 16),
-                    _buildMonthlyComparisonChart(transactions),
-
-                    const SizedBox(height: 32),
-                    _buildSectionTitle('Despesas por Categoria'),
-                    const SizedBox(height: 16),
-                    _buildCategoryPieChart(
-                      transactions,
-                      isExpense: true,
-                      touchedIndex: _touchedExpenseIndex,
-                      onTouch: (index) =>
-                          setState(() => _touchedExpenseIndex = index),
-                    ),
-
-                    const SizedBox(height: 32),
-                    _buildSectionTitle('Receitas por Categoria'),
-                    const SizedBox(height: 16),
-                    _buildCategoryPieChart(
-                      transactions,
-                      isExpense: false,
-                      touchedIndex: _touchedIncomeIndex,
-                      onTouch: (index) =>
-                          setState(() => _touchedIncomeIndex = index),
-                    ),
-
-                    const SizedBox(height: 100),
-                  ]),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -236,17 +260,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
       height: 250,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.deepFinBlueLight.withValues(
-          alpha: 0.3,
-        ), // Fundo do gráfico
+        color: Theme.of(
+          context,
+        ).cardColor.withValues(alpha: 0.5), // Fundo do gráfico
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.divider.withValues(alpha: 0.1)),
       ),
       child: transactions.isEmpty
-          ? const Center(
+          ? Center(
               child: Text(
-                'Sem dados',
-                style: TextStyle(color: AppColors.textSecondary),
+                AppLocalizations.of(context)!.dashboardNoData,
+                style: const TextStyle(color: AppColors.textSecondary),
               ),
             )
           : BarChart(
@@ -332,16 +356,40 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
     );
   }
+}
 
-  Widget _buildCategoryPieChart(
-    List<TransactionModel> transactions, {
-    required bool isExpense,
-    required int touchedIndex,
-    required Function(int) onTouch,
-  }) {
+class DashboardCategoryChart extends StatefulWidget {
+  final List<TransactionModel> transactions;
+  final bool isExpense;
+  final int touchedIndex;
+  final Function(int) onTouch;
+
+  const DashboardCategoryChart({
+    super.key,
+    required this.transactions,
+    required this.isExpense,
+    required this.touchedIndex,
+    required this.onTouch,
+  });
+
+  @override
+  State<DashboardCategoryChart> createState() => _DashboardCategoryChartState();
+}
+
+class _DashboardCategoryChartState extends State<DashboardCategoryChart> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Filtrar transações pelo tipo
-    final filtered = transactions
-        .where((t) => isExpense ? t.isExpense : t.isIncome)
+    final filtered = widget.transactions
+        .where((t) => widget.isExpense ? t.isExpense : t.isIncome)
         .toList();
 
     if (filtered.isEmpty) {
@@ -349,181 +397,343 @@ class _DashboardScreenState extends State<DashboardScreen> {
         height: 250,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: AppColors.deepFinBlueLight.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.divider.withValues(alpha: 0.1)),
+          color: Theme.of(context).cardColor.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: AppColors.divider.withValues(alpha: 0.05)),
         ),
-        child: const Text(
-          'Sem dados',
-          style: TextStyle(color: AppColors.textSecondary),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.pie_chart_outline_rounded,
+              size: 48,
+              color: AppColors.textSecondary.withValues(alpha: 0.2),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context)!.dashboardNoData,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ),
       );
     }
 
     // Agrupar por nome da categoria
     final Map<String, double> totalsByCategory = {};
+    final Map<String, String> categoryIds = {};
     double totalValue = 0;
 
     for (var t in filtered) {
       totalsByCategory[t.categoryName] =
           (totalsByCategory[t.categoryName] ?? 0) + t.valor;
+      categoryIds[t.categoryName] = t.categoryId;
       totalValue += t.valor;
     }
 
-    // Gerar seções
-    // Definir uma paleta de cores para variar nas categorias
+    // Ordenar por valor decrescente
+    final entries = totalsByCategory.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    // Definir uma paleta de cores PREMIUM e EXTENSA
     final List<Color> colors = [
-      isExpense ? AppColors.alertRed : AppColors.successGreen, // Cor principal
-      Colors.blue,
-      Colors.orange,
-      Colors.purple,
-      Colors.yellow,
-      Colors.teal,
-      Colors.pink,
-      Colors.indigo,
+      widget.isExpense
+          ? const Color(0xFFFF453A)
+          : const Color(0xFF30D158), // iOS Red / Green
+      const Color(0xFF0A84FF), // iOS Blue
+      const Color(0xFFFF9F0A), // iOS Orange
+      const Color(0xFFBF5AF2), // iOS Purple
+      const Color(0xFFFFD60A), // iOS Yellow
+      const Color(0xFF64D2FF), // iOS Teal/Cyan
+      const Color(0xFFFF375F), // iOS Pink
+      const Color(0xFF5E5CE6), // iOS Indigo
+      const Color(0xFFAC8E68), // Brown
+      const Color(0xFF2D2D2D), // Dark Gray
+      const Color(0xFFE5E5EA), // Light Gray
     ];
 
     List<PieChartSectionData> sections = [];
-    final entries = totalsByCategory.entries.toList();
 
     for (int i = 0; i < entries.length; i++) {
       final entry = entries[i];
       final value = entry.value;
-      final categoryName = entry.key;
 
-      final isTouched = i == touchedIndex;
+      final isTouched = i == widget.touchedIndex;
       final percentage = (value / totalValue) * 100;
+      final showTitle = percentage > 4 || isTouched;
 
-      // Mostrar labels apenas para fatias > 5% OU se estiver tocado
-      final showTitle = percentage > 5 || isTouched;
-
-      // Título mostra % e R$ se tocado
-      String title = '';
-      if (isTouched) {
-        title =
-            '${percentage.toStringAsFixed(0)}%\nR\$${value.toStringAsFixed(2)}';
-      } else if (showTitle) {
-        title = '${percentage.toStringAsFixed(0)}%';
-      }
-
-      // Aumentei o raio de destaque para 70.0 para feedback mais claro
-      final double radius = isTouched ? 70.0 : 50.0;
-      final double fontSize = isTouched ? 14.0 : 12.0;
+      final double radius = isTouched ? 65.0 : 55.0;
+      final double fontSize = isTouched ? 16.0 : 12.0;
+      final color = colors[i % colors.length];
 
       sections.add(
         PieChartSectionData(
-          color: colors[i % colors.length],
+          color: color,
           value: value,
-          title: title,
+          title: showTitle ? '${percentage.toStringAsFixed(0)}%' : '',
           radius: radius,
           titleStyle: TextStyle(
             fontSize: fontSize,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
             color: Colors.white,
-            shadows: const [Shadow(color: Colors.black, blurRadius: 2)],
+            shadows: [
+              Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 4),
+            ],
           ),
-          badgeWidget: showTitle
-              ? _Badge(
-                  categoryName,
-                  size: isTouched
-                      ? 34
-                      : 28, // Tamanho reduzido para evitar poluição
-                  borderColor: colors[i % colors.length],
-                )
-              : null,
-          badgePositionPercentageOffset:
-              1.6, // Mais afastado para não cobrir a fatia
+          badgeWidget: null,
+          borderSide: isTouched
+              ? const BorderSide(color: Colors.white, width: 2)
+              : BorderSide(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 1,
+                ),
         ),
       );
     }
 
     return Container(
-      height: 350, // Aumentei altura para acomodar interação
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.deepFinBlueLight.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.divider.withValues(alpha: 0.1)),
+        color: Theme.of(
+          context,
+        ).cardColor.withValues(alpha: 0.5), // Fundo sutil
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.05)),
       ),
-      child: PieChart(
-        PieChartData(
-          sectionsSpace: 2,
-          centerSpaceRadius: 40,
-          sections: sections,
-          pieTouchData: PieTouchData(
-            enabled: true,
-            touchCallback: (FlTouchEvent event, pieTouchResponse) {
-              // Se não houver toque em seção válida
-              if (pieTouchResponse == null ||
-                  pieTouchResponse.touchedSection == null) {
-                // Se o usuário clicar fora (TapUp no fundo), desmarca
-                if (event is FlTapUpEvent && touchedIndex != -1) {
-                  onTouch(-1);
-                }
-                return;
-              }
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+      child: Column(
+        children: [
+          // Gráfico
+          SizedBox(
+            height: 260,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PieChart(
+                  PieChartData(
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 45,
+                    sections: sections,
+                    pieTouchData: PieTouchData(
+                      enabled: true,
+                      touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                        if (pieTouchResponse == null ||
+                            pieTouchResponse.touchedSection == null) {
+                          if (event is FlTapUpEvent &&
+                              widget.touchedIndex != -1) {
+                            widget.onTouch(-1);
+                          }
+                          return;
+                        }
 
-              // Se houver clique em seção
-              if (event is FlTapUpEvent) {
-                final index =
-                    pieTouchResponse.touchedSection!.touchedSectionIndex;
-                // Toggle: clicar na mesma desmarca, clicar em outra marca
-                if (index == touchedIndex) {
-                  onTouch(-1);
-                } else {
-                  onTouch(index);
-                }
-              }
-            },
+                        if (event is FlTapUpEvent) {
+                          final index = pieTouchResponse
+                              .touchedSection!
+                              .touchedSectionIndex;
+                          if (index == widget.touchedIndex) {
+                            widget.onTouch(-1);
+                          } else {
+                            widget.onTouch(index);
+                          }
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                // Texto central contextual
+                if (widget.touchedIndex != -1 &&
+                    widget.touchedIndex < entries.length)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Text(
+                          entries[widget.touchedIndex].key,
+                          style: const TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(
+                        '${((entries[widget.touchedIndex].value / totalValue) * 100).toStringAsFixed(0)}%',
+                        style: TextStyle(
+                          color: colors[widget.touchedIndex % colors.length],
+                          fontSize: 16,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
-        ),
-      ),
-    );
-  }
-}
 
-class _Badge extends StatelessWidget {
-  const _Badge(this.text, {required this.size, required this.borderColor});
-  final String text;
-  final double size;
-  final Color borderColor;
+          const SizedBox(height: 24),
 
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: PieChart.defaultDuration,
-      // width: size * 3, // REMOVIDO: Largura fixa causava excesso de espaço
-      // height: size,    // REMOVIDO: Altura fixa
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.rectangle,
-        borderRadius: BorderRadius.circular(size / 2),
-        border: Border.all(color: borderColor, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            offset: const Offset(3, 3),
-            blurRadius: 3,
+          // Legenda Scrollável (Max Height para não explodir a tela)
+          Container(
+            constraints: const BoxConstraints(maxHeight: 220),
+            decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Scrollbar(
+              controller: _scrollController,
+              thumbVisibility: true,
+              radius: const Radius.circular(8),
+              child: ListView.separated(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(12),
+                shrinkWrap: true,
+                itemCount: entries.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final entry = entries[index];
+                  final categoryName = entry.key;
+                  final categoryId = categoryIds[categoryName] ?? '';
+                  final value = entry.value;
+                  final percentage = (value / totalValue) * 100;
+                  final isTouched = index == widget.touchedIndex;
+                  final color = colors[index % colors.length];
+
+                  return Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => widget.onTouch(isTouched ? -1 : index),
+                      onLongPress: () {
+                        if (categoryId.isNotEmpty) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => TransactionsByCategoryScreen(
+                                categoryId: categoryId,
+                                categoryName: categoryName,
+                                isExpense: widget.isExpense,
+                                // categoryIcon not provided, will use default 'outros'
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isTouched
+                              ? color.withValues(alpha: 0.15)
+                              : Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isTouched
+                                ? color.withValues(alpha: 0.5)
+                                : Colors.transparent,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            // Percentual em destaque
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Text(
+                                '${percentage.toStringAsFixed(0)}%',
+                                style: TextStyle(
+                                  color: color,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+
+                            // Nome da Categoria
+                            Expanded(
+                              child: Text(
+                                categoryName,
+                                style: TextStyle(
+                                  color: isTouched
+                                      ? Theme.of(
+                                          context,
+                                        ).textTheme.bodyLarge?.color
+                                      : Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium
+                                            ?.color
+                                            ?.withValues(alpha: 0.9),
+                                  fontWeight: isTouched
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  fontSize: 14,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+
+                            // Valor Monetário
+                            Text(
+                              'R\$ ${value.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .bodyLarge
+                                    ?.color
+                                    ?.withValues(alpha: 0.8),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 12),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.info_outline_rounded,
+                size: 14,
+                color: AppColors.textSecondary.withValues(alpha: 0.5),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                AppLocalizations.of(context)!.dashboardTouchDetails,
+                style: TextStyle(
+                  color: AppColors.textSecondary.withValues(alpha: 0.5),
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ],
-      ),
-      padding: EdgeInsets.symmetric(
-        horizontal: size * 0.3,
-        vertical: size * 0.1,
-      ),
-      // alignment: Alignment.center, // REMOVIDO: Causa expansão indesejada
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 160), // Limite de segurança
-        child: Text(
-          text,
-          style: TextStyle(
-            fontSize: size * 0.45,
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            overflow: TextOverflow.ellipsis,
-          ),
-          textAlign: TextAlign.center,
-        ),
       ),
     );
   }

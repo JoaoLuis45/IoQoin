@@ -9,6 +9,7 @@ import '../../environments/services/environment_service.dart';
 import '../models/category_model.dart';
 import '../models/fixed_transaction_model.dart';
 import '../models/transaction_model.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Sheet para adicionar receita ou despesa
 class AddTransactionSheet extends StatefulWidget {
@@ -69,14 +70,15 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     final firestoreService = context.watch<FirestoreService>();
     final envId =
         context.watch<EnvironmentService>().currentEnvironment?.id ?? '';
+    final l10n = AppLocalizations.of(context)!;
 
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Container(
         height: MediaQuery.of(context).size.height * 0.9,
-        decoration: const BoxDecoration(
-          color: AppColors.deepFinBlue,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
           children: [
@@ -98,7 +100,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Adicionar ${isExpense ? 'Despesa' : 'Receita'}',
+                    isExpense ? l10n.addExpenseTitle : l10n.addIncomeTitle,
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                   IconButton(
@@ -116,32 +118,36 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Transações Fixas (Templates)
-                    _buildFixedTransactionsSelector(firestoreService, envId),
+                    _buildFixedTransactionsSelector(
+                      firestoreService,
+                      envId,
+                      l10n,
+                    ),
 
                     const SizedBox(height: 24),
 
                     // Campo de valor
-                    _buildValueInput(),
+                    _buildValueInput(l10n),
 
                     const SizedBox(height: 20),
 
                     // Tags de valores rápidos
-                    _buildQuickValueTags(),
+                    _buildQuickValueTags(l10n),
 
                     const SizedBox(height: 24),
 
                     // Seletor de categoria
-                    _buildCategorySelector(firestoreService, envId),
+                    _buildCategorySelector(firestoreService, envId, l10n),
 
                     const SizedBox(height: 24),
 
                     // Campo de descrição
-                    _buildDescriptionField(),
+                    _buildDescriptionField(l10n),
 
                     const SizedBox(height: 24),
 
                     // Seletor de data
-                    _buildDateSelector(),
+                    _buildDateSelector(l10n),
 
                     const SizedBox(height: 40),
 
@@ -162,6 +168,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
   Widget _buildFixedTransactionsSelector(
     FirestoreService firestoreService,
     String envId,
+    AppLocalizations l10n,
   ) {
     return StreamBuilder<List<FixedTransactionModel>>(
       stream: firestoreService.getFixedTransactions(
@@ -177,7 +184,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Transações Fixas (Preenchimento Rápido)',
+              l10n.fixedTransactionsTitle,
               style: Theme.of(
                 context,
               ).textTheme.titleSmall?.copyWith(color: AppColors.textSecondary),
@@ -220,7 +227,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                       margin: const EdgeInsets.only(right: 12),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
-                        color: AppColors.deepFinBlueLight,
+                        color: Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
                           color: accentColor.withValues(alpha: 0.3),
@@ -240,8 +247,10 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                           const SizedBox(width: 8),
                           Text(
                             item.categoryName,
-                            style: const TextStyle(
-                              color: AppColors.pureWhite,
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.color,
                               fontWeight: FontWeight.w600,
                               fontSize: 12,
                             ),
@@ -259,18 +268,18 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     ).animate().fadeIn();
   }
 
-  Widget _buildValueInput() {
+  Widget _buildValueInput(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.deepFinBlueLight,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 2),
       ),
       child: Column(
         children: [
           Text(
-            'Valor',
+            l10n.amountLabel,
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
@@ -296,8 +305,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                     decimal: true,
                   ),
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 48,
+                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: accentColor,
                   ),
@@ -324,12 +332,12 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     ).animate().fadeIn(duration: 300.ms).slideY(begin: -0.1);
   }
 
-  Widget _buildQuickValueTags() {
+  Widget _buildQuickValueTags(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Valores rápidos',
+          l10n.quickValuesTitle,
           style: Theme.of(
             context,
           ).textTheme.titleSmall?.copyWith(color: AppColors.textSecondary),
@@ -349,7 +357,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                   vertical: 10,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.deepFinBlueLight,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: accentColor.withValues(alpha: 0.3)),
                 ),
@@ -371,6 +379,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
   Widget _buildCategorySelector(
     FirestoreService firestoreService,
     String envId,
+    AppLocalizations l10n,
   ) {
     final stream = isExpense
         ? firestoreService.getExpenseCategories(widget.userId, envId)
@@ -383,14 +392,14 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Categoria',
+              l10n.categoryLabel,
               style: Theme.of(
                 context,
               ).textTheme.titleSmall?.copyWith(color: AppColors.textSecondary),
             ),
             if (_selectedCategory == null)
               Text(
-                'Selecione uma categoria',
+                l10n.selectCategoryError,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: AppColors.alertRed.withValues(alpha: 0.8),
                 ),
@@ -429,14 +438,14 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Nenhuma categoria disponível',
+                      l10n.noCategoriesAvailable,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         color: AppColors.alertRed,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Crie categorias primeiro em "Categorias"',
+                      l10n.createCategoriesFirst,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: AppColors.textSecondary,
                       ),
@@ -468,7 +477,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                     decoration: BoxDecoration(
                       color: isSelected
                           ? accentColor.withValues(alpha: 0.2)
-                          : AppColors.deepFinBlueLight,
+                          : Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(16),
                       border: isSelected
                           ? Border.all(color: accentColor, width: 2)
@@ -515,12 +524,12 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     ).animate(delay: 200.ms).fadeIn();
   }
 
-  Widget _buildDescriptionField() {
+  Widget _buildDescriptionField(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Descrição (opcional)',
+          l10n.descriptionOptionalLabel,
           style: Theme.of(
             context,
           ).textTheme.titleSmall?.copyWith(color: AppColors.textSecondary),
@@ -528,9 +537,9 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
         const SizedBox(height: 12),
         TextField(
           controller: _descriptionController,
-          decoration: const InputDecoration(
-            hintText: 'Ex: Compra no supermercado',
-            prefixIcon: Icon(Icons.notes_outlined),
+          decoration: InputDecoration(
+            hintText: l10n.descriptionHint,
+            prefixIcon: const Icon(Icons.notes_outlined),
           ),
           maxLines: 2,
           textCapitalization: TextCapitalization.sentences,
@@ -539,12 +548,12 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     ).animate(delay: 300.ms).fadeIn();
   }
 
-  Widget _buildDateSelector() {
+  Widget _buildDateSelector(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Data',
+          l10n.dateLabel,
           style: Theme.of(
             context,
           ).textTheme.titleSmall?.copyWith(color: AppColors.textSecondary),
@@ -555,7 +564,7 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             decoration: BoxDecoration(
-              color: AppColors.deepFinBlueLight,
+              color: Theme.of(context).cardColor,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -563,11 +572,11 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
                 Icon(Icons.calendar_today_outlined, color: accentColor),
                 const SizedBox(width: 12),
                 Text(
-                  _formatDate(_selectedDate),
+                  _formatDate(_selectedDate, l10n),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const Spacer(),
-                Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                const Icon(Icons.chevron_right, color: AppColors.textSecondary),
               ],
             ),
           ),
@@ -643,9 +652,11 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.dark(
               primary: accentColor,
-              onPrimary: AppColors.deepFinBlue,
-              surface: AppColors.deepFinBlueLight,
-              onSurface: AppColors.pureWhite,
+              onPrimary: Theme.of(context).scaffoldBackgroundColor,
+              surface: Theme.of(context).cardColor,
+              onSurface:
+                  Theme.of(context).textTheme.bodyLarge?.color ??
+                  AppColors.pureWhite,
             ),
           ),
           child: child!,
@@ -658,22 +669,23 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     }
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(DateTime date, AppLocalizations l10n) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final selectedDay = DateTime(date.year, date.month, date.day);
 
     if (selectedDay == today) {
-      return 'Hoje';
+      return l10n.today;
     } else if (selectedDay == yesterday) {
-      return 'Ontem';
+      return l10n.yesterday;
     } else {
       return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
     }
   }
 
   Future<void> _submit(FirestoreService firestoreService, String envId) async {
+    final l10n = AppLocalizations.of(context)!;
     // Validações
     final valueText = _valueController.text.trim().replaceAll(',', '.');
     final value = double.tryParse(valueText);
@@ -681,14 +693,14 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
     if (value == null || value <= 0) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Digite um valor válido')));
+      ).showSnackBar(SnackBar(content: Text(l10n.invalidAmountError)));
       return;
     }
 
     if (_selectedCategory == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Selecione uma categoria')));
+      ).showSnackBar(SnackBar(content: Text(l10n.selectCategoryError)));
       return;
     }
 
@@ -716,14 +728,14 @@ class _AddTransactionSheetState extends State<AddTransactionSheet>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${isExpense ? 'Despesa' : 'Receita'} adicionada com sucesso!',
+            isExpense ? l10n.expenseAddedSuccess : l10n.incomeAddedSuccess,
           ),
         ),
       );
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erro ao adicionar. Tente novamente.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.addTransactionError)));
     }
   }
 }

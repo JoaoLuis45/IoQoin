@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/constants/app_colors.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 /// Tela Sobre o App
 class AboutScreen extends StatelessWidget {
@@ -13,7 +14,7 @@ class AboutScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text('Sobre'),
+        title: Text(AppLocalizations.of(context)!.aboutTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -59,7 +60,7 @@ class AboutScreen extends StatelessWidget {
             const SizedBox(height: 8),
 
             Text(
-              'Versão 1.0.0',
+              AppLocalizations.of(context)!.drawerVersion,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
@@ -71,17 +72,17 @@ class AboutScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.deepFinBlueLight,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
                 children: [
                   Text(
-                    'Sua ferramenta completa para',
+                    AppLocalizations.of(context)!.aboutDescriptionTitle,
                     style: Theme.of(context).textTheme.bodyLarge,
                   ),
                   Text(
-                    'gerenciamento financeiro pessoal',
+                    AppLocalizations.of(context)!.aboutDescriptionSubtitle,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppColors.voltCyan,
                       fontWeight: FontWeight.w600,
@@ -89,7 +90,7 @@ class AboutScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Controle suas receitas, despesas, e alcance seus objetivos financeiros de forma simples e intuitiva.',
+                    AppLocalizations.of(context)!.aboutDescriptionBody,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: AppColors.textSecondary,
@@ -105,24 +106,28 @@ class AboutScreen extends StatelessWidget {
             // Features
             _FeatureItem(
               icon: Icons.account_balance_wallet,
-              title: 'Receitas & Despesas',
-              description: 'Registre e categorize suas transações',
+              title: AppLocalizations.of(context)!.aboutFeatureExpenses,
+              description: AppLocalizations.of(
+                context,
+              )!.aboutFeatureExpensesDesc,
             ),
             _FeatureItem(
               icon: Icons.flag,
-              title: 'Objetivos',
-              description: 'Defina metas de economia e investimento',
+              title: AppLocalizations.of(context)!.aboutFeatureGoals,
+              description: AppLocalizations.of(context)!.aboutFeatureGoalsDesc,
             ),
             _FeatureItem(
               icon: Icons.subscriptions,
-              title: 'Inscrições',
-              description: 'Acompanhe suas assinaturas recorrentes',
+              title: AppLocalizations.of(context)!.aboutFeatureSubscriptions,
+              description: AppLocalizations.of(
+                context,
+              )!.aboutFeatureSubscriptionsDesc,
             ),
 
             const SizedBox(height: 48),
 
             Text(
-              '© 2026 iQoin. Todos os direitos reservados.',
+              AppLocalizations.of(context)!.aboutCopyright,
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),

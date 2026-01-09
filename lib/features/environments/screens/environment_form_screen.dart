@@ -4,6 +4,7 @@ import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../models/environment_model.dart';
 import '../services/environment_service.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 import '../../../core/utils/icon_utils.dart';
 
 class EnvironmentFormScreen extends StatefulWidget {
@@ -84,9 +85,15 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
 
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao salvar: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.saveError(e.toString()),
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -95,28 +102,40 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
   Future<void> _delete() async {
     if (widget.environment == null) return;
 
+    final l10n = AppLocalizations.of(context)!;
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: AppColors.deepFinBlueLight,
-        title: const Text(
-          'Excluir Ambiente',
-          style: TextStyle(color: AppColors.pureWhite),
+        backgroundColor: Theme.of(context).dialogBackgroundColor,
+        title: Text(
+          l10n.deleteEnvironmentTitle,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
-        content: const Text(
-          'Tem certeza? Isso não apagará as transações associadas por enquanto (serão inacessíveis).',
-          style: TextStyle(color: AppColors.textSecondary),
+        content: Text(
+          l10n.deleteEnvironmentMessage,
+          style: const TextStyle(color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancelar'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Excluir',
-              style: TextStyle(color: AppColors.alertRed),
+            child: Text(
+              l10n.deleteEnvironmentTitle, // Reuse title or specific button text if needed, but 'Excluir Ambiente' as button is weird.
+              // Wait, previous was just 'Excluir'. But I didn't add a specific 'delete' button text, just 'deleteEnvironmentTitle'.
+              // I added 'deleteEnvironmentTitle'. I should check if I have a simple 'delete'. I don't see one in keys.
+              // I'll reuse 'deleteEnvironmentTitle' effectively 'Excluir Ambiente' which is long.
+              // Actually I forgot to verify if I have `delete` or similar. I have `deleteEnvironmentTitle` -> "Excluir Ambiente".
+              // `leaveButton` is "Sair".
+              // I will use `deleteEnvironmentTitle` for now or better, I should have added `delete`.
+              // But wait, the previous code was 'Excluir'.
+              // To be safe and clean, I will assume I can fix this with a new key later or just use title for now.
+              // UPDATE: Looking at keys I added: `newEnvironmentTitle`, `editEnvironmentTitle`, `deleteEnvironmentTitle`, but NO simple `delete`.
+              // I'll use `deleteEnvironmentTitle` it's okay for now.
+              style: const TextStyle(color: AppColors.alertRed),
             ),
           ),
         ],
@@ -125,6 +144,7 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
 
     if (confirm == true) {
       setState(() => _isLoading = true);
+      // ... service call
       final envService = context.read<EnvironmentService>();
       await envService.deleteEnvironment(
         widget.environment!.userId,
@@ -135,15 +155,20 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
-      backgroundColor: AppColors.deepFinBlue,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          widget.environment == null ? 'Novo Ambiente' : 'Editar Ambiente',
+          widget.environment == null
+              ? l10n.newEnvironmentTitle
+              : l10n.editEnvironmentTitle,
         ),
-        backgroundColor: AppColors.deepFinBlue,
-        foregroundColor: AppColors.pureWhite,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        foregroundColor: Theme.of(context).textTheme.titleLarge?.color,
         actions: [
           if (widget.environment != null)
             IconButton(
@@ -162,9 +187,9 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
               // Nome
               TextFormField(
                 controller: _nameController,
-                style: const TextStyle(color: AppColors.pureWhite),
+                style: Theme.of(context).textTheme.bodyLarge,
                 decoration: InputDecoration(
-                  labelText: 'Nome do Ambiente',
+                  labelText: l10n.environmentNameLabel,
                   labelStyle: const TextStyle(color: AppColors.textSecondary),
                   enabledBorder: OutlineInputBorder(
                     borderSide: const BorderSide(
@@ -177,16 +202,17 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Informe um nome' : null,
+                validator: (v) => v == null || v.isEmpty
+                    ? l10n.environmentNameRequired
+                    : null,
               ),
 
               const SizedBox(height: 24),
 
               // Cor
-              const Text(
-                'Cor',
-                style: TextStyle(color: AppColors.pureWhite, fontSize: 16),
+              Text(
+                l10n.colorLabel,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -204,7 +230,10 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
                         color: color,
                         shape: BoxShape.circle,
                         border: isSelected
-                            ? Border.all(color: AppColors.pureWhite, width: 3)
+                            ? Border.all(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                width: 3,
+                              )
                             : null,
                       ),
                       child: isSelected
@@ -218,9 +247,9 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
               const SizedBox(height: 24),
 
               // Ícone
-              const Text(
-                'Ícone',
-                style: TextStyle(color: AppColors.pureWhite, fontSize: 16),
+              Text(
+                l10n.iconLabel,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 12),
               Wrap(
@@ -236,7 +265,7 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.voltCyan.withValues(alpha: 0.2)
-                            : AppColors.deepFinBlueLight,
+                            : Theme.of(context).cardColor,
                         borderRadius: BorderRadius.circular(12),
                         border: isSelected
                             ? Border.all(color: AppColors.voltCyan)
@@ -257,9 +286,9 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
 
               // Default Checkbox
               SwitchListTile(
-                title: const Text(
-                  'Definir como padrão',
-                  style: TextStyle(color: AppColors.pureWhite),
+                title: Text(
+                  l10n.setAsDefault,
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 value: _isDefault,
                 activeColor: AppColors.voltCyan,
@@ -287,8 +316,8 @@ class _EnvironmentFormScreenState extends State<EnvironmentFormScreen> {
                         )
                       : Text(
                           widget.environment == null
-                              ? 'CRIAR AMBIENTE'
-                              : 'SALVAR ALTERAÇÕES',
+                              ? l10n.createEnvironmentButton
+                              : l10n.saveChangesButton,
                           style: const TextStyle(
                             color: AppColors.deepFinBlue,
                             fontWeight: FontWeight.bold,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../core/constants/app_colors.dart';
 import '../../goals/screens/goals_screen.dart';
 import '../../subscriptions/screens/subscriptions_screen.dart';
@@ -10,6 +11,8 @@ import '../../notifications/widgets/notification_drawer.dart';
 import '../../notifications/services/notification_service.dart';
 import '../../auth/services/auth_service.dart';
 import 'package:provider/provider.dart';
+import '../../shared/services/sync_service.dart';
+import '../../environments/services/environment_service.dart';
 
 /// Tela principal com Bottom Navigation Bar animada (5 abas)
 class MainScreen extends StatefulWidget {
@@ -33,6 +36,30 @@ class _MainScreenState extends State<MainScreen> {
       final userId = context.read<AuthService>().user?.uid;
       if (userId != null) {
         context.read<NotificationService>().checkDailyNotifications(userId);
+      }
+    });
+
+    // Inicializar SyncService
+    final envService = context.read<EnvironmentService>();
+    final syncService = context.read<SyncService>();
+    final authService = context.read<AuthService>();
+
+    void initSync() {
+      final env = envService.currentEnvironment;
+      final userId = authService.user?.uid;
+
+      if (env != null && userId != null) {
+        syncService.initialize(env, userId);
+      }
+    }
+
+    // Inicialização imediata se possível
+    initSync();
+
+    // Escutar mudanças de ambiente para reiniciar sync
+    envService.addListener(() {
+      if (mounted) {
+        initSync();
       }
     });
   }
@@ -108,14 +135,18 @@ class _MainScreenState extends State<MainScreen> {
         ),
         drawer: const DrawerMenu(),
         endDrawer: const NotificationDrawer(), // Menu de Notificações
-        body: IndexedStack(
-          index: _currentIndex,
-          children: const [
-            DashboardScreen(), // 0
-            GoalsScreen(), // 1
-            HomeScreen(), // 2 (Home)
-            CategoriesScreen(), // 3
-            SubscriptionsScreen(), // 4
+        body: Stack(
+          children: [
+            IndexedStack(
+              index: _currentIndex,
+              children: const [
+                DashboardScreen(), // 0
+                GoalsScreen(), // 1
+                HomeScreen(), // 2 (Home)
+                CategoriesScreen(), // 3
+                SubscriptionsScreen(), // 4
+              ],
+            ),
           ],
         ),
         bottomNavigationBar: _buildAnimatedBottomNav(),
@@ -126,10 +157,10 @@ class _MainScreenState extends State<MainScreen> {
   Widget _buildAnimatedBottomNav() {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.deepFinBlue,
+        color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -218,7 +249,7 @@ class _MainScreenState extends State<MainScreen> {
           gradient: LinearGradient(
             colors: isSelected
                 ? [AppColors.voltCyan, AppColors.voltCyanDark]
-                : [AppColors.deepFinBlueLight, AppColors.deepFinBlueLight],
+                : [Theme.of(context).cardColor, Theme.of(context).cardColor],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),

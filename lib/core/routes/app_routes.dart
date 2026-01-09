@@ -8,6 +8,7 @@ import '../../features/home/screens/main_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/shared/screens/help_screen.dart';
 import '../../features/shared/screens/about_screen.dart';
+import '../../features/settings/screens/settings_screen.dart';
 
 /// Configuração de rotas do app iQoin
 class AppRoutes {
@@ -21,6 +22,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String help = '/help';
   static const String about = '/about';
+  static const String settings = '/settings';
 
   /// Router principal do app
   static GoRouter router(AuthService authService) {
@@ -84,6 +86,11 @@ class AppRoutes {
           path: about,
           name: 'about',
           builder: (context, state) => const AboutScreen(),
+        ),
+        GoRoute(
+          path: settings,
+          name: 'settings',
+          builder: (context, state) => const SettingsScreen(),
         ),
       ],
       errorBuilder: (context, state) => Scaffold(
