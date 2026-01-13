@@ -164,6 +164,7 @@ class NotificationDrawer extends StatelessWidget {
           const SizedBox(height: 16),
           // Actions Row
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               StreamBuilder<int>(
                 stream: service.getUnreadCount(userId),
@@ -220,7 +221,7 @@ class NotificationDrawer extends StatelessWidget {
                   );
                 },
               ),
-              const Spacer(),
+
               Flexible(
                 child: TextButton.icon(
                   onPressed: () => service.markAllAsRead(userId),

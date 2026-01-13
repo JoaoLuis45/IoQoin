@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:ioqoin/l10n/app_localizations.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../goals/screens/goals_screen.dart';
@@ -54,7 +55,11 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     // Inicialização imediata se possível
-    initSync();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        initSync();
+      }
+    });
 
     // Escutar mudanças de ambiente para reiniciar sync
     envService.addListener(() {
@@ -176,26 +181,26 @@ class _MainScreenState extends State<MainScreen> {
                 icon: Icons.bar_chart_rounded,
                 activeIcon: Icons.bar_chart,
                 index: 0,
-                label: 'Dash',
+                label: AppLocalizations.of(context)!.tabDashboard,
               ),
               _buildNavItem(
                 icon: Icons.flag_outlined,
                 activeIcon: Icons.flag,
                 index: 1,
-                label: 'Metas',
+                label: AppLocalizations.of(context)!.tabGoals,
               ),
               _buildCenterNavItem(), // Home (2)
               _buildNavItem(
                 icon: Icons.category_outlined,
                 activeIcon: Icons.category,
                 index: 3,
-                label: 'Categ.',
+                label: AppLocalizations.of(context)!.tabCategories,
               ),
               _buildNavItem(
                 icon: Icons.subscriptions_outlined,
                 activeIcon: Icons.subscriptions,
                 index: 4,
-                label: 'Inscr.',
+                label: AppLocalizations.of(context)!.tabSubscriptions,
               ),
             ],
           ),

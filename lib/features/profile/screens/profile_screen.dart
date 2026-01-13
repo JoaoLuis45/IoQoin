@@ -25,7 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _telefoneController = TextEditingController();
   DateTime? _dataNascimento;
   String? _genero;
-  late List<String> _generos;
+  final _generos = ['male', 'female', 'other', 'prefer_not_to_say'];
 
   bool _isEditing = false;
   bool _isLoading = false;
@@ -33,23 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Generos depend on L10n, initialized in build or didChangeDependencies usually?
-    // Or simpler: just use keys in build. We will map index or values in build.
-    // Actually, let's keep it simple and init in build or using context.
-    // For now, let's just leave _loadUserData call.
     _loadUserData();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final l10n = AppLocalizations.of(context)!;
-    _generos = [
-      l10n.profileGenderMale,
-      l10n.profileGenderFemale,
-      l10n.profileGenderOther,
-      l10n.profileGenderPreferNotToSay,
-    ];
   }
 
   void _loadUserData() {
@@ -69,7 +53,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       _dataNascimento = authService.userModel?.dataNascimento;
-      _genero = authService.userModel?.genero;
+      _genero = _mapGenderToKey(authService.userModel?.genero);
     }
   }
 
@@ -776,7 +760,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return _buildInfoCard(
       icon: Icons.people_outline,
       label: l10n.profileGenderLabel,
-      value: _genero ?? '-',
+      value: _genero != null ? _getGenderLabel(_genero!, l10n) : '-',
       isEditable: true,
       customEditWidget: InputDecorator(
         decoration: const InputDecoration(
@@ -789,16 +773,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
             value: _genero,
             items: _generos
                 .map(
-                  (g) => DropdownMenuItem(
-                    value: g,
+                  (key) => DropdownMenuItem(
+                    value: key,
                     child: Text(
-                      g,
+                      _getGenderLabel(key, l10n),
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ),
                 )
                 .toList(),
-            onChanged: (v) => setState(() => _genero = v),
+            onChanged: (value) {
+              if (value != null) {
+                setState(() => _genero = value);
+              }
+            },
+            hint: Text(
+              l10n.profileGenderSelect,
+              style: TextStyle(
+                color: AppColors.textSecondary.withValues(alpha: 0.5),
+              ),
+            ),
             dropdownColor: Theme.of(context).cardColor,
             icon: const Icon(Icons.arrow_drop_down, color: AppColors.voltCyan),
             style: Theme.of(context).textTheme.bodyLarge,
@@ -807,6 +801,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  // Helper para mapear valores legados/localizados para chaves fixas
+  String? _mapGenderToKey(String? value) {
+    if (value == null) return null;
+    final v = value.toLowerCase();
+
+    // Mapeamento de valores legados (Português/Inglês/Espanhol)
+    if (v == 'masculino' || v == 'male') return 'male';
+    if (v == 'feminino' || v == 'female' || v == 'femenino') return 'female';
+    if (v == 'outro' || v == 'other' || v == 'otro') return 'other';
+    if (v.contains('prefiro') || v.contains('prefer'))
+      return 'prefer_not_to_say';
+
+    // Se já for uma chave válida
+    if (['male', 'female', 'other', 'prefer_not_to_say'].contains(v)) return v;
+
+    return null; // Ou default 'other'
+  }
+
+  String _getGenderLabel(String key, AppLocalizations l10n) {
+    switch (key) {
+      case 'male':
+        return l10n.profileGenderMale;
+      case 'female':
+        return l10n.profileGenderFemale;
+      case 'other':
+        return l10n.profileGenderOther;
+      case 'prefer_not_to_say':
+        return l10n.profileGenderPreferNotToSay;
+      default:
+        return key;
+    }
   }
 
   Future<void> _selectDate(AppLocalizations l10n) async {

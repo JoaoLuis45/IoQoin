@@ -187,7 +187,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get inviteUserTitle => 'Convidar Usuário';
 
   @override
-  String inviteUserMessage(Object envName) {
+  String inviteUserMessage(String envName) {
     return 'Convide alguém para participar do ambiente \"$envName\". Digite a TAG do usuário (ex: #12345).';
   }
 
@@ -210,7 +210,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get noPendingInvites => 'Nenhum convite pendente.';
 
   @override
-  String invitedBy(Object userName) {
+  String invitedBy(String userName) {
     return 'Convidado por: $userName';
   }
 
@@ -224,7 +224,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get leaveEnvironmentTitle => 'Sair do Ambiente';
 
   @override
-  String leaveEnvironmentMessage(Object envName) {
+  String leaveEnvironmentMessage(String envName) {
     return 'Tem certeza que deseja sair do ambiente \"$envName\"? Você perderá o acesso a todos os dados compartilhados.';
   }
 
@@ -272,7 +272,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get saveChangesButton => 'SALVAR ALTERAÇÕES';
 
   @override
-  String saveError(Object error) {
+  String saveError(String error) {
     return 'Erro ao salvar: $error';
   }
 
@@ -368,7 +368,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get goalsSubtitle => 'Defina metas e acompanhe seu progresso';
 
   @override
-  String goalsLoadError(Object error) {
+  String goalsLoadError(String error) {
     return 'Erro ao carregar objetivos: $error';
   }
 
@@ -398,7 +398,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get deleteGoalTitle => 'Excluir objetivo';
 
   @override
-  String deleteGoalMessage(Object goalName) {
+  String deleteGoalMessage(String goalName) {
     return 'Deseja excluir \"$goalName\"?';
   }
 
@@ -424,7 +424,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get deadlineDateLabel => 'Data limite';
 
   @override
-  String daysRemaining(Object days) {
+  String daysRemaining(int days) {
     return '$days dias';
   }
 
@@ -443,7 +443,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get goalOverdueStatus => 'Atrasado';
 
   @override
-  String daysRemainingSuffix(Object days) {
+  String daysRemainingSuffix(int days) {
     return '$days dias restantes';
   }
 
@@ -566,7 +566,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get deleteCategoryTitle => 'Excluir categoria';
 
   @override
-  String deleteCategoryMessage(Object name) {
+  String deleteCategoryMessage(String name) {
     return 'Deseja excluir \"$name\"?';
   }
 
@@ -660,7 +660,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get notificationsTitle => 'Central de Avisos';
 
   @override
-  String notificationsUnread(Object count) {
+  String notificationsUnread(int count) {
     return '$count não lidas';
   }
 
@@ -774,7 +774,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get subscriptionsTotalMonthly => 'Total mensal';
 
   @override
-  String subscriptionsActiveCount(Object count) {
+  String subscriptionsActiveCount(int count) {
     return '$count ativas';
   }
 
@@ -792,7 +792,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get subscriptionsDeleteTitle => 'Excluir assinatura';
 
   @override
-  String subscriptionsDeleteMessage(Object name) {
+  String subscriptionsDeleteMessage(String name) {
     return 'Deseja excluir \"$name\"?';
   }
 
@@ -982,4 +982,55 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get helpFaq6Answer =>
       'Vá até o menu lateral, toque em \"Perfil\" e selecione a opção \"Alterar senha\". Um email de redefinição será enviado para você.';
+
+  @override
+  String get tabDashboard => 'Dash';
+
+  @override
+  String get tabGoals => 'Metas';
+
+  @override
+  String get tabHome => 'Início';
+
+  @override
+  String get tabCategories => 'Categ.';
+
+  @override
+  String get tabSubscriptions => 'Inscr.';
+
+  @override
+  String get settingsReplayTutorial => 'Rever Tutorial';
+
+  @override
+  String get onboardingTitle1 => 'Acompanhe seus gastos';
+
+  @override
+  String get onboardingDesc1 =>
+      'Tenha controle total de suas finanças com gráficos detalhados e categorias personalizadas.';
+
+  @override
+  String get onboardingTitle2 => 'Defina metas inteligentes';
+
+  @override
+  String get onboardingDesc2 =>
+      'Conquiste seus sonhos criando metas e acompanhando seu progresso mês a mês.';
+
+  @override
+  String get onboardingTitle3 => 'Assinaturas e Alertas';
+
+  @override
+  String get onboardingDesc3 =>
+      'Gerencie seus serviços recorrentes e receba lembretes antes do vencimento.';
+
+  @override
+  String get onboardingGetStarted => 'Começar';
+
+  @override
+  String get next => 'Próximo';
+
+  @override
+  String get skip => 'Pular';
+
+  @override
+  String get close => 'Fechar';
 }

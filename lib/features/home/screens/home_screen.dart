@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:ioqoin/l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../auth/services/auth_service.dart';
 import '../../shared/services/firestore_service.dart';
@@ -661,21 +662,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   String _getMonthName(int month, int year) {
-    final months = [
-      'Janeiro',
-      'Fevereiro',
-      'Março',
-      'Abril',
-      'Maio',
-      'Junho',
-      'Julho',
-      'Agosto',
-      'Setembro',
-      'Outubro',
-      'Novembro',
-      'Dezembro',
-    ];
-    return '${months[month - 1]} $year';
+    final date = DateTime(year, month);
+    final locale = Localizations.localeOf(context).toString();
+    return '${DateFormat.MMMM(locale).format(date)} $year';
   }
 
   Widget _buildTab({

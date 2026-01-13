@@ -209,10 +209,7 @@ class _AddGoalSheetState extends State<AddGoalSheet> {
                         const Spacer(),
                         Text(
                           l10n.daysRemaining(
-                            _dataLimite
-                                .difference(DateTime.now())
-                                .inDays
-                                .toString(),
+                            _dataLimite.difference(DateTime.now()).inDays,
                           ),
                           style: Theme.of(context).textTheme.bodySmall
                               ?.copyWith(color: AppColors.textSecondary),

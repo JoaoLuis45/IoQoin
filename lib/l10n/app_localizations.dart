@@ -452,7 +452,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Convide alguém para participar do ambiente \"{envName}\". Digite a TAG do usuário (ex: #12345).'**
-  String inviteUserMessage(Object envName);
+  String inviteUserMessage(String envName);
 
   /// No description provided for @userTagLabel.
   ///
@@ -494,7 +494,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Convidado por: {userName}'**
-  String invitedBy(Object userName);
+  String invitedBy(String userName);
 
   /// No description provided for @decline.
   ///
@@ -518,7 +518,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Tem certeza que deseja sair do ambiente \"{envName}\"? Você perderá o acesso a todos os dados compartilhados.'**
-  String leaveEnvironmentMessage(Object envName);
+  String leaveEnvironmentMessage(String envName);
 
   /// No description provided for @leaveSuccess.
   ///
@@ -608,7 +608,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Erro ao salvar: {error}'**
-  String saveError(Object error);
+  String saveError(String error);
 
   /// No description provided for @resetPasswordTitle.
   ///
@@ -782,7 +782,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Erro ao carregar objetivos: {error}'**
-  String goalsLoadError(Object error);
+  String goalsLoadError(String error);
 
   /// No description provided for @noGoalsTitle.
   ///
@@ -836,7 +836,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Deseja excluir \"{goalName}\"?'**
-  String deleteGoalMessage(Object goalName);
+  String deleteGoalMessage(String goalName);
 
   /// No description provided for @newGoalTitle.
   ///
@@ -884,7 +884,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'{days} dias'**
-  String daysRemaining(Object days);
+  String daysRemaining(int days);
 
   /// No description provided for @createGoalError.
   ///
@@ -914,7 +914,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'{days} dias restantes'**
-  String daysRemainingSuffix(Object days);
+  String daysRemainingSuffix(int days);
 
   /// No description provided for @goalProgressOf.
   ///
@@ -1154,7 +1154,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Deseja excluir \"{name}\"?'**
-  String deleteCategoryMessage(Object name);
+  String deleteCategoryMessage(String name);
 
   /// No description provided for @enterCategoryNameError.
   ///
@@ -1328,7 +1328,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'{count} não lidas'**
-  String notificationsUnread(Object count);
+  String notificationsUnread(int count);
 
   /// No description provided for @notificationsAllRead.
   ///
@@ -1544,7 +1544,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'{count} ativas'**
-  String subscriptionsActiveCount(Object count);
+  String subscriptionsActiveCount(int count);
 
   /// No description provided for @subscriptionsEmptyTitle.
   ///
@@ -1574,7 +1574,7 @@ abstract class AppLocalizations {
   ///
   /// In pt, this message translates to:
   /// **'Deseja excluir \"{name}\"?'**
-  String subscriptionsDeleteMessage(Object name);
+  String subscriptionsDeleteMessage(String name);
 
   /// No description provided for @newSubscriptionTitle.
   ///
@@ -1923,6 +1923,102 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Vá até o menu lateral, toque em \"Perfil\" e selecione a opção \"Alterar senha\". Um email de redefinição será enviado para você.'**
   String get helpFaq6Answer;
+
+  /// No description provided for @tabDashboard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dash'**
+  String get tabDashboard;
+
+  /// No description provided for @tabGoals.
+  ///
+  /// In pt, this message translates to:
+  /// **'Metas'**
+  String get tabGoals;
+
+  /// No description provided for @tabHome.
+  ///
+  /// In pt, this message translates to:
+  /// **'Início'**
+  String get tabHome;
+
+  /// No description provided for @tabCategories.
+  ///
+  /// In pt, this message translates to:
+  /// **'Categ.'**
+  String get tabCategories;
+
+  /// No description provided for @tabSubscriptions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Inscr.'**
+  String get tabSubscriptions;
+
+  /// No description provided for @settingsReplayTutorial.
+  ///
+  /// In pt, this message translates to:
+  /// **'Rever Tutorial'**
+  String get settingsReplayTutorial;
+
+  /// No description provided for @onboardingTitle1.
+  ///
+  /// In pt, this message translates to:
+  /// **'Acompanhe seus gastos'**
+  String get onboardingTitle1;
+
+  /// No description provided for @onboardingDesc1.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tenha controle total de suas finanças com gráficos detalhados e categorias personalizadas.'**
+  String get onboardingDesc1;
+
+  /// No description provided for @onboardingTitle2.
+  ///
+  /// In pt, this message translates to:
+  /// **'Defina metas inteligentes'**
+  String get onboardingTitle2;
+
+  /// No description provided for @onboardingDesc2.
+  ///
+  /// In pt, this message translates to:
+  /// **'Conquiste seus sonhos criando metas e acompanhando seu progresso mês a mês.'**
+  String get onboardingDesc2;
+
+  /// No description provided for @onboardingTitle3.
+  ///
+  /// In pt, this message translates to:
+  /// **'Assinaturas e Alertas'**
+  String get onboardingTitle3;
+
+  /// No description provided for @onboardingDesc3.
+  ///
+  /// In pt, this message translates to:
+  /// **'Gerencie seus serviços recorrentes e receba lembretes antes do vencimento.'**
+  String get onboardingDesc3;
+
+  /// No description provided for @onboardingGetStarted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Começar'**
+  String get onboardingGetStarted;
+
+  /// No description provided for @next.
+  ///
+  /// In pt, this message translates to:
+  /// **'Próximo'**
+  String get next;
+
+  /// No description provided for @skip.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pular'**
+  String get skip;
+
+  /// No description provided for @close.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fechar'**
+  String get close;
 }
 
 class _AppLocalizationsDelegate

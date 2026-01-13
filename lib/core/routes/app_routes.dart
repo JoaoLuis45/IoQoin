@@ -4,6 +4,8 @@ import '../../features/auth/services/auth_service.dart';
 import '../../features/auth/screens/welcome_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/signup_screen.dart';
+import '../../features/onboarding/screens/onboarding_screen.dart';
+import '../../features/onboarding/services/onboarding_service.dart';
 import '../../features/home/screens/main_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/shared/screens/help_screen.dart';
@@ -23,32 +25,66 @@ class AppRoutes {
   static const String help = '/help';
   static const String about = '/about';
   static const String settings = '/settings';
+  static const String onboarding = '/onboarding';
 
   /// Router principal do app
-  static GoRouter router(AuthService authService) {
+  static GoRouter router(
+    AuthService authService,
+    OnboardingService onboardingService,
+  ) {
     return GoRouter(
       initialLocation: welcome,
-      refreshListenable: authService,
+      refreshListenable: Listenable.merge([authService, onboardingService]),
       redirect: (context, state) {
+        // Se ainda está carregando estado do onboarding, aguarda
+        if (onboardingService.isLoading) return null;
+
         final isAuthenticated = authService.isAuthenticated;
+        final hasSeenOnboarding = onboardingService.hasSeenOnboarding;
+
         final isAuthRoute =
             state.matchedLocation == welcome ||
             state.matchedLocation == login ||
             state.matchedLocation == signup;
+        final isOnboardingRoute = state.matchedLocation == onboarding;
 
-        // Se não está autenticado e não está numa rota de auth, redireciona para welcome
+        // 1. Regra de Segurança Básica:
+        // Se não está autenticado e não está numa rota de auth, manda para welcome
+        // Isso impede acesso ao onboarding se não estiver logado (requisito de "só após criar conta")
         if (!isAuthenticated && !isAuthRoute) {
           return welcome;
         }
 
-        // Se está autenticado e está numa rota de auth, redireciona para home
-        if (isAuthenticated && isAuthRoute) {
-          return home;
+        // 2. Regra de Onboarding (apenas para usuários logados):
+        if (isAuthenticated) {
+          // Se ainda não viu o onboarding e não está lá, força o onboarding
+          if (!hasSeenOnboarding && !isOnboardingRoute) {
+            return onboarding;
+          }
+
+          // Se já viu e está preso no onboarding (e não é replay), chuta para home
+          final isReplay = state.uri.queryParameters['replay'] == 'true';
+          if (hasSeenOnboarding && isOnboardingRoute && !isReplay) {
+            return home;
+          }
+
+          // Se tentar acessar login/signup logado, manda para home
+          if (isAuthRoute) {
+            return home;
+          }
         }
 
         return null;
       },
       routes: [
+        GoRoute(
+          path: onboarding,
+          name: 'onboarding',
+          builder: (context, state) {
+            final isReplay = state.uri.queryParameters['replay'] == 'true';
+            return OnboardingScreen(isReplay: isReplay);
+          },
+        ),
         // ===== Rotas de Autenticação =====
         GoRoute(
           path: welcome,

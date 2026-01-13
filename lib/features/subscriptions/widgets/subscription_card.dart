@@ -108,10 +108,13 @@ class SubscriptionCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       if (isActive)
-                        Text(
-                          'Cobra em ${subscription.diasAteCobranca} dias',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AppColors.textSecondary),
+                        Flexible(
+                          child: Text(
+                            'Cobra em ${subscription.diasAteCobranca} dias',
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: AppColors.textSecondary),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         )
                       else
                         Text(

@@ -16,6 +16,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ioqoin/l10n/app_localizations.dart';
 import 'features/settings/services/theme_service.dart';
 import 'features/settings/services/locale_service.dart';
+import 'features/onboarding/services/onboarding_service.dart';
 import 'core/constants/global_keys.dart';
 
 import 'package:intl/date_symbol_data_local.dart';
@@ -49,6 +50,11 @@ class IQoinApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => SyncService()),
         ChangeNotifierProvider(create: (_) => ThemeService()),
         ChangeNotifierProvider(create: (_) => LocaleService()),
+        ChangeNotifierProxyProvider<AuthService, OnboardingService>(
+          create: (_) => OnboardingService(),
+          update: (_, auth, onboarding) =>
+              onboarding!..updateUser(auth.user?.uid),
+        ),
       ],
       child: const IQoinRouter(),
     );
@@ -95,7 +101,8 @@ class _IQoinRouterState extends State<IQoinRouter> {
     // Verificação inicial imediata (para caso já esteja logado ao iniciar)
     checkAndInitEnvironment();
 
-    _router = AppRoutes.router(authService);
+    final onboardingService = context.read<OnboardingService>();
+    _router = AppRoutes.router(authService, onboardingService);
   }
 
   @override

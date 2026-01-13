@@ -9,7 +9,7 @@ class AppLocalizationsEs extends AppLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
-  String get settingsTitle => 'Configuraciones';
+  String get settingsTitle => 'Configuración';
 
   @override
   String get settingsThemeTitle => 'Tema';
@@ -31,7 +31,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get settingsInfoDescription =>
-      'Aquí puedes personalizar la apariencia de la aplicación y elegir tu idioma preferido.';
+      'Aquí puedes personalizar la apariencia de la app y elegir tu idioma preferido.';
 
   @override
   String get loginTitle => 'Entrar';
@@ -41,13 +41,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get loginSubtitle =>
-      'Inicia sesión para continuar administrando tus finanzas';
+      'Inicia sesión para continuar gestionando tus finanzas';
 
   @override
-  String get emailLabel => 'Correo electrónico';
+  String get emailLabel => 'Correo';
 
   @override
-  String get emailHint => 'tu@correo.com';
+  String get emailHint => 'tu@email.com';
 
   @override
   String get passwordLabel => 'Contraseña';
@@ -68,13 +68,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get createAccountButton => 'Crear cuenta';
 
   @override
-  String get emailRequired => 'Ingresa tu correo';
+  String get emailRequired => 'Ingrese su correo';
 
   @override
   String get emailInvalid => 'Correo inválido';
 
   @override
-  String get passwordRequired => 'Ingresa tu contraseña';
+  String get passwordRequired => 'Ingrese su contraseña';
 
   @override
   String get passwordMinLength =>
@@ -87,17 +87,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get income => 'Ingresos';
 
   @override
-  String get currentEnvironment => 'Entorno Actual';
+  String get currentEnvironment => 'Ambiente Actual';
 
   @override
-  String get selectEnvironment => 'Selecciona un entorno';
+  String get selectEnvironment => 'Seleccione un ambiente';
 
   @override
   String get balance => 'Saldo';
 
   @override
   String get viewModeTip =>
-      'Modo visualización: no puedes agregar transacciones en meses pasados.';
+      'Modo visualización: no puedes añadir transacciones en meses pasados.';
 
   @override
   String get selectMonth => 'Seleccionar Mes';
@@ -109,7 +109,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get registerTitle => 'Crear cuenta';
 
   @override
-  String get registerSubtitle => 'Empieza a organizar tus finanzas ahora';
+  String get registerSubtitle => 'Comienza a organizar tus finanzas ahora';
 
   @override
   String get nameLabel => 'Nombre';
@@ -121,7 +121,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get confirmPasswordLabel => 'Confirmar contraseña';
 
   @override
-  String get confirmPasswordHint => 'Escribe de nuevo';
+  String get confirmPasswordHint => 'Escribe nuevamente';
 
   @override
   String get registerButton => 'Crear cuenta';
@@ -130,19 +130,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get alreadyHaveAccount => '¿Ya tienes una cuenta?';
 
   @override
-  String get nameRequired => 'Ingresa tu nombre';
+  String get nameRequired => 'Ingrese su nombre';
 
   @override
-  String get nameMinLength => 'Nombre muy corto';
+  String get nameMinLength => 'Nombre demasiado corto';
 
   @override
-  String get confirmPasswordRequired => 'Confirma tu contraseña';
+  String get confirmPasswordRequired => 'Confirme su contraseña';
 
   @override
   String get passwordsDoNotMatch => 'Las contraseñas no coinciden';
 
   @override
-  String get myEnvironmentsTitle => 'Mis Entornos';
+  String get myEnvironmentsTitle => 'Mis Ambientes';
 
   @override
   String get generatingId => 'Generando ID...';
@@ -151,10 +151,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tagCopied => '¡Etiqueta copiada al portapapeles!';
 
   @override
-  String get errorLoadingEnvironments => 'Error al cargar entornos';
+  String get errorLoadingEnvironments => 'Error al cargar ambientes';
 
   @override
-  String get yourEnvironmentsSection => 'Tus Entornos';
+  String get yourEnvironmentsSection => 'Tus Ambientes';
 
   @override
   String get defaultTag => 'Predeterminado';
@@ -166,14 +166,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String get inviteTooltip => 'Invitar';
 
   @override
-  String get leaveTooltip => 'Salir del Entorno';
+  String get leaveTooltip => 'Salir del Ambiente';
 
   @override
-  String get howItWorksTitle => '¿Cómo funcionan los Entornos?';
+  String get howItWorksTitle => '¿Cómo funcionan los Ambientes?';
 
   @override
   String get howItWorksDescription =>
-      'Los entornos son espacios aislados para organizar tus finanzas por separado.';
+      'Los ambientes son espacios aislados para organizar tus finanzas por separado.';
 
   @override
   String get personalEnvironment =>
@@ -189,12 +189,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get inviteUserTitle => 'Invitar Usuario';
 
   @override
-  String inviteUserMessage(Object envName) {
-    return 'Invita a alguien a unirse al entorno \"$envName\". Ingresa la etiqueta del usuario (ej. #12345).';
+  String inviteUserMessage(String envName) {
+    return 'Invita a alguien a unirse al ambiente \"$envName\". Ingrese la etiqueta del usuario (ej: #12345).';
   }
 
   @override
-  String get userTagLabel => 'Etiqueta de Usuario';
+  String get userTagLabel => 'Etiqueta del Usuario';
 
   @override
   String get cancel => 'Cancelar';
@@ -209,10 +209,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get pendingInvitesTitle => 'Invitaciones Pendientes';
 
   @override
-  String get noPendingInvites => 'No hay invitaciones pendientes.';
+  String get noPendingInvites => 'Sin invitaciones pendientes.';
 
   @override
-  String invitedBy(Object userName) {
+  String invitedBy(String userName) {
     return 'Invitado por: $userName';
   }
 
@@ -223,37 +223,37 @@ class AppLocalizationsEs extends AppLocalizations {
   String get accept => 'Aceptar';
 
   @override
-  String get leaveEnvironmentTitle => 'Salir del Entorno';
+  String get leaveEnvironmentTitle => 'Salir del Ambiente';
 
   @override
-  String leaveEnvironmentMessage(Object envName) {
-    return '¿Estás seguro de que quieres salir del entorno \"$envName\"? Perderás acceso a todos los datos compartidos.';
+  String leaveEnvironmentMessage(String envName) {
+    return '¿Estás seguro de que quieres salir del ambiente \"$envName\"? Perderás acceso a todos los datos compartidos.';
   }
 
   @override
-  String get leaveSuccess => 'Has salido del entorno con éxito.';
+  String get leaveSuccess => 'Saliste del ambiente con éxito.';
 
   @override
-  String get leaveError => 'Error al salir del entorno.';
+  String get leaveError => 'Error al salir del ambiente.';
 
   @override
   String get leaveButton => 'Salir';
 
   @override
-  String get newEnvironmentTitle => 'Nuevo Entorno';
+  String get newEnvironmentTitle => 'Nuevo Ambiente';
 
   @override
-  String get editEnvironmentTitle => 'Editar Entorno';
+  String get editEnvironmentTitle => 'Editar Ambiente';
 
   @override
-  String get deleteEnvironmentTitle => 'Eliminar Entorno';
+  String get deleteEnvironmentTitle => 'Eliminar Ambiente';
 
   @override
   String get deleteEnvironmentMessage =>
-      '¿Estás seguro? Esto no eliminará las transacciones asociadas por ahora (serán inaccesibles).';
+      '¿Estás seguro? Esto no borrará las transacciones asociadas por ahora (serán inaccesibles).';
 
   @override
-  String get environmentNameLabel => 'Nombre del Entorno';
+  String get environmentNameLabel => 'Nombre del Ambiente';
 
   @override
   String get environmentNameRequired => 'Ingrese un nombre';
@@ -262,20 +262,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get colorLabel => 'Color';
 
   @override
-  String get iconLabel => 'Icono';
+  String get iconLabel => 'Ícono';
 
   @override
-  String get setAsDefault => 'Establecer como Predeterminado';
+  String get setAsDefault => 'Definir como predeterminado';
 
   @override
-  String get createEnvironmentButton => 'CREAR ENTORNO';
+  String get createEnvironmentButton => 'CREAR AMBIENTE';
 
   @override
   String get saveChangesButton => 'GUARDAR CAMBIOS';
 
   @override
-  String saveError(Object error) {
-    return 'Error al guardar. Verifique su conexión o permisos.';
+  String saveError(String error) {
+    return 'Error al guardar: $error';
   }
 
   @override
@@ -283,7 +283,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get resetPasswordSubtitle =>
-      'Ingrese su correo electrónico para recibir un enlace de restablecimiento de contraseña.';
+      'Ingrese su correo para recibir un enlace de restablecimiento.';
 
   @override
   String get resetPasswordError =>
@@ -329,17 +329,17 @@ class AppLocalizationsEs extends AppLocalizations {
   String get selectCategoryError => 'Seleccione una categoría';
 
   @override
-  String get noCategoriesAvailable => 'No hay categorías disponibles';
+  String get noCategoriesAvailable => 'Sin categorías disponibles';
 
   @override
   String get createCategoriesFirst =>
       'Cree categorías primero en \"Categorías\"';
 
   @override
-  String get descriptionOptionalLabel => 'Descripción (Opcional)';
+  String get descriptionOptionalLabel => 'Descripción (opcional)';
 
   @override
-  String get descriptionHint => 'Ej: Compras del supermercado';
+  String get descriptionHint => 'Ej: Compras en el supermercado';
 
   @override
   String get dateLabel => 'Fecha';
@@ -366,18 +366,18 @@ class AppLocalizationsEs extends AppLocalizations {
   String get myGoalsTitle => 'Mis Objetivos';
 
   @override
-  String get goalsSubtitle => 'Establezca metas y siga su progreso';
+  String get goalsSubtitle => 'Define metas y sigue tu progreso';
 
   @override
-  String goalsLoadError(Object error) {
+  String goalsLoadError(String error) {
     return 'Error al cargar objetivos: $error';
   }
 
   @override
-  String get noGoalsTitle => 'Ningún objetivo definido';
+  String get noGoalsTitle => 'Sin objetivos definidos';
 
   @override
-  String get noGoalsMessage => 'Cree metas para ahorrar\ny alcanzar sus sueños';
+  String get noGoalsMessage => 'Crea metas para ahorrar\ny alcanzar tus sueños';
 
   @override
   String get createGoalButton => 'Crear objetivo';
@@ -389,7 +389,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get addValueTitle => 'Añadir valor';
 
   @override
-  String get valueLabel => 'Valor';
+  String get valueLabel => 'Valor (\$)';
 
   @override
   String get addButton => 'Añadir';
@@ -398,33 +398,33 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleteGoalTitle => 'Eliminar objetivo';
 
   @override
-  String deleteGoalMessage(Object goalName) {
-    return '¿Desea eliminar \"$goalName\"?';
+  String deleteGoalMessage(String goalName) {
+    return '¿Deseas eliminar \"$goalName\"?';
   }
 
   @override
   String get newGoalTitle => 'Nuevo Objetivo';
 
   @override
-  String get goalNameLabel => 'Nombre del objetivo';
+  String get goalNameLabel => 'Nombre del Objetivo';
 
   @override
-  String get goalNameHint => 'Ej: Viaje a la playa';
+  String get goalNameHint => 'Ex: Viagem para praia';
 
   @override
-  String get goalNameRequired => 'Ingrese un nombre';
+  String get goalNameRequired => 'Digite um nome';
 
   @override
-  String get targetAmountLabel => 'Monto objetivo';
+  String get targetAmountLabel => 'Valor alvo';
 
   @override
   String get targetAmountRequired => 'Ingrese un monto';
 
   @override
-  String get deadlineDateLabel => 'Fecha límite';
+  String get deadlineDateLabel => 'Data limite';
 
   @override
-  String daysRemaining(Object days) {
+  String daysRemaining(int days) {
     return '$days días';
   }
 
@@ -443,7 +443,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get goalOverdueStatus => 'Atrasado';
 
   @override
-  String daysRemainingSuffix(Object days) {
+  String daysRemainingSuffix(int days) {
     return '$days días restantes';
   }
 
@@ -473,7 +473,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get tapToAddTip => 'Toca + para añadir';
 
   @override
-  String get viewOnlyLabel => 'Solo visualización';
+  String get viewOnlyLabel => 'Solo lectura';
 
   @override
   String get yourExpensesTitle => 'Tus gastos';
@@ -482,22 +482,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get yourIncomeTitle => 'Tus ingresos';
 
   @override
-  String get noExpenseFound => 'Ningún gasto encontrado';
+  String get noExpenseFound => 'Sin gastos encontrados';
 
   @override
-  String get noIncomeFound => 'Ningún ingreso encontrado';
+  String get noIncomeFound => 'Sin ingresos encontrados';
 
   @override
-  String get noExpenseRegistered => 'Ningún gasto registrado';
+  String get noExpenseRegistered => 'Sin gastos registrados';
 
   @override
-  String get noIncomeRegistered => 'Ningún ingreso registrado';
+  String get noIncomeRegistered => 'Sin ingresos registrados';
 
   @override
-  String get noExpenseThisMonth => 'Ningún gasto en este mes';
+  String get noExpenseThisMonth => 'Sin gastos este mes';
 
   @override
-  String get noIncomeThisMonth => 'Ningún ingreso en este mes';
+  String get noIncomeThisMonth => 'Sin ingresos este mes';
 
   @override
   String get filterExpensesTitle => 'Filtrar Gastos';
@@ -512,22 +512,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get periodLabel => 'Período';
 
   @override
-  String get dateFrom => 'De';
+  String get dateFrom => 'Desde';
 
   @override
   String get dateTo => 'Hasta';
 
   @override
-  String get minLabel => 'Mín';
+  String get minLabel => 'Mínimo';
 
   @override
-  String get maxLabel => 'Máx';
+  String get maxLabel => 'Máximo';
 
   @override
-  String get categoriesLabel => 'Categorías';
+  String get categoriesLabel => 'Categorias';
 
   @override
-  String get noCategoriesFound => 'No se encontraron categorías.';
+  String get noCategoriesFound => 'Nenhuma categoria encontrada.';
 
   @override
   String get applyFiltersButton => 'Aplicar Filtros';
@@ -542,10 +542,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get newCategoryTitle => 'Nueva Categoría';
 
   @override
-  String get categoryNameHint => 'Nombre de la categoría';
+  String get categoryNameHint => 'Nombre de la Categoría';
 
   @override
-  String get selectIconLabel => 'Selecciona un icono';
+  String get selectIconLabel => 'Seleccionar Ícono';
 
   @override
   String get addCategoryButton => 'Añadir Categoría';
@@ -554,10 +554,10 @@ class AppLocalizationsEs extends AppLocalizations {
   String get yourCategoriesTitle => 'Tus Categorías';
 
   @override
-  String get noCategoriesCreated => 'No hay categorías creadas';
+  String get noCategoriesCreated => 'Sin categorías creadas';
 
   @override
-  String get addCategoriesAboveTip => 'Añade categorías arriba';
+  String get addCategoriesAboveTip => 'Añade categorías arriba para comenzar';
 
   @override
   String get editCategoryTitle => 'Editar Categoría';
@@ -566,122 +566,123 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleteCategoryTitle => 'Eliminar Categoría';
 
   @override
-  String deleteCategoryMessage(Object name) {
-    return '¿Eliminar \"$name\"?';
+  String deleteCategoryMessage(String name) {
+    return '¿Deseas eliminar \"$name\"?';
   }
 
   @override
-  String get enterCategoryNameError => 'Ingrese el nombre de la categoría';
+  String get enterCategoryNameError => 'Ingrese un nombre de categoría';
 
   @override
-  String get categoryAddedSuccess => '¡Categoría añadida!';
+  String get categoryAddedSuccess => '¡Categoría agregada!';
 
   @override
-  String get addCategoryError => 'Error al añadir categoría';
+  String get addCategoryError => 'Error al agregar categoría';
 
   @override
-  String get enterValidValue => 'Por favor, ingrese un valor válido';
+  String get enterValidValue => 'Por favor, digite um valor válido';
 
   @override
-  String get templateSavedSuccess => '¡Plantilla guardada con éxito!';
+  String get templateSavedSuccess => 'Template salvo com sucesso!';
 
   @override
   String get saveErrorMessage =>
       'Erro ao salvar. Verifique sua conexão ou permissões.';
 
   @override
-  String get fixedExpensesTitle => 'Gastos Fijos';
+  String get fixedExpensesTitle => 'Despesas Fixas';
 
   @override
-  String get fixedIncomeTitle => 'Ingresos Fijos';
+  String get fixedIncomeTitle => 'Receitas Fixas';
 
   @override
-  String get manageTemplatesSubtitle => 'Gestione sus modelos de transacciones';
+  String get manageTemplatesSubtitle =>
+      'Gerencie seus modelos de preenchimento';
 
   @override
-  String get createNewFixedButton => 'Crear Nueva Fija';
+  String get createNewFixedButton => 'Criar Nova Fixa';
 
   @override
-  String get loadError => 'Error al cargar datos';
+  String get loadError => 'Erro ao carregar dados';
 
   @override
   String get permissionOrIndexError =>
-      'Esto puede ser falta de permiso o índice en Firebase.';
+      'Isso pode ser falta de permissão ou índice no Firebase.';
 
   @override
-  String get noTemplatesFound => 'Sin modelos guardados';
+  String get noTemplatesFound => 'Sem modelos salvos';
 
   @override
   String get createTemplatesTip =>
-      'Cree plantillas para agilizar el registro de facturas recurrentes como alquiler, salario, etc.';
+      'Crie templates para agilizar o lançamento de contas recorrentes como aluguel, salário, etc.';
 
   @override
-  String get deleteTemplateTitle => '¿Eliminar?';
+  String get deleteTemplateTitle => 'Excluir?';
 
   @override
-  String get deleteTemplateMessage => '¿Desea eliminar este modelo?';
+  String get deleteTemplateMessage => 'Deseja remover este modelo?';
 
   @override
-  String get templateRemoved => 'Modelo eliminado';
+  String get templateRemoved => 'Modelo removido';
 
   @override
-  String get defaultAmountLabel => 'Valor Predeterminado';
+  String get defaultAmountLabel => 'Valor Padrão';
 
   @override
-  String get saveTemplateButton => 'Guardar Plantilla';
+  String get saveTemplateButton => 'Salvar Template';
 
   @override
-  String get drawerMyProfile => 'Mi perfil';
+  String get drawerMyProfile => 'Mi Perfil';
 
   @override
   String get drawerHelp => 'Ayuda';
 
   @override
-  String get drawerAbout => 'Sobre iQoin';
+  String get drawerAbout => 'Acerca de';
 
   @override
   String get drawerSettings => 'Configuración';
 
   @override
-  String get drawerLogout => 'Cerrar sesión';
+  String get drawerLogout => 'Cerrar Sesión';
 
   @override
-  String get drawerLogoutConfirmTitle => 'Confirmar salida';
+  String get drawerLogoutConfirmTitle => 'Confirmar Saída';
 
   @override
   String get drawerLogoutConfirmMessage =>
-      '¿Estás seguro de que deseas desconectar tu cuenta?';
+      'Tem certeza que deseja desconectar sua conta?';
 
   @override
-  String get drawerVersion => 'Versión';
+  String get drawerVersion => 'Versión 1.0.0';
 
   @override
-  String get notificationsTitle => 'Centro de Avisos';
+  String get notificationsTitle => 'Centro de Notificaciones';
 
   @override
-  String notificationsUnread(Object count) {
+  String notificationsUnread(int count) {
     return '$count no leídas';
   }
 
   @override
-  String get notificationsAllRead => 'Todo leído';
+  String get notificationsAllRead => 'Todas leídas';
 
   @override
-  String get notificationsMarkAllRead => 'Leer todas';
+  String get notificationsMarkAllRead => 'Marcar todas';
 
   @override
-  String get notificationsEmptyTitle => 'Todo tranquilo';
+  String get notificationsEmptyTitle => 'Todo al día';
 
   @override
   String get notificationsEmptyMessage =>
       'No tienes nuevas notificaciones en este momento.';
 
   @override
-  String get notificationsConnectionError => 'Error de conexión';
+  String get notificationsConnectionError => 'Error de Conexión';
 
   @override
   String get notificationsErrorHint =>
-      'Verifique si el índice fue creado en Firebase.';
+      'Verifica si el índice de Firebase ha sido creado.';
 
   @override
   String get timeYesterday => 'Ayer';
@@ -690,34 +691,34 @@ class AppLocalizationsEs extends AppLocalizations {
   String get profileTitle => 'Perfil';
 
   @override
-  String get profileEdit => 'Editar perfil';
+  String get profileEdit => 'Editar Perfil';
 
   @override
-  String get profileTagLabel => 'Tu Tag (ID de usuario)';
+  String get profileTagLabel => 'Mi Etiqueta';
 
   @override
-  String get profileTagCopied => '¡Tag copiado!';
+  String get profileTagCopied => '¡Etiqueta copiada al portapapeles!';
 
   @override
-  String get profileGeneratingId => 'Generando ID...';
+  String get profileGeneratingId => 'Gerando ID...';
 
   @override
-  String get profileNameLabel => 'Nombre';
+  String get profileNameLabel => 'Nombre Completo';
 
   @override
   String get profilePhoneLabel => 'Teléfono';
 
   @override
-  String get profilePhoneHint => 'Añade tu teléfono';
+  String get profilePhoneHint => 'Adicione seu telefone';
 
   @override
-  String get profileBirthDateLabel => 'Fecha de nacimiento';
+  String get profileBirthDateLabel => 'Fecha de Nacimiento';
 
   @override
   String get profileGenderLabel => 'Género';
 
   @override
-  String get profileGenderSelect => 'Seleccionar';
+  String get profileGenderSelect => 'Seleccionar género';
 
   @override
   String get profileGenderMale => 'Masculino';
@@ -732,20 +733,20 @@ class AppLocalizationsEs extends AppLocalizations {
   String get profileGenderPreferNotToSay => 'Prefiero no decirlo';
 
   @override
-  String get profileSaveButton => 'Guardar cambios';
+  String get profileSaveButton => 'Guardar Cambios';
 
   @override
   String get profileDeleteAccountTitle => 'Eliminar cuenta';
 
   @override
   String get profileDeleteAccountSubtitle =>
-      'Eliminar permanentemente tus datos';
+      'Eliminar permanentemente sus datos';
 
   @override
   String get profileLogoutTitle => 'Cerrar sesión';
 
   @override
-  String get profileLogoutSubtitle => 'Cerrar sesión en este dispositivo';
+  String get profileLogoutSubtitle => 'Finalizar sesión en este dispositivo';
 
   @override
   String get profilePhotoGallery => 'Galería';
@@ -754,231 +755,283 @@ class AppLocalizationsEs extends AppLocalizations {
   String get profilePhotoCamera => 'Cámara';
 
   @override
-  String get profilePhotoUpdated => '¡Foto de perfil actualizada!';
+  String get profilePhotoUpdated => '¡Foto de perfil actualizada con éxito!';
 
   @override
-  String get profileUpdated => '¡Perfil actualizado!';
+  String get profileUpdated => '¡Perfil actualizado con éxito!';
 
   @override
   String get profileDeleteConfirmMessage =>
       'Esta acción es irreversible. Todos tus datos se perderán. ¿Deseas continuar?';
 
   @override
-  String get subscriptionsTitle => 'Minhas Assinaturas';
+  String get subscriptionsTitle => 'Mis Suscripciones';
 
   @override
-  String get subscriptionsSubtitle => 'Acompanhe seus gastos recorrentes';
+  String get subscriptionsSubtitle => 'Sigue tus gastos recurrentes';
 
   @override
-  String get subscriptionsTotalMonthly => 'Total mensal';
+  String get subscriptionsTotalMonthly => 'Total Mensual';
 
   @override
-  String subscriptionsActiveCount(Object count) {
-    return '$count ativas';
+  String subscriptionsActiveCount(int count) {
+    return '$count activas';
   }
 
   @override
-  String get subscriptionsEmptyTitle => 'Nenhuma assinatura cadastrada';
+  String get subscriptionsEmptyTitle => 'Sin suscripciones registradas';
 
   @override
   String get subscriptionsEmptyMessage =>
-      'Adicione suas assinaturas\npara acompanhar os gastos';
+      'Añade tus suscripciones\npara seguir los gastos';
 
   @override
-  String get subscriptionsAddButton => 'Adicionar assinatura';
+  String get subscriptionsAddButton => 'Añadir Suscripción';
 
   @override
-  String get subscriptionsDeleteTitle => 'Excluir assinatura';
+  String get subscriptionsDeleteTitle => 'Eliminar Suscripción';
 
   @override
-  String subscriptionsDeleteMessage(Object name) {
-    return 'Deseja excluir \"$name\"?';
+  String subscriptionsDeleteMessage(String name) {
+    return '¿Deseas eliminar \"$name\"?';
   }
 
   @override
-  String get newSubscriptionTitle => 'Nova Assinatura';
+  String get newSubscriptionTitle => 'Nueva Suscripción';
 
   @override
-  String get subscriptionNameLabel => 'Nome da assinatura';
+  String get subscriptionNameLabel => 'Nombre de la Suscripción';
 
   @override
-  String get subscriptionNameHint => 'Ex: Netflix, Spotify';
+  String get subscriptionNameHint => 'Ej: Netflix, Spotify';
 
   @override
-  String get subscriptionNameRequired => 'Digite um nome';
+  String get subscriptionNameRequired => 'Ingrese un nombre';
 
   @override
-  String get subscriptionFrequencyLabel => 'Frequência';
+  String get subscriptionFrequencyLabel => 'Frecuencia';
 
   @override
-  String get subscriptionBillingDayLabel => 'Dia de cobrança';
+  String get subscriptionBillingDayLabel => 'Día de Cobro';
 
   @override
-  String get subscriptionIconLabel => 'Ícone';
+  String get subscriptionIconLabel => 'Ícono';
 
   @override
-  String get subscriptionAddedSuccess => 'Assinatura adicionada!';
+  String get subscriptionAddedSuccess => '¡Suscripción agregada!';
 
   @override
-  String get dashboardTitle => 'Dashboards';
+  String get dashboardTitle => 'Tableros';
 
   @override
-  String get dashboardMonthlyOverview => 'Visão Geral Mensal';
+  String get dashboardMonthlyOverview => 'Resumen Mensual';
 
   @override
-  String get dashboardExpenseByCategory => 'Despesas por Categoria';
+  String get dashboardExpenseByCategory => 'Gastos por Categoría';
 
   @override
-  String get dashboardIncomeByCategory => 'Receitas por Categoria';
+  String get dashboardIncomeByCategory => 'Ingresos por Categoría';
 
   @override
-  String get dashboardNoData => 'Sem dados para exibir';
+  String get dashboardNoData => 'Sin datos para mostrar';
 
   @override
-  String get dashboardTouchDetails => 'Segure para ver detalhes';
+  String get dashboardTouchDetails => 'Toque para ver detalles';
 
   @override
-  String get aboutTitle => 'Sobre';
+  String get aboutTitle => 'Acerca de';
 
   @override
-  String get aboutDescriptionTitle => 'Sua ferramenta completa para';
+  String get aboutDescriptionTitle => 'Tu herramienta completa para';
 
   @override
-  String get aboutDescriptionSubtitle => 'gerenciamento financeiro pessoal';
+  String get aboutDescriptionSubtitle => 'gestión financiera personal';
 
   @override
   String get aboutDescriptionBody =>
-      'Controle suas receitas, despesas, e alcance seus objetivos financeiros de forma simples e intuitiva.';
+      'Controla tus ingresos, gastos y alcanza tus objetivos financieros de manera simple e intuitiva.';
 
   @override
-  String get aboutFeatureExpenses => 'Receitas & Despesas';
+  String get aboutFeatureExpenses => 'Ingresos y Gastos';
 
   @override
   String get aboutFeatureExpensesDesc =>
-      'Registre e categorize suas transações';
+      'Registra y categoriza tus transacciones';
 
   @override
   String get aboutFeatureGoals => 'Objetivos';
 
   @override
-  String get aboutFeatureGoalsDesc => 'Defina metas de economia e investimento';
+  String get aboutFeatureGoalsDesc => 'Define metas de ahorro e inversión';
 
   @override
-  String get aboutFeatureSubscriptions => 'Inscrições';
+  String get aboutFeatureSubscriptions => 'Inscripciones';
 
   @override
   String get aboutFeatureSubscriptionsDesc =>
-      'Acompanhe suas assinaturas recorrentes';
+      'Sigue tus suscripciones recurrentes';
 
   @override
-  String get aboutCopyright => '© 2026 iQoin. Todos os direitos reservados.';
+  String get aboutCopyright => '© 2026 iQoin. Todos los derechos reservados.';
 
   @override
-  String get categoriesTitle => 'Categorias';
+  String get categoriesTitle => 'Categorías';
 
   @override
-  String get categoriesTabExpenses => 'Despesas';
+  String get categoriesTabExpenses => 'Gastos';
 
   @override
-  String get categoriesTabIncome => 'Receitas';
+  String get categoriesTabIncome => 'Ingresos';
 
   @override
-  String get categoriesNewCategory => 'Nova Categoria';
+  String get categoriesNewCategory => 'Nueva Categoría';
 
   @override
-  String get categoriesEditCategory => 'Editar Categoria';
+  String get categoriesEditCategory => 'Editar Categoría';
 
   @override
   String get categoriesHistoryTip =>
-      'Toque em uma categoria para ver o histórico';
+      'Toque una categoría para ver el historial';
 
   @override
-  String get categoriesLoadError => 'Erro ao carregar categorias';
+  String get categoriesLoadError => 'Error al cargar categorías';
 
   @override
-  String get categoriesEmpty => 'Nenhuma categoria encontrada';
+  String get categoriesEmpty => 'No se encontraron categorías';
 
   @override
-  String get categoriesDeleteTitle => 'Excluir categoria?';
+  String get categoriesDeleteTitle => '¿Eliminar categoría?';
 
   @override
   String get categoriesDeleteMessage =>
-      'Isso não excluirá as transações existentes.';
+      'Esto no eliminará las transacciones existentes.';
 
   @override
   String categoriesDeleted(String name) {
-    return 'Categoria \"$name\" excluída';
+    return 'Categoría \"$name\" eliminada';
   }
 
   @override
-  String get categoriesNameHint => 'Nome da categoria';
+  String get categoriesNameHint => 'Nombre de la categoría';
 
   @override
-  String get categoriesSaveButton => 'Salvar Alterações';
+  String get categoriesSaveButton => 'Guardar Cambios';
 
   @override
-  String get categoriesAddButton => 'Adicionar';
+  String get categoriesAddButton => 'Añadir';
 
   @override
-  String get helpTitle => 'Ajuda e FAQ';
+  String get helpTitle => 'Ayuda y FAQ';
 
   @override
-  String get helpHeaderTitle => 'Como podemos ajudar?';
+  String get helpHeaderTitle => '¿Cómo podemos ayudar?';
 
   @override
-  String get helpHeaderSubtitle => 'Confira as perguntas frequentes abaixo';
+  String get helpHeaderSubtitle =>
+      'Consulta las preguntas frecuentes a continuación';
 
   @override
-  String get helpContactTitle => 'Ainda tem dúvidas?';
+  String get helpContactTitle => '¿Aún tienes dudas?';
 
   @override
-  String get helpContactSubtitle => 'Entre em contato com o suporte';
+  String get helpContactSubtitle => 'Contactar soporte';
 
   @override
-  String get helpWhatsappButton => 'Fale Conosco no WhatsApp';
+  String get helpWhatsappButton => 'Hable con nosotros en WhatsApp';
 
   @override
-  String get helpWhatsappError => 'Não foi possível abrir o WhatsApp';
+  String get helpWhatsappError => 'No se pudo abrir WhatsApp';
 
   @override
-  String get helpFaq1Question => 'Como adiciono uma nova transação?';
+  String get helpFaq1Question => '¿Cómo añado una nueva transacción?';
 
   @override
   String get helpFaq1Answer =>
-      'Na tela inicial, toque na aba \"Despesas\" ou \"Receitas\" e use o botão \"+\" no canto inferior direito. Preencha os dados e salve.';
+      'En la pantalla de inicio, toque la pestaña \"Gastos\" o \"Ingresos\" y use el botón \"+\" en la esquina inferior derecha. Complete los datos y guarde.';
 
   @override
-  String get helpFaq2Question => 'Posso editar uma transação?';
+  String get helpFaq2Question => '¿Puedo editar una transacción?';
 
   @override
   String get helpFaq2Answer =>
-      'Atualmente, para garantir a integridade dos dados, recomendamos excluir a transação incorreta (deslizando para a esquerda) e criar uma nova.';
+      'Actualmente, para garantizar la integridad de los datos, recomendamos eliminar la transacción incorrecta (deslizando hacia la izquierda) y crear una nueva.';
 
   @override
-  String get helpFaq3Question => 'Como funcionam os Objetivos?';
+  String get helpFaq3Question => '¿Cómo funcionan los Objetivos?';
 
   @override
   String get helpFaq3Answer =>
-      'Na aba \"Objetivos\", você pode criar metas financeiras (ex: Viagem, Carro). Defina um valor alvo e adicione economias progressivamente para acompanhar seu progresso visualmente.';
+      'En la pestaña \"Objetivos\", puede crear metas financieras (ej: Viaje, Coche). Defina un monto objetivo y agregue ahorros progresivamente para ver su progreso visualmente.';
 
   @override
-  String get helpFaq4Question => 'O que são as Inscrições?';
+  String get helpFaq4Question => '¿Qué son las Inscripciones?';
 
   @override
   String get helpFaq4Answer =>
-      'A aba \"Inscrições\" serve para listar seus gastos recorrentes (Netflix, Spotify, Academia). Isso ajuda a visualizar quanto do seu orçamento mensal já está comprometido.';
+      'La pestaña \"Inscripciones\" sirve para listar sus gastos recurrentes (Netflix, Spotify, Gimnasio). Esto ayuda a visualizar cuánto de su presupuesto mensual ya está comprometido.';
 
   @override
-  String get helpFaq5Question => 'Meus dados estão seguros?';
+  String get helpFaq5Question => '¿Están seguros mis datos?';
 
   @override
   String get helpFaq5Answer =>
-      'Sim! Seus dados são armazenados na nuvem do Google (Firebase) com autenticação segura. Apenas você tem acesso às suas informações.';
+      '¡Sí! Sus datos se almacenan en la nube de Google (Firebase) con autenticación segura. Solo usted tiene acceso a su información.';
 
   @override
-  String get helpFaq6Question => 'Como altero minha senha?';
+  String get helpFaq6Question => '¿Cómo cambio mi contraseña?';
 
   @override
   String get helpFaq6Answer =>
-      'Vá até o menu lateral, toque em \"Perfil\" e selecione a opção \"Alterar senha\". Um email de redefinição será enviado para você.';
+      'Vaya al menú lateral, toque en \"Perfil\" y seleccione la opción \"Cambiar contraseña\". Se le enviará un correo electrónico de restablecimiento.';
+
+  @override
+  String get tabDashboard => 'Tablero';
+
+  @override
+  String get tabGoals => 'Metas';
+
+  @override
+  String get tabHome => 'Inicio';
+
+  @override
+  String get tabCategories => 'Categ.';
+
+  @override
+  String get tabSubscriptions => 'Inscr.';
+
+  @override
+  String get settingsReplayTutorial => 'Repetir Tutorial';
+
+  @override
+  String get onboardingTitle1 => 'Rastrea tus gastos';
+
+  @override
+  String get onboardingDesc1 =>
+      'Ten el control total de tus finanzas con gráficos detallados y categorías personalizadas.';
+
+  @override
+  String get onboardingTitle2 => 'Define metas inteligentes';
+
+  @override
+  String get onboardingDesc2 =>
+      'Alcanza tus sueños creando metas y siguiendo tu progreso mes a mes.';
+
+  @override
+  String get onboardingTitle3 => 'Suscripciones y Alertas';
+
+  @override
+  String get onboardingDesc3 =>
+      'Gestiona tus servicios recurrentes y recibe recordatorios antes del vencimiento.';
+
+  @override
+  String get onboardingGetStarted => 'Comenzar';
+
+  @override
+  String get next => 'Siguiente';
+
+  @override
+  String get skip => 'Saltar';
+
+  @override
+  String get close => 'Cerrar';
 }

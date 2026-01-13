@@ -58,6 +58,13 @@
   "travelEnvironment": "Viagens: orçamentos para suas aventuras.",
   "inviteUserTitle": "Convidar Usuário",
   "inviteUserMessage": "Convide alguém para participar do ambiente \"{envName}\". Digite a TAG do usuário (ex: #12345).",
+  "@inviteUserMessage": {
+    "placeholders": {
+      "envName": {
+        "type": "String"
+      }
+    }
+  },
   "userTagLabel": "Tag do Usuário",
   "cancel": "Cancelar",
   "send": "Enviar",
@@ -65,10 +72,24 @@
   "pendingInvitesTitle": "Convites Pendentes",
   "noPendingInvites": "Nenhum convite pendente.",
   "invitedBy": "Convidado por: {userName}",
+  "@invitedBy": {
+    "placeholders": {
+      "userName": {
+        "type": "String"
+      }
+    }
+  },
   "decline": "Recusar",
   "accept": "Aceitar",
   "leaveEnvironmentTitle": "Sair do Ambiente",
   "leaveEnvironmentMessage": "Tem certeza que deseja sair do ambiente \"{envName}\"? Você perderá o acesso a todos os dados compartilhados.",
+  "@leaveEnvironmentMessage": {
+    "placeholders": {
+      "envName": {
+        "type": "String"
+      }
+    }
+  },
   "leaveSuccess": "Você saiu do ambiente com sucesso.",
   "leaveError": "Erro ao sair do ambiente.",
   "leaveButton": "Sair",
@@ -101,7 +122,9 @@
   "errorMessage": "Erro: {error}",
   "@errorMessage": {
     "placeholders": {
-      "error": {}
+      "error": {
+        "type": "Object"
+      }
     }
   },
   "addExpenseTitle": "Adicionar Despesa",
@@ -127,7 +150,9 @@
   "goalsLoadError": "Erro ao carregar objetivos: {error}",
   "@goalsLoadError": {
     "placeholders": {
-      "error": {}
+      "error": {
+        "type": "String"
+      }
     }
   },
   "noGoalsTitle": "Nenhum objetivo definido",
@@ -141,7 +166,9 @@
   "deleteGoalMessage": "Deseja excluir \"{goalName}\"?",
   "@deleteGoalMessage": {
     "placeholders": {
-      "goalName": {}
+      "goalName": {
+        "type": "String"
+      }
     }
   },
   "newGoalTitle": "Novo Objetivo",
@@ -154,13 +181,17 @@
   "daysRemaining": "{days} dias",
   "@daysRemaining": {
     "placeholders": {
-      "days": {}
+      "days": {
+        "type": "int"
+      }
     }
   },
   "createGoalError": "Erro ao criar objetivo: {error}",
   "@createGoalError": {
     "placeholders": {
-      "error": {}
+      "error": {
+        "type": "Object"
+      }
     }
   },
   "goalCreatedSuccess": "Objetivo criado com sucesso!",
@@ -169,7 +200,9 @@
   "daysRemainingSuffix": "{days} dias restantes",
   "@daysRemainingSuffix": {
     "placeholders": {
-      "days": {}
+      "days": {
+        "type": "int"
+      }
     }
   },
   "goalProgressOf": "de",
@@ -214,7 +247,9 @@
   "deleteCategoryMessage": "Deseja excluir \"{name}\"?",
   "@deleteCategoryMessage": {
     "placeholders": {
-      "name": {}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "enterCategoryNameError": "Digite o nome da categoria",
@@ -249,6 +284,13 @@
   "drawerVersion": "Versão",
   "notificationsTitle": "Central de Avisos",
   "notificationsUnread": "{count} não lidas",
+  "@notificationsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "notificationsAllRead": "Todas lidas",
   "notificationsMarkAllRead": "Ler todas",
   "notificationsEmptyTitle": "Tudo tranquilo",
@@ -285,11 +327,25 @@
   "subscriptionsSubtitle": "Acompanhe seus gastos recorrentes",
   "subscriptionsTotalMonthly": "Total mensal",
   "subscriptionsActiveCount": "{count} ativas",
+  "@subscriptionsActiveCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "subscriptionsEmptyTitle": "Nenhuma assinatura cadastrada",
   "subscriptionsEmptyMessage": "Adicione suas assinaturas\npara acompanhar os gastos",
   "subscriptionsAddButton": "Adicionar assinatura",
   "subscriptionsDeleteTitle": "Excluir assinatura",
   "subscriptionsDeleteMessage": "Deseja excluir \"{name}\"?",
+  "@subscriptionsDeleteMessage": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "newSubscriptionTitle": "Nova Assinatura",
   "subscriptionNameLabel": "Nome da assinatura",
   "subscriptionNameHint": "Ex: Netflix, Spotify",
@@ -354,5 +410,22 @@
   "helpFaq5Question": "Meus dados estão seguros?",
   "helpFaq5Answer": "Sim! Seus dados são armazenados na nuvem do Google (Firebase) com autenticação segura. Apenas você tem acesso às suas informações.",
   "helpFaq6Question": "Como altero minha senha?",
-  "helpFaq6Answer": "Vá até o menu lateral, toque em \"Perfil\" e selecione a opção \"Alterar senha\". Um email de redefinição será enviado para você."
+  "helpFaq6Answer": "Vá até o menu lateral, toque em \"Perfil\" e selecione a opção \"Alterar senha\". Um email de redefinição será enviado para você.",
+  "tabDashboard": "Dash",
+  "tabGoals": "Metas",
+  "tabHome": "Início",
+  "tabCategories": "Categ.",
+  "tabSubscriptions": "Inscr.",
+  "settingsReplayTutorial": "Rever Tutorial",
+  "onboardingTitle1": "Acompanhe seus gastos",
+  "onboardingDesc1": "Tenha controle total de suas finanças com gráficos detalhados e categorias personalizadas.",
+  "onboardingTitle2": "Defina metas inteligentes",
+  "onboardingDesc2": "Conquiste seus sonhos criando metas e acompanhando seu progresso mês a mês.",
+  "onboardingTitle3": "Assinaturas e Alertas",
+  "onboardingDesc3": "Gerencie seus serviços recorrentes e receba lembretes antes do vencimento.",
+  "onboardingGetStarted": "Começar",
+  "next": "Próximo",
+  "skip": "Pular",
+  "close": "Fechar"
+
 }

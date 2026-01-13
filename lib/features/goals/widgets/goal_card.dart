@@ -133,9 +133,7 @@ class GoalCard extends StatelessWidget {
                             )
                           else
                             Text(
-                              l10n.daysRemainingSuffix(
-                                goal.diasRestantes.toString(),
-                              ),
+                              l10n.daysRemainingSuffix(goal.diasRestantes),
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(color: AppColors.textSecondary),
                             ),
